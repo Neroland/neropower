@@ -12,14 +12,14 @@ one extra step in front of the push: a **private-reference guard** that fails th
 under `wiki/` matches
 
 ```text
-neroland-mc-ecosystem|REWORK-PROMPT|PLAN-0.1.0|AUDIT.md|SMOKE-TEST|MANUAL-
+neroland-mc-[e]cosystem|REWORK-PROMPT|PLAN-0.1.0|AUDIT.md|SMOKE-TEST|MANUAL-
 ```
 
 The wiki is public; planning documents, audit notes and the umbrella repository must never be
 named there. Run the same grep locally before pushing:
 
 ```sh
-grep -rniE 'neroland-mc-ecosystem|REWORK-PROMPT|PLAN-0.1.0|AUDIT.md|SMOKE-TEST|MANUAL-' wiki/
+grep -rniE 'neroland-mc-[e]cosystem|REWORK-PROMPT|PLAN-0.1.0|AUDIT.md|SMOKE-TEST|MANUAL-' wiki/
 ```
 
 One-time setup (from the workflow header): create any page in the repository's Wiki tab once so

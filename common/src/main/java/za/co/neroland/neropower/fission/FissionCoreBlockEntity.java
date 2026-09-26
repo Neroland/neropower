@@ -49,12 +49,15 @@ import za.co.neroland.neropower.machine.NeroPowerMachineBlockEntity;
  * by {@code 1 - n x fissionControlRodPermille / 1000} (floor 15%) — the operator's throttle, at the
  * cost of NE/tick.
  *
- * <p><b>Poison.</b> Running flat out with every usable slot loaded builds neutron poison; at
+ * <p><b>Poison.</b> Running hot — flat out, every usable slot loaded, control-rod factor above
+ * {@code fissionPoisonRodThresholdPermille} ({@link FissionMath#poisonAccumulates}) — builds
+ * neutron poison; at
  * {@code fissionPoisonStallPermille} the core falls into the xenon pit ({@link PoisonModel}) and
  * reports THROTTLED until the poison has decayed 300‰ below the line.
  *
- * <p><b>SCRAM.</b> {@link #requestScram()} (the NeroLink {@code scram} action, owner-only) asks the
- * core to drop every control rod: from the next tick the control-rod factor is pinned at
+ * <p><b>SCRAM.</b> {@link #requestScram()} (the NeroLink {@code scram} action, gated by
+ * {@code LinkScope.mayAct}) asks the core to drop every control rod: from the next tick the
+ * control-rod factor is pinned at
  * {@link FissionMath#CONTROL_ROD_FLOOR} for {@value #SCRAM_TICKS} ticks, whatever the assembly
  * count, so output and heat fall to the floor and the ladder can climb back down.
  *
@@ -285,8 +288,10 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity {
             }
         }
 
-        // Poison builds only while flat out with every usable slot loaded; decays otherwise.
-        boolean accumulating = running && failureOutputPermille() == FissionMath.PERMILLE && loaded == usable;
+        // Poison builds only while the core runs hot (flat out, every usable slot loaded, control-rod
+        // factor above fissionPoisonRodThresholdPermille); decays otherwise.
+        boolean accumulating = FissionMath.poisonAccumulates(running, failureOutputPermille(), loaded, usable,
+                controlRodFactorPermille(), FissionConfig.poisonRodThresholdPermille());
         boolean nowStalled = this.poison.tick(accumulating, FissionConfig.poisonPerTick(),
                 FissionConfig.poisonDecayPerTick(), FissionConfig.poisonStallPermille());
         if (nowStalled != stalled) {

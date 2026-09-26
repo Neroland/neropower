@@ -49,9 +49,10 @@ public final class EnvironmentalContent {
     /** Fresh RTG fuel: one pellet decays over roughly four half-lives before it is spent. */
     public static final RegistryEntry<Item> ISOTOPE_PELLET = ModItems.ITEMS.register("isotope_pellet",
             key -> new Item(new Item.Properties().setId(key)));
-    /** What the RTG hands back once a pellet's output drops below the cutoff. */
-    public static final RegistryEntry<Item> SPENT_ISOTOPE_PELLET = ModItems.ITEMS.register("spent_isotope_pellet",
-            key -> new Item(new Item.Properties().setId(key)));
+    /** What the RTG hands back once a pellet's output drops below the cutoff; pollutes if destroyed as a drop. */
+    public static final RegistryEntry<SpentIsotopePelletItem> SPENT_ISOTOPE_PELLET =
+            ModItems.ITEMS.register("spent_isotope_pellet",
+                    key -> new SpentIsotopePelletItem(new Item.Properties().setId(key)));
 
     // --- block entities ----------------------------------------------------------------------------
     public static final RegistryEntry<BlockEntityType<RadioisotopeGeneratorBlockEntity>> RTG_TYPE =

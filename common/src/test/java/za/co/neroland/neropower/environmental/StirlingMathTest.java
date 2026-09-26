@@ -67,4 +67,32 @@ class StirlingMathTest {
         assertEquals(8, dryDraw);
         assertEquals(120, StirlingMath.outputFor(dryDraw, 15, 0));
     }
+
+    // --- planet efficiency: cold-face bonus vs ambient -------------------------------------------
+
+    @Test
+    void planetEfficiencyOffGivesTheFlatBonus() {
+        assertEquals(500, StirlingMath.coldFaceBonusPermille(500, -80, false));
+        assertEquals(500, StirlingMath.coldFaceBonusPermille(500, 50, false));
+    }
+
+    @Test
+    void coldPlanetRaisesTheBonusByFivePermillePerDegree() {
+        assertEquals(700, StirlingMath.coldFaceBonusPermille(500, -80, true), "−80 → +40%");
+        assertEquals(525, StirlingMath.coldFaceBonusPermille(500, -10, true), "−10 → +5%");
+    }
+
+    @Test
+    void warmOrNeutralAmbientLeavesTheBonusUnchanged() {
+        assertEquals(500, StirlingMath.coldFaceBonusPermille(500, 0, true));
+        assertEquals(500, StirlingMath.coldFaceBonusPermille(500, 300, true), "hot planets never reduce it");
+    }
+
+    @Test
+    void planetScaleCapsAtDouble() {
+        assertEquals(1000, StirlingMath.coldFaceBonusPermille(500, -200, true));
+        assertEquals(1000, StirlingMath.coldFaceBonusPermille(500, -100_000, true));
+        assertEquals(0, StirlingMath.coldFaceBonusPermille(0, -80, true), "no bonus configured ⇒ none");
+        assertEquals(0, StirlingMath.coldFaceBonusPermille(-50, -80, true), "negative config reads as 0");
+    }
 }

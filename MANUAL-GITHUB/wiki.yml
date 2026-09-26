@@ -37,7 +37,7 @@ jobs:
         # smoke-test scripts and the private umbrella repository must never be mentioned there.
         run: |
           set -euo pipefail
-          if grep -rniE 'neroland-mc-ecosystem|REWORK-PROMPT|PLAN-0.1.0|AUDIT.md|SMOKE-TEST|MANUAL-' wiki/; then
+          if grep -rniE 'neroland-mc-[e]cosystem|REWORK-PROMPT|PLAN-0.1.0|AUDIT.md|SMOKE-TEST|MANUAL-' wiki/; then
             echo "::error::wiki/ references private planning material (see the grep hits above); remove them before publishing."
             exit 1
           fi

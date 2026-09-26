@@ -1,5 +1,5 @@
 {
-  "parent": "neropower:root",
+  "parent": "nerotech:battery_bank",
   "criteria": {
     "has_battery_bank_controller": {
       "conditions": {

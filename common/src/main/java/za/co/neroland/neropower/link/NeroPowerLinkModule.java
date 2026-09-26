@@ -1,8 +1,10 @@
 package za.co.neroland.neropower.link;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -42,6 +44,7 @@ import za.co.neroland.neropower.environmental.StirlingGeneratorBlockEntity;
 import za.co.neroland.neropower.fission.FissionCoreBlockEntity;
 import za.co.neroland.neropower.machine.NeroPowerMachineBlock;
 import za.co.neroland.neropower.machine.NeroPowerMachineBlockEntity;
+import za.co.neroland.neropower.protection.Protection;
 import za.co.neroland.neropower.storage.BankControllerBlockEntity;
 
 /**
@@ -64,15 +67,22 @@ import za.co.neroland.neropower.storage.BankControllerBlockEntity;
  * factor, alarm, scram), {@code storage} (bank controllers: pooled amount / capacity, mode),
  * {@code generators} (RTG: output permille, days remaining; Stirling: status).
  *
- * <p><b>Actions</b> (owner-only, online-only): {@code acknowledge_alarm} clears an owned fission
- * core's {@code alarm} block state; {@code scram} asks an owned core to drop its control rods for
- * {@value FissionCoreBlockEntity#SCRAM_TICKS} ticks. A machine with no recorded owner refuses both —
- * ownership cannot be established. The bridge validates token, module presence, action-enabled
- * config, rate limit and offline policy; this handler still re-checks ownership, exactly as NeroTech.
+ * <p><b>Actions</b> (online-only): {@code acknowledge_alarm} clears a fission core's {@code alarm}
+ * block state; {@code scram} asks a core to drop its control rods for
+ * {@value FissionCoreBlockEntity#SCRAM_TICKS} ticks. Who may act is {@link LinkScope#mayAct}: an
+ * owned core obeys its owner only; an unowned core (NeroTech's opt-in attribution off at placement)
+ * obeys a requester who is online, in the core's dimension, within
+ * {@value LinkScope#PROXIMITY_BLOCKS} blocks of it and passes {@code Protection.get().mayInteract}.
+ * The bridge validates token, module presence, action-enabled config, rate limit and offline
+ * policy; this handler still re-checks authority, exactly as NeroTech.
  *
  * <p><b>Events.</b> Failure-stage crossings NeroPower publishes on NeroTech's
- * {@link MachineFailureEvents#CHANNEL} are forwarded as broadcast {@code failure} events carrying
- * the same non-personal scope string (machine id, dimension, packed position — never a player).
+ * {@link MachineFailureEvents#CHANNEL} are forwarded as <i>player-targeted</i>
+ * ({@link LinkEvent#forPlayer}) {@code failure} events carrying the non-personal scope string
+ * (machine id, dimension, packed position). The machine at the scope position is resolved if its
+ * chunk is loaded: an owned machine's event goes to its owner only; otherwise one event goes to
+ * each online player in that dimension within {@value LinkScope#PROXIMITY_BLOCKS} blocks of it.
+ * Nothing is ever broadcast server-wide, and with no captured server nothing is published.
  *
  * <p><b>Server handle.</b> The link SPI passes no server; {@link #rememberServer(MinecraftServer)}
  * captures it from the per-loader server tick (see {@code ScorchTicker.tick}), as NeroTech does from
@@ -212,7 +222,7 @@ public final class NeroPowerLinkModule implements LinkSnapshotProvider, LinkActi
             entry.addProperty("y", pos.getY());
             entry.addProperty("z", pos.getZ());
             entry.addProperty("status", machine.stats().status().name());
-            entry.addProperty("owned", LinkScope.mayAct(ownerOf(machine), playerId));
+            entry.addProperty("owned", LinkScope.isOwner(ownerOf(machine), playerId));
             writer.write(machine, entry);
             machines.add(entry);
         });
@@ -320,9 +330,9 @@ public final class NeroPowerLinkModule implements LinkSnapshotProvider, LinkActi
         };
     }
 
-    /** Clear the {@code alarm} block state on an owned fission core (the telegraph re-raises it on the next stage change). */
+    /** Clear the {@code alarm} block state on a fission core (the telegraph re-raises it on the next stage change). */
     private LinkActionResult acknowledgeAlarm(UUID playerId, JsonObject params) {
-        return withOwnedCore(playerId, params, (level, core) -> {
+        return withActionableCore(playerId, params, (level, core) -> {
             BlockPos pos = core.getBlockPos();
             BlockState state = core.getBlockState();
             if (state.hasProperty(NeroPowerMachineBlock.ALARM) && state.getValue(NeroPowerMachineBlock.ALARM)) {
@@ -334,9 +344,9 @@ public final class NeroPowerLinkModule implements LinkSnapshotProvider, LinkActi
         });
     }
 
-    /** SCRAM an owned fission core: every control rod in for {@value FissionCoreBlockEntity#SCRAM_TICKS} ticks. */
+    /** SCRAM a fission core: every control rod in for {@value FissionCoreBlockEntity#SCRAM_TICKS} ticks. */
     private LinkActionResult scram(UUID playerId, JsonObject params) {
-        return withOwnedCore(playerId, params, (level, core) -> {
+        return withActionableCore(playerId, params, (level, core) -> {
             core.requestScram();
             JsonObject result = coreState(level, core);
             result.addProperty("scramRequested", true);
@@ -352,10 +362,12 @@ public final class NeroPowerLinkModule implements LinkSnapshotProvider, LinkActi
 
     /**
      * Shared action preamble, in NeroTech's order: server present, player ONLINE, {@code dim/x/y/z}
-     * present and valid, chunk loaded (never force-loaded), a fission core there, and the player is
-     * its recorded owner — a null or mismatched owner is refused with {@code NOT_OWNER}.
+     * present and valid, chunk loaded (never force-loaded), a fission core there, and
+     * {@link LinkScope#mayAct}: its recorded owner, or — for an unowned core — a requester in its
+     * dimension within {@value LinkScope#PROXIMITY_BLOCKS} blocks who passes the protection seam.
+     * Refusals are {@code NOT_OWNER}.
      */
-    private static LinkActionResult withOwnedCore(UUID playerId, JsonObject params, CoreAction action) {
+    private static LinkActionResult withActionableCore(UUID playerId, JsonObject params, CoreAction action) {
         MinecraftServer srv = server;
         if (srv == null) {
             return LinkActionResult.error(LinkActionResult.Error.INTERNAL, "server not available");
@@ -390,9 +402,16 @@ public final class NeroPowerLinkModule implements LinkSnapshotProvider, LinkActi
         if (!(level.getBlockEntity(pos) instanceof FissionCoreBlockEntity core)) {
             return LinkActionResult.error(LinkActionResult.Error.VALIDATION, "no fission core there");
         }
-        if (!LinkScope.mayAct(core.owner(), playerId)) {
-            // Ownership cannot be established (attribution off at placement, or someone else's reactor).
-            return LinkActionResult.error(LinkActionResult.Error.NOT_OWNER, "you do not own this reactor");
+        Optional<UUID> owner = core.owner();
+        BlockPos at = player.blockPosition();
+        boolean inProximity = player.level().dimension().equals(level.dimension())
+                && LinkScope.withinProximity(at.getX(), at.getY(), at.getZ(), pos.getX(), pos.getY(), pos.getZ());
+        // The protection seam only matters for an unowned core; an owned one is its owner's alone.
+        boolean mayInteract = owner.isEmpty() && inProximity && Protection.get().mayInteract(player, level, pos);
+        if (!LinkScope.mayAct(owner, playerId, inProximity, mayInteract)) {
+            return LinkActionResult.error(LinkActionResult.Error.NOT_OWNER, owner.isPresent()
+                    ? "you do not own this reactor"
+                    : "stand within " + LinkScope.PROXIMITY_BLOCKS + " blocks of an unowned reactor you may use");
         }
         return action.apply(level, core);
     }
@@ -412,15 +431,61 @@ public final class NeroPowerLinkModule implements LinkSnapshotProvider, LinkActi
     // --- live events -----------------------------------------------------------------
 
     /**
-     * Forward a NeroPower failure-stage crossing from NeroTech's machine-failure channel as a
-     * broadcast {@code failure} event: the same non-personal scope string, the stage and direction.
-     * Other publishers' crossings (NeroTech's own fusion reactor, other channels) are ignored.
+     * Forward a NeroPower failure-stage crossing from NeroTech's machine-failure channel as
+     * player-targeted {@code failure} events (see {@link #failureRecipients}): the non-personal scope
+     * string, the stage and direction. Other publishers' crossings (NeroTech's own fusion reactor,
+     * other channels) are ignored, and nothing is ever broadcast.
      */
     static void forwardFailureCrossing(ThresholdEvents.ThresholdCrossing crossing) {
         if (!MachineFailureEvents.CHANNEL.equals(crossing.channel()) || !LinkScope.isNeroPowerScope(crossing.scope())) {
             return;
         }
-        NeroLinkRegistry.eventBus().publish(LinkEvent.broadcast(MODULE_ID, TOPIC_FAILURE, failurePayload(crossing)));
+        for (UUID recipient : failureRecipients(crossing.scope())) {
+            NeroLinkRegistry.eventBus().publish(LinkEvent.forPlayer(MODULE_ID, TOPIC_FAILURE, recipient,
+                    failurePayload(crossing)));
+        }
+    }
+
+    /**
+     * Who a failure event is for: resolve the block entity at the scope's position (only if its
+     * chunk is loaded — never force-loaded). An owned machine ({@link #ownerOf}) → its owner alone,
+     * online or not (the bridge may notify a closed app). Otherwise — unowned, or the block already
+     * gone (a FAILURE removes it) — every online player in that dimension within
+     * {@value LinkScope#PROXIMITY_BLOCKS} blocks: people who could see or hear it anyway. No server,
+     * a malformed scope or an unknown dimension → nobody.
+     */
+    private static List<UUID> failureRecipients(String scope) {
+        MinecraftServer srv = server;
+        String dim = LinkScope.dimensionOf(scope);
+        OptionalLong packed = LinkScope.packedPosOf(scope);
+        if (srv == null || dim.isEmpty() || packed.isEmpty()) {
+            return List.of();
+        }
+        Identifier dimId;
+        try {
+            dimId = Identifier.parse(dim);
+        } catch (RuntimeException e) {
+            return List.of();
+        }
+        ServerLevel level = srv.getLevel(ResourceKey.create(Registries.DIMENSION, dimId));
+        if (level == null) {
+            return List.of();
+        }
+        BlockPos pos = BlockPos.of(packed.getAsLong());
+        if (level.hasChunkAt(pos) && level.getBlockEntity(pos) instanceof NeroPowerMachineBlockEntity machine) {
+            Optional<UUID> owner = ownerOf(machine);
+            if (owner.isPresent()) {
+                return List.of(owner.get());
+            }
+        }
+        List<UUID> nearby = new ArrayList<>();
+        for (ServerPlayer player : level.players()) {
+            BlockPos at = player.blockPosition();
+            if (LinkScope.withinProximity(at.getX(), at.getY(), at.getZ(), pos.getX(), pos.getY(), pos.getZ())) {
+                nearby.add(player.getUUID());
+            }
+        }
+        return nearby;
     }
 
     /** The {@code failure} event payload: scope (machine + place), machine id, stage, rising. Pure; tested. */

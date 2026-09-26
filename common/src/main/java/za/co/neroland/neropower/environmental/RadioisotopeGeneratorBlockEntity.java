@@ -28,7 +28,8 @@ import za.co.neroland.neropower.machine.NeroPowerMachineBlockEntity;
  * Inserting a pellet consumes it and records the game tick; from then on the output is
  * {@code rtgNePerTick × 2^(-elapsed / halfLife)} ({@link RtgMath}) until it falls below
  * {@code rtgCutoffPermille}, when the pellet is spent and a Spent Isotope Pellet drops into the output
- * slot. No heat, no pollution, no failure ladder, no planet dependence: decay is the same everywhere.
+ * slot. No heat, no running pollution, no failure ladder, no planet dependence: decay is the same
+ * everywhere. (A spent pellet destroyed as a dropped item vents pollution — {@link SpentIsotopePelletItem}.)
  *
  * <p>Two machine slots: {@link #INPUT_SLOT} (accepts {@code neropower:isotope_pellet}) and
  * {@link #OUTPUT_SLOT} (spent pellets, extract-only). Energy leaves every face

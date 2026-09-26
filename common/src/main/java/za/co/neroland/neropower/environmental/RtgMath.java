@@ -85,4 +85,15 @@ public final class RtgMath {
     public static int days(long ticks) {
         return (int) Math.max(0L, ticks / EnvironmentalConfig.TICKS_PER_DAY);
     }
+
+    /**
+     * The pollution burst for a destroyed stack of spent pellets: {@code perPellet × count},
+     * saturating at {@link Integer#MAX_VALUE}; 0 for an empty stack or a disabled (≤ 0) setting.
+     */
+    public static int spentPelletBurst(int perPellet, int count) {
+        if (perPellet <= 0 || count <= 0) {
+            return 0;
+        }
+        return (int) Math.min(Integer.MAX_VALUE, (long) perPellet * count);
+    }
 }

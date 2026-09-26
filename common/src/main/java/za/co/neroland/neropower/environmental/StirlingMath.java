@@ -47,4 +47,26 @@ public final class StirlingMath {
         long bonus = Math.max(0, coldFaceBonusPermille);
         return (int) Math.min(Integer.MAX_VALUE, base * (1000L + bonus) / 1000L);
     }
+
+    /** Ambient ×5 permille per degree below zero, capped at +100% (ambient −200 or colder). */
+    public static final int PLANET_COLD_SCALE_PER_DEGREE = 5;
+
+    /**
+     * The cold-face bonus after planet efficiency: with {@code planetEfficiencyEnabled} the bonus
+     * scales with how cold the local ambient is — {@code bonus × (1000 + clamp(−ambient × 5, 0,
+     * 1000)) / 1000}, so ambient −80 (a COLD planet) gives +40% on top of the configured bonus and
+     * ambient ≥ 0 leaves it unchanged; disabled → the flat configured bonus. Never negative.
+     *
+     * @param bonusPermille    {@code stirlingColdFaceBonusPermille}
+     * @param ambient          local ambient heat ({@code PlanetApi.ambientAt})
+     * @param planetEfficiency {@code planetEfficiencyEnabled}
+     */
+    public static int coldFaceBonusPermille(int bonusPermille, int ambient, boolean planetEfficiency) {
+        int bonus = Math.max(0, bonusPermille);
+        if (!planetEfficiency) {
+            return bonus;
+        }
+        long scale = Math.max(0L, Math.min(1000L, -(long) ambient * PLANET_COLD_SCALE_PER_DEGREE));
+        return (int) ((long) bonus * (1000L + scale) / 1000L);
+    }
 }

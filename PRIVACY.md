@@ -19,7 +19,7 @@ the GDPR (EU) and POPIA (South Africa). It mirrors NeroTech's `PRIVACY.md` in st
 |---|---|
 | **What** | The UUID of the player who made the current link on a **Beam Transmitter** or **Beam Relay**. Never a name, never a timestamp, never an IP. |
 | **Why** | Unlink authority: only the linking player (or an operator) may break a beam link, so someone cannot cut power to your base by re-aiming your transmitter. It also scopes what the NeroLink companion app may show — an owned transmitter appears only in its owner's snapshot. |
-| **Where** | In the block entity's NBT (`LinkOwner`) inside the world save, exactly like NeroTech's wireless-node partner data. It is never synced to clients, written to a log, or sent off the server. |
+| **Where** | In the block entity's NBT — two longs, `LinkOwnerMost` and `LinkOwnerLeast` — inside the world save, exactly like NeroTech's wireless-node partner data. It stays **server-side**: it is in the world save only and is **stripped from the client sync tag** (the block-entity update NeroTech's base sends to every nearby client), so no client ever receives it. It is never written to a log or sent off the server. |
 | **Retention** | Until the link is changed or removed, the block is broken, or an erasure request is made. After an erasure request the UUID is held in a **pending-erasure list for at most 30 days** (see *How to erase*), so a transmitter whose chunk was not loaded at the time still drops it on its next load. |
 | **Erasable** | Yes — registered with Neroland Core's shared data-erasure hook. |
 
@@ -36,7 +36,7 @@ A Fission Reactor is a NeroTech-family machine. The "owner" a reactor may record
 own per-machine owner field, which NeroTech stores **only when a server admin has enabled
 per-player pollution attribution** (`pollutionPerPlayerAttribution=true` in
 `config/nerotech.properties`, off by default). NeroPower reads it for two things only — to address
-a failure alert to the owner, and to gate the NeroLink actions below — and never stores a copy.
+a failure event to the owner only, and to gate the NeroLink actions below — and never stores a copy.
 Its retention and erasure are documented in NeroTech's `PRIVACY.md` and handled by NeroTech's own
 eraser; NeroPower does not duplicate that.
 
@@ -48,8 +48,9 @@ eraser; NeroPower does not duplicate that.
   and an expiry day — no owner, no victims.
 - **Battery banks, RTGs, Stirling generators, Beam Receivers and Orbital Receivers** record no
   player at all; they are keyed by block and dimension only.
-- **Failure events** published on the ecosystem event bus name a machine and a place
-  (`neropower:fission_core@minecraft:overworld:<packed position>`), never a player.
+- **Failure events** name a machine and a place
+  (`neropower:fission_core@minecraft:overworld:<packed position>`), never a player, and are
+  delivered to specific players only (see *NeroLink companion-app exposure*).
 - Owner UUIDs are **compared, never logged**: erasure and alerts log anonymous counts only.
 
 ## Crash reporting (telemetry)
@@ -72,7 +73,7 @@ Neroland family.
 NeroPower registers a data eraser with Neroland Core's shared erasure hook, so the ecosystem-wide
 commands cover it:
 
-```
+```text
 /neroland data eraseme            # erase your own data (any player)
 /neroland data erase <uuid>       # erase a player's data (operators, permission level 2+)
 /neroland data purge-inactive     # Core's inactivity retention sweep (operators)
@@ -85,7 +86,8 @@ mod on the server. For NeroPower it:
 2. records the UUID in NeroPower's pending-erasure list (the `neropower:erasure_state` saved-data
    store in the overworld's `data/` folder, plus Core's last-known-good backup copy of it,
    refreshed immediately) — every
-   **loaded** Beam Transmitter / Relay linked by that player clears its `LinkOwner` on its next
+   **loaded** Beam Transmitter / Relay linked by that player clears its `LinkOwnerMost` /
+   `LinkOwnerLeast` on its next
    tick, and every **unloaded** one on its next load;
 3. lets the pending row expire **30 days** after the request (purged on load and on each new
    request). A transmitter that stays unloaded longer than that keeps a UUID nobody can be matched
@@ -112,11 +114,19 @@ app can see and do is deliberately narrow:
 - **Non-identifying data only.** Snapshots carry machine ids, positions, status, failure stage,
   pooled energy, link distance / loss and output figures. They never carry a UUID or a name — not
   even your own.
-- **Actions are owner-only and online-only.** `acknowledge_alarm` (silence a reactor's alarm) and
-  `scram` (drop every control rod for 60 seconds) are refused unless the requesting player is the
-  reactor's recorded owner; a reactor with no recorded owner refuses both, because ownership cannot
-  be established. The server re-checks this itself — the app holds no authority.
-- **Live events** forward failure-stage changes as broadcasts naming a machine and a place only.
+- **Actions are online-only and owner-first.** `acknowledge_alarm` (silence a reactor's alarm) and
+  `scram` (drop every control rod for 60 seconds) on a reactor **with** a recorded owner are
+  refused unless the requesting player is that owner. A reactor **without** a recorded owner (the
+  default — NeroTech's attribution is off) accepts them only from a player who is online, in the
+  reactor's dimension, within 128 blocks of it, and allowed to interact with that block by the
+  server's protection rules (by default vanilla's: spawn protection, adventure mode, world
+  border) — the same person who could walk up and do it by hand. The server
+  re-checks all of this itself — the app holds no authority — and no UUID is stored for it.
+- **Live events are targeted, never broadcast.** A failure-stage change on a machine with a
+  recorded owner (a reactor's NeroTech owner, a transmitter / relay's link owner) is delivered to
+  that owner only. On an unowned machine — or one the failure already removed — it is delivered
+  only to players who are online, in that dimension and within 128 blocks of it. If nobody
+  qualifies, the event is dropped. The payload names a machine and a place only.
 
 ## Legal basis and your rights (GDPR / POPIA)
 

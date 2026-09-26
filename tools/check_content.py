@@ -419,6 +419,15 @@ def main() -> int:
                 report.gap(f"advancement {rel}: parent {parent} does not exist")
             else:
                 report.ok()
+        elif isinstance(parent, str) and parent.startswith("nerotech:"):
+            # Continues NeroTech's chain: verify against a sibling NeroTech checkout when there is one.
+            sibling = os.path.join(ROOT, os.pardir, "nerotech", "common", "src", "main", "resources", "data",
+                                   "nerotech", "advancement", parent[len("nerotech:"):] + ".json")
+            if os.path.isdir(os.path.join(ROOT, os.pardir, "nerotech")):
+                if not os.path.isfile(sibling):
+                    report.gap(f"advancement {rel}: parent {parent} does not exist in the NeroTech checkout")
+                else:
+                    report.ok()
 
     # Lang keys referenced from Java.
     used = java_lang_keys()

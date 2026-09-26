@@ -197,4 +197,55 @@ class FissionMathTest {
         model.load(5000, false);
         assertEquals(1000, model.poison());
     }
+
+    // --- poison: only a HOT core accumulates ----------------------------------------------
+
+    /** The effective control-rod factor, permille, for {@code rods} assemblies with the defaults (3x3x3 shell). */
+    private static int crfPermille(int rods) {
+        return (int) Math.round(FissionMath.controlRodFactor(rods, FissionMath.interiorVolume(5), 150)
+                * FissionMath.PERMILLE);
+    }
+
+    @Test
+    void uncontrolledFullCoreAccumulates() {
+        assertEquals(1000, crfPermille(0));
+        assertTrue(FissionMath.poisonAccumulates(true, 1000, 4, 4, crfPermille(0),
+                FissionMath.DEFAULT_POISON_ROD_THRESHOLD));
+    }
+
+    @Test
+    void oneControlRodKeepsTheCoreSteady() {
+        assertEquals(850, crfPermille(1));
+        assertFalse(FissionMath.poisonAccumulates(true, 1000, 4, 4, crfPermille(1),
+                FissionMath.DEFAULT_POISON_ROD_THRESHOLD), "factor 850 is not above 900");
+        assertFalse(FissionMath.poisonAccumulates(true, 1000, 4, 4, 150,
+                FissionMath.DEFAULT_POISON_ROD_THRESHOLD), "a SCRAM pins the factor at the floor");
+    }
+
+    @Test
+    void thresholdIsStrictlyAbove() {
+        assertFalse(FissionMath.poisonAccumulates(true, 1000, 2, 2, 900, 900));
+        assertTrue(FissionMath.poisonAccumulates(true, 1000, 2, 2, 901, 900));
+        assertTrue(FissionMath.poisonAccumulates(true, 1000, 2, 2, 850, 800), "a lower threshold re-enables it");
+    }
+
+    @Test
+    void idlePartLoadedOrDeratedCoresDoNotAccumulate() {
+        assertFalse(FissionMath.poisonAccumulates(false, 1000, 4, 4, 1000, 900), "not running");
+        assertFalse(FissionMath.poisonAccumulates(true, 1000, 3, 4, 1000, 900), "a slot left empty");
+        assertFalse(FissionMath.poisonAccumulates(true, 800, 4, 4, 1000, 900), "failure ladder derate");
+        assertFalse(FissionMath.poisonAccumulates(true, 1000, 0, 0, 1000, 900), "unformed: no usable slots");
+    }
+
+    @Test
+    void steadyCoreWithOneRodNeverStallsAndPoisonDecays() {
+        PoisonModel model = new PoisonModel();
+        model.load(500, false);
+        for (int i = 0; i < 10_000; i++) {
+            boolean hot = FissionMath.poisonAccumulates(true, 1000, 4, 4, crfPermille(1),
+                    FissionMath.DEFAULT_POISON_ROD_THRESHOLD);
+            assertFalse(model.tick(hot, 2, 3, 900));
+        }
+        assertEquals(0, model.poison());
+    }
 }

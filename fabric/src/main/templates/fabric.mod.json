@@ -26,6 +26,7 @@
     "nerotech": ">=${nerotech_version}"
   },
   "suggests": {
+    "energizedpower": "*",
     "nerospace": "*"
   }
 }

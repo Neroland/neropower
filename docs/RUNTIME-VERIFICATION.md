@@ -26,10 +26,12 @@ Tick each line in a dev world on the loader/version named. "S" = dedicated serve
 - [ ] Sustained full output with no cooling: heat climbs, GUI stage walks STABLE → WARNING → UNSTABLE → FAILURE with ≥ `failureMinDwellTicks` in each, alarm block-state/sound/particles visible; FAILURE removes the core; with `overloadEnabled=false` it pins at UNSTABLE
 - [ ] Same on a dedicated server: explosion leaves terrain intact (`ExplosionInteraction.NONE`), radius ≤ `failureRadiusCap`
 - [ ] Coolant Pump / radiator adjacency keeps a 3³ core in STABLE at full output for one full rod life
-- [ ] Poison: after long full-output operation the core stalls (THROTTLED) and recovers after poison falls 300‰ below the stall threshold
+- [ ] Poison: after long full-output operation with NO control rod the core stalls (THROTTLED) and recovers after poison falls 300‰ below the stall threshold; with one Control Rod Assembly (factor 850) it runs indefinitely and poison decays to 0
 - [ ] `fissionScorchEnabled=true`: FAILURE leaves a scorch zone that damages entities and expires after `fissionScorchDays`
-- [ ] Spent rod → Chemical Processor → reprocessed pellet; 2 reprocessed → 1 uranium pellet (crafting)
+- [ ] Spent rod → Chemical Processor → 1 reprocessed pellet; partially-burnt fuel rod → 2; 2 reprocessed → 1 uranium pellet (crafting)
 - [ ] NeroLink `scram` action (owner) drops output to floor for 1200 ticks; `acknowledge_alarm` clears the alarm state
+- [ ] Unowned reactor (attribution off): `scram` works for an online player within 128 blocks who may interact there; refused (NOT_OWNER) from 200 blocks away, another dimension, or inside spawn protection as a non-op
+- [ ] NeroLink `failure` events: owned reactor → owner's sessions only; unowned → only players within 128 blocks; a far-away player receives nothing
 
 ## Storage
 
@@ -51,11 +53,14 @@ Tick each line in a dev world on the loader/version named. "S" = dedicated serve
 
 - [ ] RTG: isotope pellet inserted → output starts at `rtgNePerTick`, halves after `rtgHalfLifeDays` (use `/time add`), spent pellet ejected to output slot at cutoff
 - [ ] Stirling beside a running fission core: core heat drops, NE produced ∝ gradient; cold face (water/radiator) raises output by the bonus
+- [ ] `planetEfficiencyEnabled=true` on a cold Nerospace planet (ambient −80): cold-face bonus is +40 % larger than in the Overworld; `false`: identical everywhere
+- [ ] Spent Isotope Pellet thrown into lava / fire / cactus / the void records a `rtgSpentPelletPollution` burst in NeroTech's pollution map at that chunk; dropped into water it survives
 
 ## Privacy / erasure
 
 - [ ] `/neroland data erase <uuid>` (or `eraseme`) clears the beam link owner on loaded transmitters immediately and on unloaded ones at next load; `BeamLinkSession` entry cleared
 - [ ] NeroLink snapshot for a non-owner shows only proximity-scoped, non-identifying entries; never a server-wide roster
+- [ ] A second client near a linked Beam Transmitter: its BE update tag (e.g. `/data get block` on an integrated server is server-side — use a packet log / debug mod on the client) has no `LinkOwnerMost` / `LinkOwnerLeast`
 - [ ] `ErasureConformance` test passes in the `common` test run
 - [ ] Telemetry: log shows `[NeroPower] Telemetry enabled`; a forced NeroPower exception appears in the NeroPower Sentry project (EU) with release `neropower@<version>` and **no** user, IP, server name, coordinates or unscrubbed home path
 - [ ] Telemetry opt-out: `telemetryEnabled=false` in `config/neropower.properties` → log shows `Telemetry disabled`, no request to `ingest.de.sentry.io`
@@ -68,7 +73,6 @@ Tick each line in a dev world on the loader/version named. "S" = dedicated serve
 
 ## Release (only after every line above)
 
-- [ ] `MANUAL-GITHUB/` files applied by the maintainer (wiki.yml with guard; publish.yml re-arm per `MANUAL-GITHUB/README.md`)
 - [ ] `mod_version=0.1.0-beta.1`, CHANGELOG dated, `art/*` reviewed
 - [ ] `publish.yml` keeps the `getsentry/action-release` step and repo secret `SENTRY_PROJECT` points at NeroPower's Sentry project (release name `neropower@<mod_version>`)
 - [ ] NeroTech 0.4.0-beta.1 released first and its Maven package readable by this repo

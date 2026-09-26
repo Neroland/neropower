@@ -19,12 +19,14 @@ import za.co.neroland.nerolandcore.sideconfig.SideConfig;
 import za.co.neroland.nerolandcore.sideconfig.SidePreset;
 import za.co.neroland.nerolandcore.upgrade.UpgradeModifiers;
 
+import za.co.neroland.nerotech.api.PlanetApi;
 import za.co.neroland.nerotech.api.PowerMachine;
 import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.machine.MachineEnergy;
 import za.co.neroland.nerotech.machine.MachineStatus;
 import za.co.neroland.nerotech.registry.ModBlocks;
 
+import za.co.neroland.neropower.config.NeroPowerConfig;
 import za.co.neroland.neropower.machine.NeroPowerMachineBlockEntity;
 
 /**
@@ -35,8 +37,13 @@ import za.co.neroland.neropower.machine.NeroPowerMachineBlockEntity;
  * face — water, ice, snow or a NeroTech Radiator on any side, the same coolant set NeroTech's thermal
  * model recognises — raises the output; without one the usable gradient is halved.
  *
+ * <p><b>Planet efficiency</b> ({@code planetEfficiencyEnabled}, default on): the cold-face bonus
+ * grows with how cold the local ambient is ({@link PlanetApi#ambientAt}, cached for
+ * {@value #AMBIENT_REFRESH_TICKS} ticks) — see {@link StirlingMath#coldFaceBonusPermille}. Off, the
+ * bonus is flat everywhere.
+ *
  * <p>It is therefore a passive coolant with a dividend: parked against a hot reactor it both cools it
- * and pays out. No slots, no fuel, no failure ladder, no planet dependence.
+ * and pays out. No slots, no fuel, no failure ladder.
  */
 public class StirlingGeneratorBlockEntity extends NeroPowerMachineBlockEntity {
 
@@ -50,6 +57,13 @@ public class StirlingGeneratorBlockEntity extends NeroPowerMachineBlockEntity {
 
     /** Last draw bucket pushed to clients (the {@link #renderSyncDirty} compare-and-record state). */
     private int syncedDrawBucket;
+
+    /** How long a looked-up ambient stays cached (biome and dimension are near-static, as NeroTech's base). */
+    static final int AMBIENT_REFRESH_TICKS = 200;
+
+    /** Cached {@link PlanetApi#ambientAt} for this position, valid until {@link #ambientUntil}. */
+    private int planetAmbient;
+    private long ambientUntil = Long.MIN_VALUE;
 
     public StirlingGeneratorBlockEntity(BlockPos pos, BlockState state) {
         super(EnvironmentalContent.STIRLING_TYPE.get(), pos, state, 0);
@@ -97,8 +111,10 @@ public class StirlingGeneratorBlockEntity extends NeroPowerMachineBlockEntity {
                 drawn = hot.extractHeat(draw, hot.ambient());
                 if (drawn > 0) {
                     UpgradeModifiers mods = modifiers();
-                    int output = StirlingMath.outputFor(drawn, EnvironmentalConfig.stirlingNePerHeatUnit(),
-                            cold ? EnvironmentalConfig.stirlingColdFaceBonusPermille() : 0);
+                    int bonus = cold ? StirlingMath.coldFaceBonusPermille(
+                            EnvironmentalConfig.stirlingColdFaceBonusPermille(), planetAmbient(level, pos),
+                            NeroPowerConfig.planetEfficiencyEnabled()) : 0;
+                    int output = StirlingMath.outputFor(drawn, EnvironmentalConfig.stirlingNePerHeatUnit(), bonus);
                     output = (int) Math.round(output * mods.speedMultiplier() * presetSpeedFactor());
                     if (output > 0) {
                         energyBuffer().generate(output);
@@ -114,6 +130,16 @@ public class StirlingGeneratorBlockEntity extends NeroPowerMachineBlockEntity {
 
         setActive(drawn > 0);
         MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer(), sideConfig());
+    }
+
+    /** Local ambient through NeroTech's public planet api, refreshed every {@value #AMBIENT_REFRESH_TICKS} ticks. */
+    private int planetAmbient(Level level, BlockPos pos) {
+        long now = level.getGameTime();
+        if (now >= this.ambientUntil) {
+            this.planetAmbient = PlanetApi.ambientAt(level, pos);
+            this.ambientUntil = now + AMBIENT_REFRESH_TICKS;
+        }
+        return this.planetAmbient;
     }
 
     /**

@@ -23,7 +23,7 @@ import za.co.neroland.neropower.NeroPowerCommon;
 
 /**
  * The <b>pending link-owner erasure</b> set (POPIA/GDPR, Stage 8). A beam transmitter / relay keeps
- * the linking player's UUID in its own block-entity NBT ({@code LinkOwner}), and an erase request
+ * the linking player's UUID in its own block-entity NBT ({@code LinkOwnerMost} / {@code LinkOwnerLeast}), and an erase request
  * cannot reach a block entity whose chunk is not loaded. So {@link NeroPowerDataErasure} records the
  * erased UUID here with the UTC epoch day of the request, and every transmitter / relay checks
  * {@link #isPending(UUID)} on its first server tick after (re)load — and again whenever

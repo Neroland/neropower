@@ -3,8 +3,8 @@
 Player- and contributor-facing documentation for **NeroPower**, an optional power-depth add-on to
 **NeroTech**, built on **Neroland Core**.
 
-> **Status:** in development — first release will be `0.1.0-beta.1`. Keep this wiki updated alongside
-> code changes (see the repository's contributor notes).
+> **Status:** in development — version `0.1.0-alpha.1`; the first release will be `0.1.0-beta.1`.
+> Keep this wiki updated alongside code changes (see the repository's contributor notes).
 
 NeroPower requires **NeroTech** and **Neroland Core** and runs on Minecraft 26.1.2, 26.2 and 26.3
 (NeoForge, Forge and Fabric). Its machines share NeroTech's GUI, side configuration, presets,
@@ -23,5 +23,5 @@ upgrades and thermal model; the pages below cover only what NeroPower adds on to
 
 ## See also
 
-- [Privacy notice](../PRIVACY.md) — the full disclosure in the repository
+- [Privacy](Privacy.md) — what NeroPower stores and how to erase it (links on to the full disclosure)
 - [NeroTech](https://github.com/Neroland/nerotech) — the machine framework this mod extends

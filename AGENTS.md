@@ -82,13 +82,16 @@
   between pages. Validate Markdown via the gradle MCP `markdown_check` (honours `.markdownlint.json`).
 - The wiki is **per-mod** and **PUBLIC** (it is pushed to the GitHub wiki). Document only NeroPower
   here. Never reference private planning material, `PLAN-*.md`, audits or any private repository from
-  `wiki/`; `wiki.yml` carries a guard step that fails the sync if it finds one.
+  `wiki/`. Before pushing, check with
+  `grep -rniE 'neroland-mc-[e]cosystem|REWORK-PROMPT|PLAN-0|AUDIT|SMOKE-TEST|MANUAL-' wiki/` (must be empty).
 
-## Release pipeline is NEUTRALISED
+## Release pipeline
 
-- `publish.yml`, `modrinth-description.yml` and `modrinth-gallery.yml` are `workflow_dispatch`-only and
-  each requires an explicit `confirm_*` input. **Do not add a `push` trigger back** before
-  `PLAN-0.1.0.md` Stage 11. `auto-deps.yml` has no schedule until then.
+- CI is the ecosystem standard and is not modified for the rebuild: `publish.yml` runs on a push to
+  `main` that changes `gradle.properties` and publishes any `mod_version` that has no `v<version>` tag
+  yet. Only bump `mod_version` to a new value when that version is meant to ship.
+- Recipes use **natural progression only** (NeroTech intermediates such as Machine Frame, Nero Coil and
+  Circuit Board). No Core progression gates or material-milestone gates.
 - Telemetry (Stage 9): opt-out, anonymous Sentry crash reports via `telemetry/NeroPowerTelemetry` (EU ingest,
   NeroPower's own DSN). Keep it PII-free, and update `PRIVACY.md` **before** widening what it sends.
 

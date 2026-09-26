@@ -59,8 +59,10 @@ to 60 % and alarms forever, but never runs its failure action. A reactor that wa
 Every transition is published on NeroTech's machine-failure event channel, so NeroEvents, NeroLink
 and other mods can react (interlocks, sirens, dashboards). If the reactor has a recorded owner (only
 when the server turned on NeroTech's per-player attribution), that player gets a NeroLink alert on
-entering *Unstable* and *Failure*. The NeroLink app also lets the owner acknowledge an alarm or
-[SCRAM](Fission-Reactor.md#scram) the reactor.
+entering *Unstable* and *Failure*. NeroLink `failure` events go to the owner only; an unowned
+machine's events go only to online players within 128 blocks of it — never to everyone. The
+NeroLink app also lets the owner (or, on an unowned reactor, a nearby player allowed to use it)
+acknowledge an alarm or [SCRAM](Fission-Reactor.md#scram) the reactor.
 
 ## Recipes
 

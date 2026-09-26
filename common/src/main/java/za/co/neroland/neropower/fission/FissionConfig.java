@@ -38,12 +38,16 @@ public final class FissionConfig {
             + "never drops below 15% however many assemblies are fitted");
     private static final ConfigValue<Integer> POISON_PER_TICK = NeroPowerConfig.schema().intRange(
             "fissionPoisonPerTick", 2, 0, 1_000, true,
-            "neutron poison gained per tick while the core runs at full output with every usable rod "
-            + "slot loaded (0 disables poisoning)");
+            "neutron poison gained per tick while the core runs hot: full output, every usable rod slot "
+            + "loaded and the control-rod factor above fissionPoisonRodThresholdPermille (0 disables poisoning)");
+    private static final ConfigValue<Integer> POISON_ROD_THRESHOLD_PERMILLE = NeroPowerConfig.schema().intRange(
+            "fissionPoisonRodThresholdPermille", FissionMath.DEFAULT_POISON_ROD_THRESHOLD, 0, 1_000, true,
+            "poison only builds while the effective control-rod factor (permille) is ABOVE this line - "
+            + "i.e. the core runs hot; with the defaults one Control Rod Assembly (850) keeps it steady");
     private static final ConfigValue<Integer> POISON_DECAY_PER_TICK = NeroPowerConfig.schema().intRange(
             "fissionPoisonDecayPerTick", 3, 0, 1_000, true,
             "neutron poison shed per tick whenever the core is not accumulating it (idle, throttled, "
-            + "part-loaded or stalled)");
+            + "part-loaded, control-rodded at or below the threshold, or stalled)");
     private static final ConfigValue<Integer> POISON_STALL_PERMILLE = NeroPowerConfig.schema().intRange(
             "fissionPoisonStallPermille", 900, 1, 1_000, true,
             "poison level (permille) at which the core stalls (no output, no burn-up) until it has "
@@ -91,6 +95,11 @@ public final class FissionConfig {
 
     public static int poisonPerTick() {
         return POISON_PER_TICK.get();
+    }
+
+    /** Control-rod factor (permille) poison must exceed to build ({@link FissionMath#poisonAccumulates}). */
+    public static int poisonRodThresholdPermille() {
+        return POISON_ROD_THRESHOLD_PERMILLE.get();
     }
 
     public static int poisonDecayPerTick() {

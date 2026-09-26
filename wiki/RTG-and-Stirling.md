@@ -19,8 +19,8 @@ roughly 86 in-game days at the defaults) the pellet is **spent** and a **Spent I
 appears in the output slot. If the output slot is full the RTG waits, dark, until it is emptied.
 Insert the next pellet and the cycle restarts.
 
-- Sealed and fuel-free once loaded: **no heat, no pollution, no failure ladder**, and decay runs
-  the same in every dimension — it is the generator for an airless moon base.
+- Sealed and fuel-free once loaded: **no heat, no running pollution, no failure ladder**, and decay
+  runs the same in every dimension — it is the generator for an airless moon base.
 - Overdrive presets and Speed modules scale the output.
 - Energy leaves every face; pellets are accepted on every face; spent pellets can be pulled from
   any face you set to *output* in the Side Config tab.
@@ -35,6 +35,18 @@ Insert the next pellet and the cycle restarts.
 
 Spent Isotope Pellets are never crafted — they come out of the generator.
 
+### Disposing of spent pellets
+
+A Spent Isotope Pellet is safe in a chest, but **destroying one as a dropped item pollutes**: when
+the item entity is destroyed — burnt in fire, thrown in lava, dropped on a cactus, caught in an
+explosion — it records a burst of `rtgSpentPelletPollution` (200) per pellet into NeroTech's
+regional pollution at that spot, the same kind of burst a NeroTech fusion containment breach vents.
+A stack of 64 is 64 bursts. The burst triggers on **destruction** only: water does not destroy
+item entities in vanilla (a pellet dropped in the sea just floats), a pellet that despawns after
+five minutes vents nothing, and falling out of the world removes the item without vanilla's
+destruction hook, so that vents nothing either. The pollution is regional and never attributed to
+a player.
+
 ### Config keys
 
 | Key | Default | Range | What it does |
@@ -42,6 +54,7 @@ Spent Isotope Pellets are never crafted — they come out of the generator.
 | `rtgNePerTick` | 30 | 1–10000 | Output from a fresh pellet (NE/t) |
 | `rtgHalfLifeDays` | 20 | 1–365 | In-game days per halving of output |
 | `rtgCutoffPermille` | 50 | 1–999 | Output (permille of fresh) below which a pellet is spent |
+| `rtgSpentPelletPollution` | 200 | 0–100000 | Pollution burst per Spent Isotope Pellet destroyed as a dropped item |
 
 ## Stirling Generator
 
@@ -58,6 +71,14 @@ A **cold face** matters. If any neighbour is water, ice, packed ice, blue ice, a
 powder snow or a NeroTech **Radiator**, output gets a **+50 %** bonus. Without a cold face the
 usable gradient is **halved** — the engine has nowhere to reject its heat. The GUI shows the
 gradient, the heat drawn last tick and whether a cold sink is attached.
+
+**Planet efficiency.** With `planetEfficiencyEnabled` on (the default) the cold-face bonus grows
+with how cold the local ambient is — NeroTech's planet ambient for that spot, which follows the
+Nerospace planet (or NeroTech's `thermalAmbientByDimension` table) plus the biome:
+`bonus × (1000 + clamp(−ambient × 5, 0, 1000)) ⁄ 1000`. On a cold planet at ambient −80 the +50 %
+bonus becomes **+70 %** (40 % larger); at ambient 0 or warmer — the Overworld's default — it stays
++50 %; the scaling tops out at double the bonus (ambient −200 or colder). The ambient is re-read
+every 200 ticks. With the key off the bonus is flat everywhere.
 
 Because it removes heat from its neighbour, a Stirling Generator is also a **passive coolant with
 a dividend**: parked against a running [Fission Reactor](Fission-Reactor.md) it lowers the
@@ -78,3 +99,4 @@ ladder; presets and Speed modules scale the output.
 | `stirlingMaxDrawPerOp` | 8 | 1–1000 | Hard cap on heat drawn per tick |
 | `stirlingDrawPermille` | 100 | 1–1000 | Share of the gradient drawn per tick |
 | `stirlingColdFaceBonusPermille` | 500 | 0–1000 | Output bonus with a cold face |
+| `planetEfficiencyEnabled` | true | — | Scale the cold-face bonus with the local ambient (see above) |

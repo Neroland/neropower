@@ -46,6 +46,16 @@ versionRange = "${nerotech_version_range}"
 ordering = "AFTER"
 side = "BOTH"
 
+# Energized Power — optional interop, as NeroTech declares it. When present it must load BEFORE
+# NeroPower so its Forge-Energy capabilities and c: material tags are available; discovery is via
+# Core tags/capabilities, never a hard import.
+[[dependencies.${mod_id}]]
+modId = "energizedpower"
+type = "optional"
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "BOTH"
+
 # Nerospace — optional planet interop reached through NeroTech's public PlanetApi (never a hard
 # import). When present it must load BEFORE NeroPower so planet traits are ready when generators ask.
 [[dependencies.${mod_id}]]

@@ -87,4 +87,24 @@ class RtgMathTest {
         assertEquals(1, RtgMath.days(TICKS_PER_DAY));
         assertEquals(0, RtgMath.days(-TICKS_PER_DAY), "negative remaining reads as 0");
     }
+
+    // --- spent pellet pollution burst --------------------------------------------------------
+
+    @Test
+    void spentPelletBurstScalesWithStackSize() {
+        assertEquals(200, RtgMath.spentPelletBurst(200, 1));
+        assertEquals(12_800, RtgMath.spentPelletBurst(200, 64));
+    }
+
+    @Test
+    void spentPelletBurstIsZeroWhenDisabledOrEmpty() {
+        assertEquals(0, RtgMath.spentPelletBurst(0, 64));
+        assertEquals(0, RtgMath.spentPelletBurst(-5, 64));
+        assertEquals(0, RtgMath.spentPelletBurst(200, 0));
+    }
+
+    @Test
+    void spentPelletBurstSaturates() {
+        assertEquals(Integer.MAX_VALUE, RtgMath.spentPelletBurst(100_000, Integer.MAX_VALUE));
+    }
 }

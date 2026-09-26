@@ -22,9 +22,9 @@ import za.co.neroland.neropower.protection.Protection;
  * {@link BeamLinkSession} (keyed by the acting player, transient, 30 s), the second on a receiver
  * or relay completes it. Clicking a linked transmitter / relay with nothing pending unlinks it.
  *
- * <p><b>Authorisation:</b> the acting player — always the one holding the wrench, never a
- * nearest-player lookup — must pass {@link Protection#get()}{@code .mayInteract} at <i>both</i>
- * endpoints, both must be loaded, and unlinking (or re-aiming) an existing link is reserved for the
+ * <p><b>Authorisation</b> ({@link BeamLinkRules}): the acting player — always the one holding the
+ * wrench, never a nearest-player lookup — must pass {@link Protection#get()}{@code .mayInteract} at
+ * <i>both</i> endpoints, both must be loaded, and unlinking (or re-aiming) an existing link is reserved for the
  * player who made it ({@link BeamTransmitterBlockEntity#linkOwner()}) or a gamemaster (permission
  * level 2, the same predicate NeroTech's Configurator uses). Every refusal is
  * {@code neropower.beam.link_denied}; feedback is actionbar-only. The UUID is compared, never
@@ -82,33 +82,36 @@ public final class BeamLinking {
         String dimension = BeamTarget.dimensionId(level);
         boolean sameDimension = pending.dimension().equals(dimension);
 
-        ServerLevel sourceLevel = level;
-        if (!sameDimension) {
-            // Only an orbital receiver in a space dimension may be aimed at from another world.
-            if (!BeamConfig.beamCrossDimension() || !target.orbital() || !SpaceTags.isSpace(level)) {
-                tell(player, "neropower.beam.link.cross_dimension");
-                return;
-            }
-            sourceLevel = level.getServer().getLevel(ResourceKey.create(Registries.DIMENSION,
-                    Identifier.parse(pending.dimension())));
-            if (sourceLevel == null) {
-                session.clear(actor);
-                tell(player, "neropower.beam.link.source_gone");
-                return;
-            }
-        }
+        // Gather the facts, then let the pure rule decide (BeamLinkRules): dimension, loaded, authorised.
+        ServerLevel sourceLevel = sameDimension ? level : level.getServer().getLevel(
+                ResourceKey.create(Registries.DIMENSION, Identifier.parse(pending.dimension())));
         BlockPos sourcePos = new BlockPos(pending.x(), pending.y(), pending.z());
-        if (!sourceLevel.hasChunkAt(sourcePos)
-                || !(sourceLevel.getBlockEntity(sourcePos) instanceof BeamTransmitterBlockEntity source)) {
+        BeamTransmitterBlockEntity source = sourceLevel != null && sourceLevel.hasChunkAt(sourcePos)
+                && sourceLevel.getBlockEntity(sourcePos) instanceof BeamTransmitterBlockEntity transmitter
+                ? transmitter : null;
+        boolean sourceLoaded = source != null;
+        boolean mayInteractSource = sourceLoaded && Protection.get().mayInteract(player, sourceLevel, sourcePos);
+        boolean mayInteractTarget = Protection.get().mayInteract(player, level, targetPos);
+        BeamLinkRules.Decision decision = BeamLinkRules.decide(sourceLoaded, target.acceptsBeam(),
+                mayInteractSource, mayInteractTarget, sameDimension, BeamConfig.beamCrossDimension(),
+                target.orbital(), SpaceTags.isSpace(level));
+        if (decision == BeamLinkRules.Decision.CROSS_DIMENSION) {
+            // Only an orbital receiver in a space dimension may be aimed at from another world.
+            tell(player, "neropower.beam.link.cross_dimension");
+            return;
+        }
+        if (decision == BeamLinkRules.Decision.SOURCE_GONE || source == null) {
             // Source gone (or asleep) — drop the stale pending end rather than link blind.
             session.clear(actor);
             tell(player, "neropower.beam.link.source_gone");
             return;
         }
-        if (!Protection.get().mayInteract(player, sourceLevel, sourcePos)
-                || !Protection.get().mayInteract(player, level, targetPos)
-                || (source.linked() && !mayRewire(player, source))) {
+        if (decision == BeamLinkRules.Decision.DENIED) {
             // Keep the pending end: the player may simply have clicked a block that isn't theirs.
+            tell(player, "neropower.beam.link_denied");
+            return;
+        }
+        if (source.linked() && !mayRewire(player, source)) {
             tell(player, "neropower.beam.link_denied");
             return;
         }

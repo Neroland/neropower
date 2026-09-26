@@ -8,7 +8,9 @@ import java.util.Set;
 import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -47,19 +49,22 @@ import za.co.neroland.neropower.data.NeroPowerErasureState;
  * space dimension, and only with {@code beamCrossDimension}.
  *
  * <p><b>Personal data</b> (POPIA/GDPR): besides the world-data target, the transmitter keeps the
- * <i>linking</i> player's UUID in its own {@code LinkOwner} NBT field — the authority for unlinking
+ * <i>linking</i> player's UUID in its own {@code LinkOwnerMost} / {@code LinkOwnerLeast} NBT longs —
+ * the authority for unlinking
  * — exposed as {@link #linkOwner()} / {@link #clearLinkOwner()}. Stage 8 erasure clears it through
  * {@link NeroPowerErasureState}: the eraser lists the UUID (30-day retention) and bumps an epoch,
  * and {@link #checkLinkOwnerErasure} drops a listed owner on the next tick (loaded) or the first
  * tick after load (unloaded) — the same epoch pattern NeroTech's base uses for {@code owner()}.
- * It is compared, never logged or synced.
+ * It is compared, never logged or synced: it lives in the world save only, and
+ * {@link #getUpdateTag} strips both longs from the client sync tag (NeroTech's base sends the full
+ * custom save to every watching client).
  */
 public class BeamTransmitterBlockEntity extends BeamEndpointBlockEntity {
 
     @Nullable
     private BeamTarget target;
 
-    /** The linking player's UUID ({@code LinkOwner}); null when unlinked or never linked. */
+    /** The linking player's UUID ({@code LinkOwnerMost} / {@code LinkOwnerLeast}); null when unlinked or never linked. */
     @Nullable
     private UUID linkOwner;
 
@@ -318,27 +323,20 @@ public class BeamTransmitterBlockEntity extends BeamEndpointBlockEntity {
     /**
      * Whether every cell strictly between the two endpoints is air or another beam endpoint (a
      * relay in the line does not shadow a beam passing it). Unloaded cells are not inspected —
-     * checking would load the chunk, which the beam never does.
+     * checking would load the chunk, which the beam never does. The verdict is
+     * {@link BeamMath#clear} over {@link BeamMath#blocks}.
      */
     private static boolean pathClear(Level level, BlockPos from, BlockPos to) {
         List<BeamPath.Cell> cells = BeamPath.cellsBetween(from.getX(), from.getY(), from.getZ(),
                 to.getX(), to.getY(), to.getZ());
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
-        for (BeamPath.Cell cell : cells) {
+        return BeamMath.clear(cells, cell -> {
             cursor.set(cell.x(), cell.y(), cell.z());
-            if (!level.hasChunkAt(cursor)) {
-                continue;
-            }
-            BlockState state = level.getBlockState(cursor);
-            if (state.isAir()) {
-                continue;
-            }
-            if (level.getBlockEntity(cursor) instanceof BeamEndpointBlockEntity) {
-                continue;
-            }
-            return false;
-        }
-        return true;
+            boolean loaded = level.hasChunkAt(cursor);
+            boolean air = loaded && level.getBlockState(cursor).isAir();
+            boolean endpoint = loaded && !air && level.getBlockEntity(cursor) instanceof BeamEndpointBlockEntity;
+            return BeamMath.blocks(loaded, air, endpoint);
+        });
     }
 
     /**
@@ -366,20 +364,38 @@ public class BeamTransmitterBlockEntity extends BeamEndpointBlockEntity {
 
     // --- persistence: a block position + dimension id, and the linking player's UUID ---------------
 
+    /** NBT keys holding the link owner's UUID halves — world save only, never in the client sync tag. */
+    static final String LINK_OWNER_MOST = "LinkOwnerMost";
+    static final String LINK_OWNER_LEAST = "LinkOwnerLeast";
+
+    /**
+     * The client sync tag: NeroTech's base returns the full {@code saveCustomOnly} (status, target,
+     * heat, side config — what the BER and GUI read), which would also carry the link owner's UUID
+     * to every nearby client. It is removed here (POPIA/GDPR data minimisation); the relay inherits
+     * this. Clients never need the owner — unlink authority is decided server side.
+     */
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = super.getUpdateTag(registries);
+        tag.remove(LINK_OWNER_MOST);
+        tag.remove(LINK_OWNER_LEAST);
+        return tag;
+    }
+
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         BeamTarget.save(output, this.target);
-        output.putLong("LinkOwnerMost", this.linkOwner == null ? 0L : this.linkOwner.getMostSignificantBits());
-        output.putLong("LinkOwnerLeast", this.linkOwner == null ? 0L : this.linkOwner.getLeastSignificantBits());
+        output.putLong(LINK_OWNER_MOST, this.linkOwner == null ? 0L : this.linkOwner.getMostSignificantBits());
+        output.putLong(LINK_OWNER_LEAST, this.linkOwner == null ? 0L : this.linkOwner.getLeastSignificantBits());
     }
 
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         this.target = BeamTarget.load(input);
-        long most = input.getLongOr("LinkOwnerMost", 0L);
-        long least = input.getLongOr("LinkOwnerLeast", 0L);
+        long most = input.getLongOr(LINK_OWNER_MOST, 0L);
+        long least = input.getLongOr(LINK_OWNER_LEAST, 0L);
         this.linkOwner = (most == 0L && least == 0L) ? null : new UUID(most, least);
         this.linkOwnerErasureEpoch = -1; // re-check against erasures that landed while unloaded
     }

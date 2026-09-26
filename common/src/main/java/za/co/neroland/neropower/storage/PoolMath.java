@@ -3,7 +3,8 @@ package za.co.neroland.neropower.storage;
 /**
  * The pure arithmetic behind a Battery Bank — Minecraft-free so it is unit-testable: the pool's
  * effective I/O, fair round-robin distribution of one transfer across member cells, the
- * PRIORITY_SOURCE fill test, and the 0..4 charge-level bucket the cell model overlay shows.
+ * PRIORITY_SOURCE fill test, the slosh-guard skip decision, and the 0..4 charge-level bucket the
+ * cell model overlay shows.
  */
 public final class PoolMath {
 
@@ -100,5 +101,14 @@ public final class PoolMath {
         }
         int level = (int) (amount * CHARGE_LEVELS / capacity);
         return Math.max(1, Math.min(CHARGE_LEVELS - 1, level));
+    }
+
+    /**
+     * The slosh guard ({@code StorageEnergy.pushToNeighbours}): a storage push skips a neighbour that
+     * is itself a storage block (cell, controller, NeroTech Battery Bank — storage never feeds
+     * storage, so two banks never ping-pong energy) or one of the pusher's own member cells.
+     */
+    public static boolean shouldSkip(boolean targetIsStorage, boolean targetIsMember) {
+        return targetIsStorage || targetIsMember;
     }
 }

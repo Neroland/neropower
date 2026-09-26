@@ -132,20 +132,28 @@ class NeroPowerLinkModuleTest {
     }
 
     @Test
-    void neroPowerFailureCrossingsAreForwardedAsBroadcastFailureEvents() {
+    void failureCrossingsAreNeverBroadcastAndDropWithoutAServer() {
+        // No captured server ⇒ neither an owner nor a nearby online player can be resolved ⇒ the
+        // event is dropped. In-game it goes player-targeted to the owner or nearby players only.
         String scope = "neropower:fission_core@minecraft:overworld:12345";
         List<LinkEvent> seen = capture(() -> ThresholdEvents.fire(new ThresholdEvents.ThresholdCrossing(
                 MachineFailureEvents.CHANNEL, scope, MachineFailureEvents.STAGE_UNSTABLE,
                 MachineFailureEvents.STAGE_UNSTABLE, true)));
         List<LinkEvent> ours = seen.stream().filter(e -> "neropower".equals(e.moduleId())).toList();
-        assertEquals(1, ours.size(), "exactly one forwarded event");
-        LinkEvent event = ours.get(0);
-        assertEquals("failure", event.topic());
-        assertTrue(event.isBroadcast(), "the scope names a machine and a place, never a player");
-        assertEquals(scope, event.payload().get("scope").getAsString());
-        assertEquals("neropower:fission_core", event.payload().get("machineId").getAsString());
-        assertEquals(MachineFailureEvents.STAGE_UNSTABLE, event.payload().get("stage").getAsInt());
-        assertTrue(event.payload().get("rising").getAsBoolean());
+        assertTrue(ours.isEmpty(), "no recipients resolvable ⇒ nothing published");
+        assertTrue(seen.stream().filter(e -> "neropower".equals(e.moduleId())).noneMatch(LinkEvent::isBroadcast));
+    }
+
+    @Test
+    void failurePayloadCarriesScopeStageAndDirection() {
+        String scope = "neropower:fission_core@minecraft:overworld:12345";
+        JsonObject payload = NeroPowerLinkModule.failurePayload(new ThresholdEvents.ThresholdCrossing(
+                MachineFailureEvents.CHANNEL, scope, MachineFailureEvents.STAGE_UNSTABLE,
+                MachineFailureEvents.STAGE_UNSTABLE, true));
+        assertEquals(scope, payload.get("scope").getAsString());
+        assertEquals("neropower:fission_core", payload.get("machineId").getAsString());
+        assertEquals(MachineFailureEvents.STAGE_UNSTABLE, payload.get("stage").getAsInt());
+        assertTrue(payload.get("rising").getAsBoolean());
     }
 
     @Test
@@ -195,11 +203,45 @@ class NeroPowerLinkModuleTest {
     }
 
     @Test
-    void onlyARecordedOwnerMayAct() {
+    void isOwnerNeedsARecordedMatchingOwner() {
         UUID owner = UUID.randomUUID();
-        assertTrue(LinkScope.mayAct(Optional.of(owner), owner));
-        assertFalse(LinkScope.mayAct(Optional.of(owner), UUID.randomUUID()));
-        assertFalse(LinkScope.mayAct(Optional.empty(), owner), "no owner recorded ⇒ ownership cannot be established");
+        assertTrue(LinkScope.isOwner(Optional.of(owner), owner));
+        assertFalse(LinkScope.isOwner(Optional.of(owner), UUID.randomUUID()));
+        assertFalse(LinkScope.isOwner(Optional.empty(), owner));
+    }
+
+    @Test
+    void ownedMachinesObeyTheirOwnerOnlyWhereverTheyStand() {
+        UUID owner = UUID.randomUUID();
+        UUID other = UUID.randomUUID();
+        assertTrue(LinkScope.mayAct(Optional.of(owner), owner, false, false), "owner from anywhere");
+        assertTrue(LinkScope.mayAct(Optional.of(owner), owner, true, true));
+        assertFalse(LinkScope.mayAct(Optional.of(owner), other, true, true),
+                "a nearby player who may interact is still not the owner");
+    }
+
+    @Test
+    void unownedMachinesObeyANearbyPlayerWhoMayInteract() {
+        UUID requester = UUID.randomUUID();
+        assertTrue(LinkScope.mayAct(Optional.empty(), requester, true, true));
+        assertFalse(LinkScope.mayAct(Optional.empty(), requester, false, true), "too far / other dimension");
+        assertFalse(LinkScope.mayAct(Optional.empty(), requester, true, false), "protection refuses");
+        assertFalse(LinkScope.mayAct(Optional.empty(), requester, false, false));
+        assertFalse(LinkScope.mayAct(Optional.empty(), null, true, true), "no requester");
+    }
+
+    @Test
+    void scopeDimensionAndPositionAreParsed() {
+        String scope = "neropower:fission_core@minecraft:the_nether:-274877906944";
+        assertEquals("minecraft:the_nether", LinkScope.dimensionOf(scope));
+        assertEquals(-274877906944L, LinkScope.packedPosOf(scope).orElseThrow());
+        assertEquals("nerospace:moon", LinkScope.dimensionOf("neropower:beam_relay@nerospace:moon:7"));
+        assertEquals(7L, LinkScope.packedPosOf("neropower:beam_relay@nerospace:moon:7").orElseThrow());
+        for (String bad : new String[] {null, "", "neropower:fission_core", "neropower:x@:5",
+                "neropower:x@minecraft:overworld", "neropower:x@minecraft:overworld:", "neropower:x@minecraft:overworld:abc"}) {
+            assertEquals("", LinkScope.dimensionOf(bad), String.valueOf(bad));
+            assertTrue(LinkScope.packedPosOf(bad).isEmpty(), String.valueOf(bad));
+        }
     }
 
     @Test

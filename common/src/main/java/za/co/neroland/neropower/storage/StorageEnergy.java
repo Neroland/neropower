@@ -66,11 +66,9 @@ public final class StorageEnergy {
                 continue;
             }
             BlockPos neighbourPos = pos.relative(side);
-            if (skip != null && skip.test(neighbourPos)) {
-                continue;
-            }
-            if (isStorage(level.getBlockEntity(neighbourPos))) {
-                continue; // slosh guard: storage never feeds storage
+            boolean member = skip != null && skip.test(neighbourPos);
+            if (PoolMath.shouldSkip(!member && isStorage(level.getBlockEntity(neighbourPos)), member)) {
+                continue; // slosh guard: storage never feeds storage, nor a controller its own cells
             }
             NeroEnergyStorage neighbour = EnergyLookup.INSTANCE.find(level, neighbourPos, side.getOpposite());
             if (neighbour == null || neighbour == source || !neighbour.canReceive()) {

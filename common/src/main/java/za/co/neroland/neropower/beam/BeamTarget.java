@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
  * Where a transmitter or relay beams to: a block position plus the dimension id it was linked in,
  * so a stored target can never silently match a different block at the same coordinates in another
  * world. World/block data only — no player identity (POPIA/GDPR; the linking player's UUID lives
- * beside this in the block entity's own {@code LinkOwner} field, documented for Stage 8 erasure).
+ * beside this in the block entity's own {@code LinkOwnerMost} / {@code LinkOwnerLeast} fields, documented for Stage 8 erasure).
  */
 public record BeamTarget(BlockPos pos, String dimension) {
 

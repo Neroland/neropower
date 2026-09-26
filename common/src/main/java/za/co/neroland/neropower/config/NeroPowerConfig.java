@@ -1,10 +1,10 @@
 package za.co.neroland.neropower.config;
 
-import java.util.Locale;
-
 import za.co.neroland.nerolandcore.config.ConfigManager;
 import za.co.neroland.nerolandcore.config.ConfigSchema;
 import za.co.neroland.nerolandcore.config.ConfigValue;
+
+import za.co.neroland.neropower.failure.TerrainPolicy;
 
 /**
  * NeroPower's config, backed by Neroland Core's shared {@link ConfigManager}. Core owns the single
@@ -40,8 +40,9 @@ public final class NeroPowerConfig {
             true, true, "true: beamed power (transmitter / receiver / relay, Stage 6) links and transfers; "
             + "false: the blocks place but every beam stays dark");
     private static final ConfigValue<Boolean> PLANET_EFFICIENCY_ENABLED = SCHEMA.bool("planetEfficiencyEnabled",
-            true, true, "true: NeroPower generators read planet traits through NeroTech's PlanetApi "
-            + "(Nerospace-aware); false: every dimension behaves like the overworld");
+            true, true, "true: the Stirling Generator's cold-face bonus scales with the local ambient read "
+            + "through NeroTech's PlanetApi (Nerospace-aware; ambient -80 = +40%); false: a flat bonus in "
+            + "every dimension");
 
     // --- failure ladder (Stage 3: the overload model) ----------------------------
     private static final ConfigValue<Integer> FAILURE_WARNING = SCHEMA.intRange("failureWarningPermille",
@@ -90,31 +91,18 @@ public final class NeroPowerConfig {
      * unrecognised reads as {@code "auto"}). Resolve it with {@link #terrainDamage(boolean)}.
      */
     public static String terrainDamageMode() {
-        String raw = TERRAIN_DAMAGE_MODE.get();
-        if (raw == null) {
-            return "auto";
-        }
-        String mode = raw.trim().toLowerCase(Locale.ROOT);
-        return switch (mode) {
-            case "on", "off" -> mode;
-            default -> "auto";
-        };
+        return TerrainPolicy.normalize(TERRAIN_DAMAGE_MODE.get());
     }
 
     /**
-     * Whether a NeroPower failure may break blocks, resolved for this runtime: {@code "on"} /
-     * {@code "off"} are explicit; {@code "auto"} (the default) is <b>off on a dedicated server</b> —
-     * where one unattended reactor would otherwise crater a shared world — and on in singleplayer /
-     * LAN, where the blast is the player's own consequence to keep.
+     * Whether a NeroPower failure may break blocks, resolved for this runtime by
+     * {@link TerrainPolicy#resolve}: {@code "on"} / {@code "off"} are explicit; {@code "auto"} (the
+     * default) is <b>off on a dedicated server</b> and on in singleplayer / LAN.
      *
      * @param dedicatedServer {@code MinecraftServer.isDedicatedServer()} for the running server
      */
     public static boolean terrainDamage(boolean dedicatedServer) {
-        return switch (terrainDamageMode()) {
-            case "on" -> true;
-            case "off" -> false;
-            default -> !dedicatedServer;
-        };
+        return TerrainPolicy.resolve(TERRAIN_DAMAGE_MODE.get(), dedicatedServer);
     }
 
     /** Hard cap on any failure blast radius (blocks, 1..16). */

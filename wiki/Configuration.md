@@ -18,7 +18,7 @@ Permille values are thousandths: `600` = 60 %.
 | `terrainDamageMode` | `auto` | `on` / `off` / `auto` | Whether a reactor failure breaks blocks. `auto` = off on a dedicated server, on in singleplayer and LAN. `off` keeps the blast's damage and knockback (and the machine is still lost) but breaks nothing. |
 | `failureRadiusCap` | `8` | 1–16 | Hard cap on any failure blast radius, whatever the machine asks for. |
 | `transmissionEnabled` | `true` | — | `true`: [beamed power](Beamed-Power.md) links and transfers. `false`: the blocks place but every beam stays dark. |
-| `planetEfficiencyEnabled` | `true` | — | Reserved for planet-aware generators. The RTG and Stirling Generator in this release run identically in every dimension, so the key currently changes nothing. |
+| `planetEfficiencyEnabled` | `true` | — | `true`: the [Stirling Generator](RTG-and-Stirling.md#stirling-generator)'s cold-face bonus scales with how cold the local ambient is (NeroTech's planet ambient): `bonus × (1000 + clamp(−ambient × 5, 0, 1000)) ⁄ 1000` — ambient −80 on a cold planet gives +40 % on top of the bonus, ambient 0 or warmer none. `false`: the flat bonus everywhere. The RTG ignores it (decay is the same on every world). |
 
 ## Failure ladder
 
@@ -44,7 +44,8 @@ See [Fission Reactor](Fission-Reactor.md).
 | `fissionBurnupPerTick` | `8` | 1–1000000 | Burn-up a loaded rod gains per tick, in permille ×1000 (8 = a rod lasts about 125,000 ticks, ~104 minutes, at Balanced). |
 | `fissionBurnupCurve` | `0=1200,200=1000,600=800,1000=300` | text | Output factor (permille of nominal) by rod burn-up (permille), as `burnup=factor` knots interpolated linearly. Fewer than two valid knots falls back to the default. |
 | `fissionControlRodPermille` | `150` | 0–1000 | Output and heat reduction per Control Rod Assembly inside the shell; the factor never drops below 15 %. |
-| `fissionPoisonPerTick` | `2` | 0–1000 | Neutron poison gained per tick while the core runs at full output with every usable slot loaded (0 disables poisoning). |
+| `fissionPoisonPerTick` | `2` | 0–1000 | Neutron poison gained per tick while the core runs **hot**: full output, every usable slot loaded, and the effective control-rod factor above `fissionPoisonRodThresholdPermille` (0 disables poisoning). |
+| `fissionPoisonRodThresholdPermille` | `900` | 0–1000 | Poison only builds while the effective control-rod factor (permille; 1000 = no assemblies) is strictly **above** this line. With the defaults one Control Rod Assembly (850) or a SCRAM (150) keeps the core steady and poison decays. |
 | `fissionPoisonDecayPerTick` | `3` | 0–1000 | Poison shed per tick whenever the core is not accumulating it. |
 | `fissionPoisonStallPermille` | `900` | 1–1000 | Poison level at which the core stalls (the xenon pit) until it has decayed 300 below this line. |
 | `fissionScorchEnabled` | `false` | — | `true`: a fission failure also leaves a scorch zone that hurts living creatures for `fissionScorchDays` real days. |
@@ -91,10 +92,11 @@ See [RTG and Stirling](RTG-and-Stirling.md).
 | `rtgNePerTick` | `30` | 1–10000 | NE per tick a Radioisotope Generator produces from a fresh Isotope Pellet; halves every `rtgHalfLifeDays`. |
 | `rtgHalfLifeDays` | `20` | 1–365 | Half-life of a pellet in in-game days (1 day = 24,000 ticks). |
 | `rtgCutoffPermille` | `50` | 1–999 | A pellet is spent once its output falls below this permille of `rtgNePerTick` (50 = 5 %, about 4.3 half-lives). |
+| `rtgSpentPelletPollution` | `200` | 0–100000 | Pollution burst (NeroTech's regional pollution, never attributed to a player) recorded per Spent Isotope Pellet destroyed as a dropped item — fire, lava, cactus, explosion. 0 disables it. |
 | `stirlingNePerHeatUnit` | `15` | 1–1000 | NE a Stirling Generator produces per unit of heat it draws. |
 | `stirlingMaxDrawPerOp` | `8` | 1–1000 | Hard cap on the heat drawn from a neighbour in one tick. |
 | `stirlingDrawPermille` | `100` | 1–1000 | Share (permille) of the hot neighbour's gradient above ambient drawn per tick. |
-| `stirlingColdFaceBonusPermille` | `500` | 0–1000 | Output bonus while touching a cold sink (water, ice, snow or a NeroTech Radiator); without one the usable gradient is halved. |
+| `stirlingColdFaceBonusPermille` | `500` | 0–1000 | Output bonus while touching a cold sink (water, ice, snow or a NeroTech Radiator); without one the usable gradient is halved. Scaled by the local ambient when `planetEfficiencyEnabled` is on. |
 
 ## Privacy
 

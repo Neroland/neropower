@@ -10,8 +10,9 @@ import za.co.neroland.neropower.config.NeroPowerConfig;
  * {@link NeroPowerConfig#schema()}). {@code NeroPowerCommon.init()} touches {@link #init()} before
  * {@link NeroPowerConfig#load()} so these values are part of the schema Core registers.
  *
- * <p>Every key here is server-authoritative gameplay balance. Neither generator reads planet data:
- * radioactive decay and a temperature gradient are the same on every world by design.
+ * <p>Every key here is server-authoritative gameplay balance. RTG decay is the same on every world;
+ * the Stirling's cold-face bonus scales with the local ambient when {@code planetEfficiencyEnabled}
+ * is on ({@link StirlingMath#coldFaceBonusPermille}).
  */
 public final class EnvironmentalConfig {
 
@@ -29,6 +30,11 @@ public final class EnvironmentalConfig {
     private static final ConfigValue<Integer> RTG_CUTOFF_PERMILLE = NeroPowerConfig.schema().intRange(
             "rtgCutoffPermille", 50, 1, 999, true, "a pellet is spent once its output falls below this "
             + "permille of rtgNePerTick (50 = 5%, about 4.3 half-lives); the RTG then ejects a spent pellet");
+
+    private static final ConfigValue<Integer> RTG_SPENT_PELLET_POLLUTION = NeroPowerConfig.schema().intRange(
+            "rtgSpentPelletPollution", 200, 0, 100_000, true, "pollution burst (NeroTech's regional "
+            + "pollution, no player attribution) recorded per Spent Isotope Pellet destroyed as a dropped "
+            + "item - burnt, in lava, on a cactus, in an explosion (0 disables)");
 
     // --- Stirling Generator -----------------------------------------------------------
     private static final ConfigValue<Integer> STIRLING_NE_PER_HEAT_UNIT = NeroPowerConfig.schema().intRange(
@@ -67,6 +73,11 @@ public final class EnvironmentalConfig {
 
     public static int rtgCutoffPermille() {
         return RTG_CUTOFF_PERMILLE.get();
+    }
+
+    /** Pollution recorded per destroyed Spent Isotope Pellet ({@link SpentIsotopePelletItem}). */
+    public static int rtgSpentPelletPollution() {
+        return RTG_SPENT_PELLET_POLLUTION.get();
     }
 
     public static int stirlingNePerHeatUnit() {

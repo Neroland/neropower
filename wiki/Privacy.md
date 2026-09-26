@@ -6,17 +6,19 @@ GDPR / POPIA basis, is in the repository's [`PRIVACY.md`](../PRIVACY.md).
 ## The one thing NeroPower stores
 
 **The UUID of the player who linked a Beam Transmitter or Beam Relay**, saved in that block's own
-data inside the world save. It exists so that only the linking player (or an operator) can break a
-beam link — nobody can re-aim your transmitter and cut your base off. It is never a name, never a
-timestamp, never sent to clients, never logged, and it goes away when the link is changed, the
-block is broken, or you ask for erasure.
+data (the `LinkOwnerMost` / `LinkOwnerLeast` fields) inside the world save. It exists so that only
+the linking player (or an operator) can break a beam link — nobody can re-aim your transmitter and
+cut your base off. It stays **server-side**: world save only, and stripped from the block update
+sent to nearby clients, so no client ever receives it. It is never a name, never a timestamp,
+never logged, and it goes away when the link is changed, the block is broken, or you ask for
+erasure.
 
 While you are linking two endpoints with the Configurator, the server also remembers which block
 you picked first — in memory only, for at most 30 seconds.
 
 A Fission Reactor's "owner" is NeroTech's own machine-owner field, stored only when a server admin
 turned on NeroTech's per-player pollution attribution (off by default). NeroTech documents and
-erases it; NeroPower only reads it to address failure alerts and gate remote actions.
+erases it; NeroPower only reads it to address failure events and gate remote actions.
 
 ## What NeroPower never stores or sends
 
@@ -54,5 +56,10 @@ If the server runs the NeroLink bridge, the app's NeroPower sections show **only
 within 128 blocks of you, in your dimension, while you are online** — never a server-wide list.
 A transmitter or reactor with a recorded owner is shown only to that owner. Snapshots carry machine
 ids, positions, status and output figures, never a UUID or a name. The two remote actions —
-acknowledging a reactor alarm and SCRAM — work only on a reactor you own, and the server re-checks
-that itself.
+acknowledging a reactor alarm and SCRAM — work on a reactor you own from anywhere; on a reactor
+with no recorded owner (the default) they work only while you are online, in its dimension, within
+128 blocks of it, and allowed to use that block by the server's protection rules. The server
+re-checks all of it itself.
+
+Failure alerts are sent to a machine's owner only; for an unowned machine, only to online players
+within 128 blocks of it. They are never broadcast to everyone.

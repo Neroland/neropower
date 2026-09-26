@@ -68,7 +68,7 @@ public final class NeroPowerCommon {
         // in mod construction, so it precedes the loaders' capability events (class note).
         ModBlockEntities.registerMachineTypes();
         // Stage 8: POPIA/GDPR erasure (beam link owners, link session) on Core's shared hook, then
-        // the NeroLink module (snapshots, owner-only actions, failure events) — last, so every
+        // the NeroLink module (snapshots, scoped actions, targeted failure events) — last, so every
         // machine type it enumerates is registered first.
         NeroPowerDataErasure.register();
         NeroPowerLinkModule.register();

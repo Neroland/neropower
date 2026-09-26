@@ -1,9 +1,13 @@
 package za.co.neroland.neropower.beam;
 
+import java.util.List;
+import java.util.function.Predicate;
+
 /**
  * The beamed-power arithmetic, Minecraft-free so it is unit-testable: distance loss, the fixed
- * orbital-hop loss, and the source-side cost of what a target actually accepted. Every function is
- * pure; the block entities only feed it config values and buffer sizes.
+ * orbital-hop loss, the source-side cost of what a target actually accepted, and the line-of-sight
+ * verdict over a {@link BeamPath} walk. Every function is pure; the block entities only feed it
+ * config values, buffer sizes and per-cell facts.
  *
  * <p>Loss model: a beam keeps {@code (1 - lossPermillePerBlock / 1000) ^ distance} of what leaves the
  * transmitter, so a 3‰-per-block beam over 100 blocks delivers about 74% and over the 128-block
@@ -105,6 +109,31 @@ public final class BeamMath {
     public static int lossPermille(double factor) {
         double f = Math.max(0.0, Math.min(1.0, factor));
         return (int) Math.round((1.0 - f) * PERMILLE);
+    }
+
+    // --- line of sight ---------------------------------------------------------------------
+
+    /**
+     * Whether one cell on the walk blocks the beam: only a <b>loaded</b>, non-air cell that is not
+     * itself a beam endpoint (a relay standing in the line does not shadow a beam passing it).
+     * Unloaded cells are never inspected — checking would load the chunk — so they never block.
+     */
+    public static boolean blocks(boolean loaded, boolean air, boolean beamEndpoint) {
+        return loaded && !air && !beamEndpoint;
+    }
+
+    /**
+     * Whether a beam along {@code path} ({@link BeamPath#cellsBetween} — both endpoints already
+     * excluded) is clear: no cell {@code blocked} accepts. An empty path (adjacent endpoints) is
+     * always clear. Short-circuits on the first blocked cell.
+     */
+    public static boolean clear(List<BeamPath.Cell> path, Predicate<BeamPath.Cell> blocked) {
+        for (BeamPath.Cell cell : path) {
+            if (blocked.test(cell)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static int clampPermille(int permille) {

@@ -33,6 +33,9 @@ public final class FissionMath {
     /** Rod slots the core exposes (a 5³ shell uses all of them, a 3³ shell two). */
     public static final int ROD_SLOTS = 4;
 
+    /** Default {@code fissionPoisonRodThresholdPermille}: poison builds only above a 90% control-rod factor. */
+    public static final int DEFAULT_POISON_ROD_THRESHOLD = 900;
+
     private FissionMath() {
     }
 
@@ -242,5 +245,30 @@ public final class FissionMath {
         }
         double value = heatPerRod * rodHeatSum * controlRodFactor;
         return Math.max(1, (int) Math.min(Integer.MAX_VALUE, Math.round(value)));
+    }
+
+    // --- poison ----------------------------------------------------------------------
+
+    /**
+     * Whether the core builds neutron poison this tick (the {@link PoisonModel#tick} input): only
+     * while it runs <b>hot</b> — running, at full failure-ladder output, every usable slot loaded,
+     * <i>and</i> an effective control-rod factor strictly above {@code thresholdPermille}
+     * ({@code fissionPoisonRodThresholdPermille}). With the defaults a single Control Rod Assembly
+     * (factor 850) or a SCRAM (150) keeps the core steady and poison decays.
+     *
+     * @param running                  the core produced this tick (fuel, room to store, not stalled)
+     * @param failurePermille          the failure ladder's output multiplier (permille)
+     * @param loaded                   fuel rods in usable slots
+     * @param usable                   usable rod slots for the shell
+     * @param controlRodFactorPermille the effective control-rod factor (permille, SCRAM included)
+     * @param thresholdPermille        the factor poison needs to exceed
+     */
+    public static boolean poisonAccumulates(boolean running, int failurePermille, int loaded, int usable,
+            int controlRodFactorPermille, int thresholdPermille) {
+        return running
+                && failurePermille >= PERMILLE
+                && usable > 0
+                && loaded >= usable
+                && controlRodFactorPermille > thresholdPermille;
     }
 }

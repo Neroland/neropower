@@ -54,12 +54,19 @@ shell holds one, a 5×5×5 up to 27. Fewer assemblies means more power and more 
 
 ### Neutron poisoning (the xenon pit)
 
-Running flat out — full output, every usable slot loaded, no failure penalty — builds **poison**.
-Once it reaches 90 % the core **stalls**: no output, no burn-up, status *Xenon pit*. It only
-restarts once the poison has decayed 30 points below the line, so a core hovering at the threshold
-cannot flicker on and off. Poison decays whenever the core is idle, throttled, part-loaded or
-stalled. Leave one slot empty, or fit a control rod, and a reactor will run steadily without ever
-stalling. The poison level is shown in the GUI.
+Poison builds only while the core runs **hot**: it is producing, there is no failure-ladder
+penalty, every usable slot is loaded, **and** the effective control-rod factor is above
+`fissionPoisonRodThresholdPermille` (90 % by default). A core with no Control Rod Assembly runs at
+100 %, so it builds poison at `fissionPoisonPerTick` (2) per tick. Once poison reaches
+`fissionPoisonStallPermille` (90 %) the core **stalls**: no output, no burn-up, status *Xenon pit*.
+It only restarts once the poison has decayed 30 points (300 ‰) below the line, so a core hovering
+at the threshold cannot flicker on and off.
+
+In every other case poison decays at `fissionPoisonDecayPerTick` (3) per tick: idle, stalled,
+part-loaded, derated by the failure ladder, or control-rodded at or below the threshold. With the
+defaults a single Control Rod Assembly (factor 85 %) is enough, and so is a SCRAM (15 %), so a core
+with at least one control rod, or with one slot left empty, runs steadily without ever stalling.
+The poison level is shown in the GUI.
 
 ### Heat, cooling and failure
 
@@ -73,9 +80,16 @@ leaves a **scorch zone** that hurts living creatures for a few real days.
 
 ### SCRAM
 
-The NeroLink companion app offers a **SCRAM** action to the reactor's owner. For 60 seconds the
-core behaves as if every control rod were fully inserted (the 15 % floor), whatever is actually
-inside the shell, so output and heat drop and the ladder can climb back down.
+The NeroLink companion app offers a **SCRAM** action, and an *acknowledge alarm* action that clears
+the alarm state. For 60 seconds after a SCRAM the core behaves as if every control rod were fully
+inserted (the 15 % floor), whatever is actually inside the shell, so output and heat drop and the
+ladder can climb back down.
+
+Who may use them: if the reactor has a recorded owner (only when the server turned on NeroTech's
+per-player attribution), only that owner, from anywhere. A reactor with no recorded owner (the
+default) accepts them from any player who is online, in the reactor's dimension, within 128 blocks
+of it, and allowed by the server's protection rules to use that block. The server checks this
+itself on every request.
 
 ### Automation
 
@@ -89,14 +103,27 @@ inside the shell, so output and heat drop and the ladder can climb back down.
 | Item | Recipe |
 | --- | --- |
 | **Uranium Pellet** | 4 Glowstone Dust + 1 Iron Ingot (shapeless), or 2 Reprocessed Pellets |
+| **Uranium Pellet** ×2 | 1 Raw Uranium — anything tagged `#c:raw_materials/uranium` (shapeless) |
 | **Fuel Rod** | 3 Uranium Pellets in a row between two Iron Ingots |
 | **Control Rod** | Iron Ingot, Redstone, Iron Ingot in a column |
 | **Control Rod Assembly** | Control Rod, Iron Ingot, Control Rod in a row |
 | **Fission Casing** (×4) | 8 Iron Ingots around a NeroTech Machine Frame |
 | **Fission Core** | Iron Blocks in the corners, Circuit Boards top and bottom, Nero Coils on the sides, a Machine Frame in the middle |
 | **Reprocessed Pellet** | a Spent Fuel Rod in NeroTech's **Chemical Processor** |
+| **Reprocessed Pellet** ×2 | a Fuel Rod (fresh or partially burnt) in the **Chemical Processor** |
 
 Spent Fuel Rods are never crafted — they come out of the reactor.
+
+**Uranium source.** No mod in the Neroland ecosystem adds uranium ore yet. NeroPower declares the
+`#c:raw_materials/uranium` tag (empty), so the raw-uranium recipe starts working as soon as another
+mod you install puts its raw uranium in that common tag. Until then the glowstone recipe is the
+fallback and the raw-uranium recipe simply cannot be crafted.
+
+**Reprocessing yields.** A spent rod gives 1 Reprocessed Pellet. Pulling a rod early and
+reprocessing it gives 2, whatever its burn-up, since the recipe cannot read how burnt the rod is.
+That is more than a spent rod gives, but it is still a loss. Two Reprocessed Pellets make one
+Uranium Pellet, so the 2 pellets from an early rod are worth 1 Uranium Pellet, against the 3 that
+went into it.
 
 ## Config keys
 
@@ -109,7 +136,8 @@ All in `config/neropower.properties`; see [Configuration](Configuration.md) for 
 | `fissionBurnupPerTick` | 8 | Burn-up per tick (permille ×1000) |
 | `fissionBurnupCurve` | `0=1200,200=1000,600=800,1000=300` | The output curve knots |
 | `fissionControlRodPermille` | 150 | Reduction per Control Rod Assembly |
-| `fissionPoisonPerTick` | 2 | Poison gained per tick at full output |
+| `fissionPoisonPerTick` | 2 | Poison gained per tick while the core runs hot |
+| `fissionPoisonRodThresholdPermille` | 900 | Poison builds only above this control-rod factor |
 | `fissionPoisonDecayPerTick` | 3 | Poison shed per tick otherwise |
 | `fissionPoisonStallPermille` | 900 | Poison level that stalls the core |
 | `fissionScorchEnabled` | false | Leave a scorch zone on failure |

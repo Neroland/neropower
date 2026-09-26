@@ -52,10 +52,10 @@ The typical loop: `gradle_build` → `gradle_status` (repeat until `status` is
        "gradle": {
          "command": "node",
          "args": [
-           "C:\\Users\\dario\\Documents\\projects\\github\\nerospace\\tools\\gradle-mcp\\server.js"
+           "C:\\Users\\dario\\Documents\\projects\\github\\neropower\\tools\\gradle-mcp\\server.js"
          ],
          "env": {
-           "GRADLE_PROJECT_DIR": "C:\\Users\\dario\\Documents\\projects\\github\\nerospace",
+           "GRADLE_PROJECT_DIR": "C:\\Users\\dario\\Documents\\projects\\github\\neropower",
            "JAVA_HOME": "C:\\Program Files\\Eclipse Adoptium\\jdk-25"
          }
        }

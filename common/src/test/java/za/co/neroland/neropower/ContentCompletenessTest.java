@@ -3,8 +3,11 @@ package za.co.neroland.neropower;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,7 +26,9 @@ import org.junit.jupiter.api.Test;
  * {@code assets/neropower/lang/en_us.json} — for a block both {@code block.neropower.<id>} (the
  * placed block) and {@code item.neropower.<id>} (its plain {@code BlockItem}, which is what the
  * creative tab and tooltips read; NeroTech ships the same pair), with the same text — and that
- * every block has a blockstate, an item definition and a loot table on the classpath. The id lists are deliberately hardcoded here
+ * every block has a blockstate, an item definition, a loot table and every block model its blockstate
+ * names on the classpath, and that every block and item (bar machine by-products) is the result of
+ * at least one recipe in {@link #RECIPES}. The id lists are deliberately hardcoded here
  * (not read from the registries) so that the test runs on the plain JVM in every Stonecutter cell
  * without bootstrapping Minecraft — when a block or item is added, add it to the matching list.
  *
@@ -56,6 +62,46 @@ class ContentCompletenessTest {
             "reprocessed_pellet",
             "isotope_pellet",
             "spent_isotope_pellet");
+
+    /** Items only ever produced by a machine, never crafted (as {@code ALLOW_NO_RECIPE} in {@code tools/check_content.py}). */
+    static final Set<String> NO_RECIPE = Set.of("spent_fuel_rod", "spent_isotope_pellet");
+
+    /**
+     * Every recipe file under {@code data/neropower/recipe/}. Hardcoded so the check works from a jar
+     * too; when the directory is a plain folder on the test classpath the test also checks this
+     * list against it, so a new recipe cannot be forgotten here.
+     */
+    static final List<String> RECIPES = List.of(
+            "battery_bank_controller",
+            "battery_cell_advanced",
+            "battery_cell_basic",
+            "battery_cell_elite",
+            "beam_receiver",
+            "beam_relay",
+            "beam_transmitter",
+            "chemical_processing_fuel_rod",
+            "chemical_processing_spent_fuel_rod",
+            "control_rod",
+            "control_rod_assembly",
+            "fission_casing",
+            "fission_core",
+            "fuel_rod",
+            "isotope_pellet",
+            "orbital_receiver",
+            "radioisotope_generator",
+            "stirling_generator",
+            "uranium_pellet",
+            "uranium_pellet_from_ore",
+            "uranium_pellet_from_reprocessed");
+
+    private static final String RECIPE_DIR = "data/neropower/recipe/";
+
+    /** {@code "result": {"id": "..."}} or {@code "result": "..."} — the first result id in a recipe. */
+    private static final Pattern RESULT = Pattern.compile(
+            "\"result\"\\s*:\\s*(?:\\{[^}]*?\"id\"\\s*:\\s*)?\"([^\"]+)\"");
+
+    /** A block model reference in a blockstate (variants or multipart). */
+    private static final Pattern BLOCK_MODEL = Pattern.compile("\"model\"\\s*:\\s*\"neropower:block/([^\"]+)\"");
 
     private static final Pattern KEY = Pattern.compile("\"([^\"\\\\]+)\"\\s*:");
     private static final Pattern ENTRY = Pattern.compile("\"([^\"\\\\]+)\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
@@ -100,6 +146,82 @@ class ContentCompletenessTest {
             requireResource(missing, "assets/neropower/models/item/" + item + ".json");
         }
         assertTrue(missing.isEmpty(), "classpath is missing " + missing);
+    }
+
+    @Test
+    void everyBlockHasItsBlockModels() throws IOException {
+        List<String> missing = new ArrayList<>();
+        for (String block : BLOCKS) {
+            String state = "assets/neropower/blockstates/" + block + ".json";
+            if (ContentCompletenessTest.class.getClassLoader().getResource(state) == null) {
+                continue; // reported by everyBlockHasStateItemDefinitionAndLootTable
+            }
+            Matcher matcher = BLOCK_MODEL.matcher(resourceText(state));
+            Set<String> models = new TreeSet<>();
+            while (matcher.find()) {
+                models.add(matcher.group(1));
+            }
+            if (models.isEmpty()) {
+                missing.add(block + " (blockstate names no neropower:block/ model)");
+            }
+            for (String model : models) {
+                requireResource(missing, "assets/neropower/models/block/" + model + ".json");
+            }
+        }
+        assertTrue(missing.isEmpty(), "block models missing: " + missing);
+    }
+
+    @Test
+    void everyBlockAndItemIsARecipeResult() throws IOException {
+        Set<String> results = new HashSet<>();
+        List<String> unreadable = new ArrayList<>();
+        for (String recipe : RECIPES) {
+            String path = RECIPE_DIR + recipe + ".json";
+            if (ContentCompletenessTest.class.getClassLoader().getResource(path) == null) {
+                unreadable.add(path);
+                continue;
+            }
+            Matcher matcher = RESULT.matcher(resourceText(path));
+            if (matcher.find()) {
+                results.add(matcher.group(1));
+            } else {
+                unreadable.add(path + " (no result id)");
+            }
+        }
+        assertTrue(unreadable.isEmpty(), "recipes missing or without a result: " + unreadable);
+        List<String> uncrafted = new ArrayList<>();
+        for (String id : BLOCKS) {
+            if (!results.contains("neropower:" + id)) {
+                uncrafted.add(id);
+            }
+        }
+        for (String id : ITEMS) {
+            if (!NO_RECIPE.contains(id) && !results.contains("neropower:" + id)) {
+                uncrafted.add(id);
+            }
+        }
+        assertTrue(uncrafted.isEmpty(), "no recipe produces " + uncrafted);
+    }
+
+    @Test
+    void recipeListMatchesTheRecipeFolder() throws URISyntaxException {
+        URL dir = ContentCompletenessTest.class.getClassLoader().getResource(RECIPE_DIR);
+        if (dir == null || !"file".equals(dir.getProtocol())) {
+            return; // inside a jar: the hardcoded list alone is checked above
+        }
+        File[] files = new File(dir.toURI()).listFiles((d, name) -> name.endsWith(".json"));
+        assertNotNull(files, RECIPE_DIR + " is not listable");
+        Set<String> onDisk = new TreeSet<>();
+        for (File file : files) {
+            onDisk.add(file.getName().substring(0, file.getName().length() - ".json".length()));
+        }
+        Set<String> listed = new TreeSet<>(RECIPES);
+        Set<String> unlisted = new TreeSet<>(onDisk);
+        unlisted.removeAll(listed);
+        Set<String> absent = new TreeSet<>(listed);
+        absent.removeAll(onDisk);
+        assertTrue(unlisted.isEmpty(), "add to ContentCompletenessTest.RECIPES: " + unlisted);
+        assertTrue(absent.isEmpty(), "listed but not on disk: " + absent);
     }
 
     @Test
@@ -157,9 +279,12 @@ class ContentCompletenessTest {
     }
 
     private static String langText() throws IOException {
-        try (InputStream in = ContentCompletenessTest.class.getClassLoader()
-                .getResourceAsStream("assets/neropower/lang/en_us.json")) {
-            assertNotNull(in, "assets/neropower/lang/en_us.json is not on the test classpath");
+        return resourceText("assets/neropower/lang/en_us.json");
+    }
+
+    private static String resourceText(String path) throws IOException {
+        try (InputStream in = ContentCompletenessTest.class.getClassLoader().getResourceAsStream(path)) {
+            assertNotNull(in, path + " is not on the test classpath");
             return new String(in.readAllBytes(), StandardCharsets.UTF_8);
         }
     }

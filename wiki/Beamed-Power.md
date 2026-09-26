@@ -35,7 +35,8 @@ Linking is checked on the player holding the wrench: you must be allowed to inte
 endpoints (spawn protection counts), both must be loaded, and endpoints further apart than
 `beamRange` are refused. Only the player who made a link — or an operator — can unlink or re-aim
 it, so nobody can quietly re-aim your transmitter. The linking player's UUID is the one thing
-NeroPower stores about players; see [Privacy](Privacy.md).
+NeroPower stores about players. It stays on the server (world save only, never sent to clients);
+see [Privacy](Privacy.md).
 
 ### Passes, loss and line of sight
 

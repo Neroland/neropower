@@ -19,7 +19,7 @@ import za.co.neroland.neropower.beam.BeamLinkSession;
  * <p><b>What NeroPower stores per player, and what erasure does with it:</b>
  * <ol>
  *   <li><b>Beam link owner</b> — the UUID of the player who linked a Beam Transmitter / Relay, in
- *       that block entity's NBT ({@code LinkOwner}). There is no list of loaded block entities to
+ *       that block entity's NBT ({@code LinkOwnerMost} / {@code LinkOwnerLeast}). There is no list of loaded block entities to
  *       sweep, so the eraser records the UUID in {@link NeroPowerErasureState} (pending set) and bumps
  *       its epoch: every loaded transmitter / relay drops a listed owner on its next tick, every
  *       unloaded one on its next load. <b>Retention of the pending row: 30 days</b>

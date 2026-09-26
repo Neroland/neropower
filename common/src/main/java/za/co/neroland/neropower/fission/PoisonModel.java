@@ -2,8 +2,8 @@ package za.co.neroland.neropower.fission;
 
 /**
  * The fission core's neutron-poison state machine — pure Java, so the stall/recover hysteresis is
- * unit-testable. Poison (0..{@value FissionMath#PERMILLE}) builds while the core runs flat out with
- * every usable rod slot loaded and decays otherwise; at the stall line the core drops into the
+ * unit-testable. Poison (0..{@value FissionMath#PERMILLE}) builds while the core runs hot
+ * ({@link FissionMath#poisonAccumulates}) and decays otherwise; at the stall line the core drops into the
  * <b>xenon pit</b> (no output, no burn-up) and only climbs out once the poison has decayed
  * {@value #RECOVERY_MARGIN} below that line, so a core hovering at the threshold cannot flap.
  */
@@ -28,7 +28,7 @@ public final class PoisonModel {
     /**
      * Advance one tick.
      *
-     * @param accumulating   the core produced at full output this tick with every usable slot loaded
+     * @param accumulating   the core ran hot this tick ({@link FissionMath#poisonAccumulates})
      * @param perTick        poison gained per accumulating tick ({@code fissionPoisonPerTick})
      * @param decayPerTick   poison shed per non-accumulating tick ({@code fissionPoisonDecayPerTick})
      * @param stallPermille  the stall line ({@code fissionPoisonStallPermille})
