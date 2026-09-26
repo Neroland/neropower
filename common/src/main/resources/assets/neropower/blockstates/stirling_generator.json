@@ -1,8 +1,19 @@
 {
   "variants": {
-    "facing=north": { "model": "neropower:block/stirling_generator" },
-    "facing=east":  { "model": "neropower:block/stirling_generator", "y": 90 },
-    "facing=south": { "model": "neropower:block/stirling_generator", "y": 180 },
-    "facing=west":  { "model": "neropower:block/stirling_generator", "y": 270 }
+    "facing=north": {
+      "model": "neropower:block/stirling_generator"
+    },
+    "facing=east": {
+      "model": "neropower:block/stirling_generator",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "neropower:block/stirling_generator",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "neropower:block/stirling_generator",
+      "y": 270
+    }
   }
 }

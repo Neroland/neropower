@@ -64,7 +64,9 @@ public final class FissionContent {
                     .mapColor(MapColor.METAL)
                     .strength(3.5F)
                     .requiresCorrectToolForDrops()
-                    .sound(SoundType.METAL)));
+                    .sound(SoundType.METAL)
+                    // Bevelled plate model (inset edges): never a full cube, so neighbours must not cull.
+                    .noOcclusion()));
 
     /** The neutron-absorbing insert block; the core counts every one inside its shell. */
     public static final RegistryEntry<Block> CONTROL_ROD_ASSEMBLY =
@@ -73,7 +75,9 @@ public final class FissionContent {
                     .mapColor(MapColor.COLOR_GRAY)
                     .strength(3.0F)
                     .requiresCorrectToolForDrops()
-                    .sound(SoundType.METAL)));
+                    .sound(SoundType.METAL)
+                    // Thin rods in a frame: see-through, so neighbours must not cull their faces.
+                    .noOcclusion()));
 
     // --- data components -----------------------------------------------------------------
 

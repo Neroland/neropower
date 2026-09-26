@@ -1,8 +1,14 @@
 package za.co.neroland.neropower.fabric;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 
+import za.co.neroland.neropower.client.ClientBlockEntityRenderers;
 import za.co.neroland.neropower.fission.client.FissionCoreScreen;
 import za.co.neroland.neropower.storage.client.BatteryCellScreen;
 import za.co.neroland.neropower.storage.client.BankControllerScreen;
@@ -16,10 +22,7 @@ import za.co.neroland.neropower.environmental.EnvironmentalContent;
 
 import za.co.neroland.neropower.NeroPowerCommon;
 
-/**
- * Fabric client entry point for NeroPower — registers the machine screens (and later block-entity
- * renderers). Empty until Stage 4 registers the first {@code MachineScreen} subclass.
- */
+/** Fabric client entry point for NeroPower — registers the machine screens + block-entity renderers. */
 public final class NeroPowerFabricClient implements ClientModInitializer {
 
     @Override
@@ -31,5 +34,14 @@ public final class NeroPowerFabricClient implements ClientModInitializer {
         MenuScreens.register(BeamContent.BEAM_MENU.get(), BeamScreen::new);
         MenuScreens.register(EnvironmentalContent.RTG_MENU.get(), RtgScreen::new);
         MenuScreens.register(EnvironmentalContent.STIRLING_MENU.get(), StirlingScreen::new);
+
+        // Machine BERs through the shared cross-loader seam (NeroTech / Nerospace pattern).
+        ClientBlockEntityRenderers.registerAll(new ClientBlockEntityRenderers.Sink() {
+            @Override
+            public <T extends BlockEntity, S extends BlockEntityRenderState> void register(
+                    BlockEntityType<? extends T> type, BlockEntityRendererProvider<T, S> provider) {
+                BlockEntityRendererRegistry.register(type, provider);
+            }
+        });
     }
 }

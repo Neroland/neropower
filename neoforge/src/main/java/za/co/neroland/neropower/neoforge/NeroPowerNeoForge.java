@@ -6,9 +6,11 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import za.co.neroland.neropower.NeroPowerCommon;
+import za.co.neroland.neropower.command.NeroPowerCommands;
 import za.co.neroland.neropower.fission.ScorchTicker;
 import za.co.neroland.neropower.registry.NeoForgeRegistrationFactory;
 
@@ -34,6 +36,9 @@ public final class NeroPowerNeoForge {
         NeoForgeRegistrationFactory.registerAll(modEventBus);
         // Scorch zones (fission failure aftermath) expire and hurt on the server tick.
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> ScorchTicker.tick(event.getServer()));
+        // Creative-only debug commands (/neropower gallery); shared brigadier tree in common.
+        NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) ->
+                NeroPowerCommands.register(event.getDispatcher()));
         if (FMLEnvironment.getDist() == Dist.CLIENT) {
             NeoForgeClientSetup.init(modEventBus);
         }

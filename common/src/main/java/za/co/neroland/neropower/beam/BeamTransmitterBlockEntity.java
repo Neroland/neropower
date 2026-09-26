@@ -2,6 +2,7 @@ package za.co.neroland.neropower.beam;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -71,6 +72,10 @@ public class BeamTransmitterBlockEntity extends BeamEndpointBlockEntity {
 
     /** Spreads passes across ticks so a bank of transmitters never all fire on the same tick. */
     private final int phase = Math.floorMod(System.identityHashCode(this), 40);
+
+    /** Last target pushed to clients (the {@link #renderSyncDirty} compare-and-record state). */
+    @Nullable
+    private BeamTarget syncedTarget;
 
     public BeamTransmitterBlockEntity(BlockPos pos, BlockState state) {
         this(BeamContent.BEAM_TRANSMITTER_BE.get(), pos, state);
@@ -172,6 +177,21 @@ public class BeamTransmitterBlockEntity extends BeamEndpointBlockEntity {
         }
         syncLinkedState(level, pos, state);
         setActive(this.status == BeamStatus.TRANSMITTING);
+    }
+
+    /**
+     * NeroTech's render-sync hook: the endpoint's status compare plus the target itself (a record —
+     * value equality), so the BER's dish tilt and beam ray follow a re-aim without a per-tick packet.
+     * The target already rides the update tag through {@link BeamTarget#save} in {@code saveAdditional}.
+     */
+    @Override
+    protected boolean renderSyncDirty() {
+        boolean dirty = super.renderSyncDirty();
+        if (!Objects.equals(this.target, this.syncedTarget)) {
+            this.syncedTarget = this.target;
+            dirty = true;
+        }
+        return dirty;
     }
 
     /** Mirror the link onto the block state ({@code linked=true/false}) for the model swap. */

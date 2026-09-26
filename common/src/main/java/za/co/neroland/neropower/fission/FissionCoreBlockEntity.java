@@ -91,6 +91,9 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity {
     /** Set by {@link #requestScram()}; honoured (turned into {@link #scramTicksLeft}) on the next tick. */
     private boolean scramRequested;
 
+    /** Last failure-stage code pushed to clients (the {@link #renderSyncDirty} compare-and-record state). */
+    private int syncedFailureStage;
+
     /** Ticks the control-rod factor stays pinned at the floor; 0 = no SCRAM in force. */
     private int scramTicksLeft;
 
@@ -401,6 +404,32 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity {
         BlockPos center = this.worldPosition.relative(facing.getOpposite(), half);
         return new FailureContext(center.offset(-half, -half, -half), center.offset(half, half, half),
                 owner(), machineId());
+    }
+
+    // --- BER read surface (synced via the update tag) -------------------------------
+
+    /**
+     * The failure-ladder rung as the BER sees it — {@code FailureStage}/{@code FailureTicks} ride
+     * {@code saveAdditional} and therefore the update tag; {@link #renderSyncDirty} pushes a packet
+     * whenever the rung moves. The alarm strobe itself keys off the {@code alarm} block state.
+     */
+    public FailureStage renderFailureStage() {
+        return failureStage();
+    }
+
+    /**
+     * NeroTech's render-sync hook: the formed state and heat bucket already ride the base's sync
+     * (shell changes push their own packet in {@link #revalidate}); this adds the failure rung so
+     * the BER's core glow can shift as the ladder climbs, without a per-tick packet.
+     */
+    @Override
+    protected boolean renderSyncDirty() {
+        int stage = failureStage().code();
+        if (stage != this.syncedFailureStage) {
+            this.syncedFailureStage = stage;
+            return true;
+        }
+        return false;
     }
 
     // --- menu sync ------------------------------------------------------------------

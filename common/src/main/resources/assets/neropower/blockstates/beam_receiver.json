@@ -1,8 +1,19 @@
 {
   "variants": {
-    "facing=north": { "model": "neropower:block/beam_receiver" },
-    "facing=east":  { "model": "neropower:block/beam_receiver", "y": 90 },
-    "facing=south": { "model": "neropower:block/beam_receiver", "y": 180 },
-    "facing=west":  { "model": "neropower:block/beam_receiver", "y": 270 }
+    "facing=north": {
+      "model": "neropower:block/beam_receiver"
+    },
+    "facing=east": {
+      "model": "neropower:block/beam_receiver",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "neropower:block/beam_receiver",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "neropower:block/beam_receiver",
+      "y": 270
+    }
   }
 }

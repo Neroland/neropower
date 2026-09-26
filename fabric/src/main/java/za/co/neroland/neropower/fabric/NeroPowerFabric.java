@@ -1,9 +1,11 @@
 package za.co.neroland.neropower.fabric;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
 import za.co.neroland.neropower.NeroPowerCommon;
+import za.co.neroland.neropower.command.NeroPowerCommands;
 import za.co.neroland.neropower.fission.ScorchTicker;
 
 /**
@@ -24,5 +26,8 @@ public final class NeroPowerFabric implements ModInitializer {
         NeroPowerCommon.init();
         // Scorch zones (fission failure aftermath) expire and hurt on the server tick.
         ServerTickEvents.END_SERVER_TICK.register(ScorchTicker::tick);
+        // Creative-only debug commands (/neropower gallery); shared brigadier tree in common.
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
+                NeroPowerCommands.register(dispatcher));
     }
 }

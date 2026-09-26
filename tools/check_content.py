@@ -10,12 +10,16 @@ resources a player-facing block or item needs:
   a ``block.neropower.<id>`` lang key, at least one recipe whose result is ``neropower:<id>`` and
   membership of ``#minecraft:mineable/pickaxe``;
 * items: item definition, item model, ``item.neropower.<id>`` lang key and a recipe result
-  (except ids in ``ALLOW_NO_RECIPE``, which are by-products);
+  (except ids in ``ALLOW_NO_RECIPE``, which are by-products). Block items need the ``item.`` key
+  too: NeroPower's block items are plain ``BlockItem``s whose description id is
+  ``item.neropower.<id>`` (as NeroTech's), so without it the creative tab and tooltips show the
+  raw key even though ``block.neropower.<id>`` names the placed block;
 * every texture referenced by any model resolves to a PNG on disk;
 * every JSON file under the resource tree parses;
 * every lang key the Java code uses (``Component.translatable("...")`` and string literals
-  starting with ``container.neropower.``, ``gui.neropower.`` or ``neropower.``) exists in
-  ``en_us.json``. Keys built from a prefix plus a runtime value are matched by prefix.
+  starting with ``container.neropower.``, ``gui.neropower.``, ``command.neropower.`` or
+  ``neropower.``) exists in ``en_us.json``. Keys built from a prefix plus a runtime value are
+  matched by prefix.
 
 Prints a summary and exits non-zero when anything is missing. Run from anywhere:
 
@@ -47,7 +51,7 @@ DYNAMIC_PREFIX_OK = True
 
 REGISTER_RE = re.compile(r'\bregister\(\s*"([a-z0-9_/.]+)"')
 TRANSLATABLE_RE = re.compile(r'Component\.translatable\(\s*"([^"]+)"')
-LITERAL_RE = re.compile(r'"((?:container|gui|block|item|advancement|advancements)\.' + MOD_ID +
+LITERAL_RE = re.compile(r'"((?:container|gui|block|item|command|advancement|advancements)\.' + MOD_ID +
                         r'\.[A-Za-z0-9_.]*|' + MOD_ID + r'\.[A-Za-z0-9_.]*)"\s*\+?')
 
 
@@ -367,11 +371,17 @@ def main() -> int:
             report.gap(f"{ctx}: item model missing (models/item/{item}.json)")
         else:
             check_model(f"{MOD_ID}:item/{item}", report, seen_models, ctx)
-        lang_key = f"block.{MOD_ID}.{item}" if item in blocks else f"item.{MOD_ID}.{item}"
+        # Every item — block items included — is named by item.<mod>.<id>; a block item's block.
+        # key names only the placed block, and the two must agree.
+        lang_key = f"item.{MOD_ID}.{item}"
         if lang_key not in lang:
             report.gap(f"{ctx}: lang key {lang_key} missing")
         else:
             report.ok()
+            block_key = f"block.{MOD_ID}.{item}"
+            if item in blocks and lang.get(block_key) != lang[lang_key]:
+                report.gap(f"{ctx}: {lang_key} ({lang[lang_key]!r}) differs from {block_key} "
+                           f"({lang.get(block_key)!r})")
         if f"{MOD_ID}:{item}" not in results and item not in ALLOW_NO_RECIPE:
             report.gap(f"{ctx}: no recipe produces {MOD_ID}:{item}")
         else:

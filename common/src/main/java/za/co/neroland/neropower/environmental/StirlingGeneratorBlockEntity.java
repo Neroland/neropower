@@ -9,6 +9,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -42,6 +44,12 @@ public class StirlingGeneratorBlockEntity extends NeroPowerMachineBlockEntity {
     private int gradient;
     private int drawnLastTick;
     private boolean coldFace;
+
+    /** Client-visible draw granularity: sync fires on BUCKET change over {@code stirlingMaxDrawPerOp}. */
+    public static final int DRAW_SYNC_BUCKETS = 6;
+
+    /** Last draw bucket pushed to clients (the {@link #renderSyncDirty} compare-and-record state). */
+    private int syncedDrawBucket;
 
     public StirlingGeneratorBlockEntity(BlockPos pos, BlockState state) {
         super(EnvironmentalContent.STIRLING_TYPE.get(), pos, state, 0);
@@ -119,6 +127,48 @@ public class StirlingGeneratorBlockEntity extends NeroPowerMachineBlockEntity {
         return ns.is(ModBlocks.RADIATOR.get())
                 || ns.is(Blocks.WATER) || ns.is(Blocks.ICE) || ns.is(Blocks.PACKED_ICE)
                 || ns.is(Blocks.BLUE_ICE) || ns.is(Blocks.SNOW_BLOCK) || ns.is(Blocks.POWDER_SNOW);
+    }
+
+    // --- BER read surface (drawn heat rides the update tag; see renderSyncDirty) --------------------
+
+    /**
+     * Heat drawn last tick as a 0..1 fraction of {@code stirlingMaxDrawPerOp} — the BER flywheel
+     * speed input. Client-side it is the last synced value ({@code Drawn} rides
+     * {@code saveAdditional} / the update tag).
+     */
+    public float drawnFraction() {
+        int cap = EnvironmentalConfig.stirlingMaxDrawPerOp();
+        return cap <= 0 ? 0.0F : Math.min(1.0F, Math.max(0, this.drawnLastTick) / (float) cap);
+    }
+
+    /**
+     * NeroTech's render-sync hook: dirty when the draw BUCKET ({@value #DRAW_SYNC_BUCKETS} over
+     * {@code stirlingMaxDrawPerOp}) moved — never per tick.
+     */
+    @Override
+    protected boolean renderSyncDirty() {
+        int cap = EnvironmentalConfig.stirlingMaxDrawPerOp();
+        int bucket = cap <= 0 ? 0
+                : Math.min(DRAW_SYNC_BUCKETS - 1, Math.max(0, this.drawnLastTick) * DRAW_SYNC_BUCKETS / cap);
+        if (bucket != this.syncedDrawBucket) {
+            this.syncedDrawBucket = bucket;
+            return true;
+        }
+        return false;
+    }
+
+    // --- persistence: the drawn amount joins the update tag (NeroTech's base saves Active the same way)
+
+    @Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("Drawn", this.drawnLastTick);
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.drawnLastTick = input.getIntOr("Drawn", 0);
     }
 
     // --- menu sync: three extra ContainerData ints after the seven shared ones ----------------------

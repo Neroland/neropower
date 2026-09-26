@@ -9,6 +9,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import za.co.neroland.nerotech.machine.MachineStatus;
 
@@ -34,6 +36,9 @@ public abstract class BeamEndpointBlockEntity extends NeroPowerMachineBlockEntit
     protected int distance;
     protected int lossPermille;
     protected long lastPass;
+
+    /** Last status ordinal pushed to clients (the {@link #renderSyncDirty} compare-and-record state). */
+    private int syncedStatus;
 
     protected BeamEndpointBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state, 0);
@@ -111,6 +116,42 @@ public abstract class BeamEndpointBlockEntity extends NeroPowerMachineBlockEntit
     @Override
     public boolean shedable() {
         return false;
+    }
+
+    // --- BER read surface (status rides the update tag; see renderSyncDirty) -----------------------
+
+    /**
+     * The status as the BER sees it: {@code BeamStatus} rides {@code saveAdditional} and therefore the
+     * update tag, and {@link #renderSyncDirty} pushes a packet only when it changes (the receiver
+     * uses it to spin its dish; a transmitter / relay also gates the beam ray on TRANSMITTING).
+     */
+    public BeamStatus renderStatus() {
+        return this.status;
+    }
+
+    /** NeroTech's render-sync hook: dirty when the status changed since the last push (never per tick). */
+    @Override
+    protected boolean renderSyncDirty() {
+        int ordinal = this.status.ordinal();
+        if (ordinal != this.syncedStatus) {
+            this.syncedStatus = ordinal;
+            return true;
+        }
+        return false;
+    }
+
+    // --- persistence: the status joins the update tag (NeroTech's base saves Active the same way) ---
+
+    @Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("BeamStatus", this.status.ordinal());
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.status = BeamStatus.byOrdinal(input.getIntOr("BeamStatus", 0));
     }
 
     // --- menu sync ---------------------------------------------------------------------------------

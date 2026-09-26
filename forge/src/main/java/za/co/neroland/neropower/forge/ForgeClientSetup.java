@@ -1,9 +1,15 @@
 package za.co.neroland.neropower.forge;
 
-import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
+import za.co.neroland.neropower.client.ClientBlockEntityRenderers;
 import za.co.neroland.neropower.fission.client.FissionCoreScreen;
 import za.co.neroland.neropower.storage.client.BatteryCellScreen;
 import za.co.neroland.neropower.storage.client.BankControllerScreen;
@@ -15,10 +21,7 @@ import za.co.neroland.neropower.storage.StorageContent;
 import za.co.neroland.neropower.beam.BeamContent;
 import za.co.neroland.neropower.environmental.EnvironmentalContent;
 
-/**
- * Forge client-only wiring (machine screens, later block-entity renderers). Empty until Stage 4
- * registers the first {@code MachineScreen} subclass.
- */
+/** Forge client-only wiring (machine screens + block-entity renderers). */
 public final class ForgeClientSetup {
 
     private ForgeClientSetup() {
@@ -26,6 +29,18 @@ public final class ForgeClientSetup {
 
     public static void init(BusGroup modBusGroup) {
         FMLClientSetupEvent.getBus(modBusGroup).addListener(ForgeClientSetup::onClientSetup);
+        EntityRenderersEvent.RegisterRenderers.BUS.addListener(ForgeClientSetup::onRegisterEntityRenderers);
+    }
+
+    /** Machine BERs through the shared cross-loader seam (NeroTech / Nerospace pattern). */
+    private static void onRegisterEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        ClientBlockEntityRenderers.registerAll(new ClientBlockEntityRenderers.Sink() {
+            @Override
+            public <T extends BlockEntity, S extends BlockEntityRenderState> void register(
+                    BlockEntityType<? extends T> type, BlockEntityRendererProvider<T, S> provider) {
+                event.registerBlockEntityRenderer(type, provider);
+            }
+        });
     }
 
     private static void onClientSetup(FMLClientSetupEvent event) {

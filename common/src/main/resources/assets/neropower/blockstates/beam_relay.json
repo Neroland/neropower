@@ -1,12 +1,34 @@
 {
   "variants": {
-    "facing=north,linked=false": { "model": "neropower:block/beam_relay" },
-    "facing=east,linked=false":  { "model": "neropower:block/beam_relay", "y": 90 },
-    "facing=south,linked=false": { "model": "neropower:block/beam_relay", "y": 180 },
-    "facing=west,linked=false":  { "model": "neropower:block/beam_relay", "y": 270 },
-    "facing=north,linked=true": { "model": "neropower:block/beam_relay_linked" },
-    "facing=east,linked=true":  { "model": "neropower:block/beam_relay_linked", "y": 90 },
-    "facing=south,linked=true": { "model": "neropower:block/beam_relay_linked", "y": 180 },
-    "facing=west,linked=true":  { "model": "neropower:block/beam_relay_linked", "y": 270 }
+    "facing=north,linked=false": {
+      "model": "neropower:block/beam_relay"
+    },
+    "facing=east,linked=false": {
+      "model": "neropower:block/beam_relay",
+      "y": 90
+    },
+    "facing=south,linked=false": {
+      "model": "neropower:block/beam_relay",
+      "y": 180
+    },
+    "facing=west,linked=false": {
+      "model": "neropower:block/beam_relay",
+      "y": 270
+    },
+    "facing=north,linked=true": {
+      "model": "neropower:block/beam_relay_linked"
+    },
+    "facing=east,linked=true": {
+      "model": "neropower:block/beam_relay_linked",
+      "y": 90
+    },
+    "facing=south,linked=true": {
+      "model": "neropower:block/beam_relay_linked",
+      "y": 180
+    },
+    "facing=west,linked=true": {
+      "model": "neropower:block/beam_relay_linked",
+      "y": 270
+    }
   }
 }

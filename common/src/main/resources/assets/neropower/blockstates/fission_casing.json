@@ -1,5 +1,7 @@
 {
   "variants": {
-    "": { "model": "neropower:block/fission_casing" }
+    "": {
+      "model": "neropower:block/fission_casing"
+    }
   }
 }

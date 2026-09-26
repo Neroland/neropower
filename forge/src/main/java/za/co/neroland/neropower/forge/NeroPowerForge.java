@@ -1,6 +1,7 @@
 package za.co.neroland.neropower.forge;
 
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.fml.common.Mod;
@@ -8,6 +9,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 
 import za.co.neroland.neropower.NeroPowerCommon;
+import za.co.neroland.neropower.command.NeroPowerCommands;
 import za.co.neroland.neropower.fission.ScorchTicker;
 import za.co.neroland.neropower.registry.ForgeRegistrationFactory;
 
@@ -34,6 +36,9 @@ public final class NeroPowerForge {
         ForgeRegistrationFactory.registerAll(modBusGroup);
         // Scorch zones (fission failure aftermath) expire and hurt on the server tick.
         TickEvent.ServerTickEvent.Post.BUS.addListener(event -> ScorchTicker.tick(event.server()));
+        // Creative-only debug commands (/neropower gallery); shared brigadier tree in common.
+        RegisterCommandsEvent.BUS.addListener(event ->
+                NeroPowerCommands.register(event.getDispatcher()));
         if (FMLEnvironment.dist == Dist.CLIENT) {
             ForgeClientSetup.init(modBusGroup);
         }

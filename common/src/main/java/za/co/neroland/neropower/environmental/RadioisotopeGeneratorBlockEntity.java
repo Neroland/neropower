@@ -45,6 +45,12 @@ public class RadioisotopeGeneratorBlockEntity extends NeroPowerMachineBlockEntit
     /** Last computed output permille (GUI readout; 0 without a pellet). */
     private int outputPermille;
 
+    /** Client-visible output granularity: sync fires on BUCKET change over 1000‰, never per decay tick. */
+    public static final int OUTPUT_SYNC_BUCKETS = 8;
+
+    /** Last output bucket pushed to clients (the {@link #renderSyncDirty} compare-and-record state). */
+    private int syncedOutputBucket;
+
     /** Cached {@link RtgMath#ticksToCutoff} for the config it was computed under. */
     private long cutoffTicks = -1L;
     private long cutoffHalfLife = -1L;
@@ -188,18 +194,44 @@ public class RadioisotopeGeneratorBlockEntity extends NeroPowerMachineBlockEntit
         return this.cutoffTicks;
     }
 
+    // --- BER read surface (output permille rides the update tag; see renderSyncDirty) ------------
+
+    /**
+     * Output as a 0..1 fraction of {@code rtgNePerTick} — the BER fin-glow input. Client-side it is
+     * the last synced value ({@code OutputPermille} rides {@code saveAdditional} / the update tag).
+     */
+    public float outputFraction() {
+        return Math.min(1.0F, Math.max(0.0F, this.outputPermille / 1000.0F));
+    }
+
+    /**
+     * NeroTech's render-sync hook: dirty when the output BUCKET ({@value #OUTPUT_SYNC_BUCKETS} over
+     * 1000‰) moved — the heat-bucket sync discipline applied to the decay curve.
+     */
+    @Override
+    protected boolean renderSyncDirty() {
+        int bucket = Math.min(OUTPUT_SYNC_BUCKETS - 1, Math.max(0, this.outputPermille) * OUTPUT_SYNC_BUCKETS / 1000);
+        if (bucket != this.syncedOutputBucket) {
+            this.syncedOutputBucket = bucket;
+            return true;
+        }
+        return false;
+    }
+
     // --- persistence -----------------------------------------------------------------------------
 
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         output.putLong("PlacedTick", this.placedTick);
+        output.putInt("OutputPermille", this.outputPermille);
     }
 
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         this.placedTick = input.getLongOr("PlacedTick", -1L);
+        this.outputPermille = input.getIntOr("OutputPermille", 0);
     }
 
     @Override

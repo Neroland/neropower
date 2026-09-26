@@ -1,5 +1,7 @@
 {
   "variants": {
-    "": { "model": "neropower:block/control_rod_assembly" }
+    "": {
+      "model": "neropower:block/control_rod_assembly"
+    }
   }
 }
