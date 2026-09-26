@@ -1,0 +1,33 @@
+{
+  "parent": "neropower:root",
+  "criteria": {
+    "has_radioisotope_generator": {
+      "conditions": {
+        "items": [
+          {
+            "items": "neropower:radioisotope_generator"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.neropower.radioisotope_generator.description"
+    },
+    "frame": "task",
+    "icon": {
+      "id": "neropower:radioisotope_generator"
+    },
+    "title": {
+      "translate": "advancement.neropower.radioisotope_generator.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_radioisotope_generator"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

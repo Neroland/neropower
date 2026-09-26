@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "G": "minecraft:glass", "N": "nerotech:nero_coil", "I": "minecraft:iron_ingot" },
+  "pattern": [ "NGN", " I " ],
+  "result": { "id": "neropower:beam_relay" } }

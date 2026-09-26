@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "neropower:block/stirling_generator_front",
+    "side": "neropower:block/stirling_generator",
+    "top": "neropower:block/stirling_generator_top",
+    "particle": "neropower:block/stirling_generator"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "parent": "neropower:root",
+  "criteria": {
+    "has_fission_core": {
+      "conditions": {
+        "items": [
+          {
+            "items": "neropower:fission_core"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.neropower.fission_core.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "neropower:fission_core"
+    },
+    "title": {
+      "translate": "advancement.neropower.fission_core.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_fission_core"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

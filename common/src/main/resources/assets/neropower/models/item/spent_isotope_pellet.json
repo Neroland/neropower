@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "neropower:item/spent_isotope_pellet"
+  }
+}

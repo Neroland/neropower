@@ -20,9 +20,15 @@ neoForge {
 }
 
 dependencies {
-    // Sentry error-reporting SDK (telemetry/NeroPowerTelemetry). The telemetry core lives in common, so
-    // it compiles against the API here; each loader BUNDLES the jar (NeoForge JarJar / Fabric include).
-    // The core 'sentry' artifact is dependency-free. Privacy: opt-out config + neropower-only filter +
-    // PII scrubbing (see PRIVACY.md).
+    // Sentry error-reporting SDK (telemetry/NeroPowerTelemetry, Stage 9). Compile-only here for IDE
+    // parity; each loader node puts it on the real classpath and embeds it (include / jarJar).
+    // Privacy: opt-out config + neropower-only filter + no PII (PRIVACY.md). Dependency-free artifact.
     compileOnly 'io.sentry:sentry:8.45.0'
+
+    // Neroland Core + NeroTech are NOT declared here, exactly as in NeroTech's common build: `common`
+    // is not a Gradle project (settings.gradle only creates the nine Stonecutter loader nodes) — its
+    // source is spliced into every node, and each node's build.gradle puts the per-loader Core and
+    // NeroTech artifacts (nerolandcore-<loader>-<mc>, nerotech-<loader>-<mc>) on the compile classpath.
+    // The shared source therefore resolves za.co.neroland.nerolandcore.* and za.co.neroland.nerotech.*
+    // through whichever node compiles it; keep loader imports out of common/ regardless.
 }

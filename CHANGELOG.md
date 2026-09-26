@@ -7,6 +7,101 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0-beta.1] — 2026-09-26
+
+NeroPower returns as an **optional add-on that depends on NeroTech** (`0.4.0-beta.1` or later) and
+Neroland Core (`1.13.0` or later). Nothing moves out of NeroTech and no NeroTech id changes; a
+NeroTech world loads with or without NeroPower. Nine loader × version jars: NeoForge, Forge and
+Fabric on Minecraft 26.1.2, 26.2 and 26.3.
+
+### Added
+
+- **Fission Reactor** — `fission_core` controller in a hollow 3×3×3 or 5×5×5 `fission_casing`
+  shell (validated on neighbour change and every 40 ticks, never loading chunks), with
+  `control_rod_assembly` blocks inside the shell as the throttle. Four rod slots (two usable in a
+  3³ shell, four in a 5³); `fuel_rod` items carry their burn-up in a `neropower:burnup` data
+  component and follow a configurable piecewise-linear output/heat curve
+  (`fissionBurnupCurve`, default `0=1200,200=1000,600=800,1000=300`), turning into `spent_fuel_rod`
+  at 100 %. Neutron poisoning stalls a core run flat out (the xenon pit, with a recovery margin).
+  Fuel chain: `uranium_pellet` → `fuel_rod` → `spent_fuel_rod` → `reprocessed_pellet` (NeroTech
+  Chemical Processor) → `uranium_pellet`. Failure explodes the shell (radius shell + 2, capped) and
+  optionally leaves a **scorch zone** persisted through Core's `SavedDataRecovery` for
+  `fissionScorchDays` real days (no player data). Owner-only **SCRAM** (60 s at the control-rod
+  floor) through NeroLink.
+- **Staged failure ladder** shared by every NeroPower reactor — `STABLE → WARNING → UNSTABLE →
+  FAILURE` driven by heat as permille of capacity, one rung per tick, minimum dwell, hysteresis,
+  output penalty while `UNSTABLE`, and a pluggable failure action (`RemoveOnly`, `Explode`, scorch).
+  Every transition is telegraphed: NeroTech's `nerotech:machine_failure` event, the block's `alarm`
+  state, escalating sound and particles, and a Core link alert to the recorded owner (WARN on
+  `UNSTABLE`, CRITICAL on `FAILURE`). `overloadEnabled=false` pins the ladder at `UNSTABLE`.
+- **Protection-aware blasts** — `terrainDamageMode` (`on` / `off` / `auto`, auto = off on a
+  dedicated server), `failureRadiusCap`, and a `ProtectionCheck` seam (default: spawn protection
+  plus `mayInteract`) that shrinks a blast to the multiblock's footprint, or to damage-only, when any
+  block in range is protected or unbreakable.
+- **Battery banks** — `battery_cell_basic` / `_advanced` / `_elite` (capacity and I/O per tier in
+  config, a 0–4 `charge` block-state overlay) and `battery_bank_controller`, which flood-fills
+  connected cells within `bankScanRadius` into one pooled energy surface (capacity = sum,
+  I/O = min(cell I/O) × cells, capped by `bankMaxIoCap`) with round-robin distribution. Modes
+  `BUFFER` and `PRIORITY_SOURCE` (feeds only neighbours below `bankPriorityThresholdPermille`),
+  cycled by sneak-use with an empty hand. A slosh guard stops storage blocks feeding other storage.
+- **Beamed power** — `beam_transmitter`, `beam_receiver`, `beam_relay` and `orbital_receiver`.
+  Straight-line links up to `beamRange` with `beamLossPermillePerBlock` distance loss, a voxel
+  line-of-sight walk every `beamCheckIntervalTicks`, `beamDamage` to entities in the beam, relay
+  chains up to `beamMaxHops` with loop detection, and optional cross-dimension hops to an Orbital
+  Receiver in a Core space dimension (`beamCrossDimension`, flat `beamOrbitalHopLossPermille`).
+  Linking uses NeroTech's Configurator (two clicks, 30 s pending session); the acting player must
+  be able to interact with both endpoints and only the linking player or an operator may unlink.
+  Chunks are never force-loaded.
+- **Radioisotope Generator** — `radioisotope_generator` burning one `isotope_pellet` whose output
+  halves every `rtgHalfLifeDays` (exact integer decay table) until `rtgCutoffPermille`, then
+  ejects a `spent_isotope_pellet`. No heat, no failure ladder, no planet dependence.
+- **Stirling Generator** — `stirling_generator` draws heat from the hottest adjacent
+  NeroTech-family machine through the public `PowerMachine.extractHeat` (never below ambient) and
+  converts it at `stirlingNePerHeatUnit`, with a cold-face bonus (water, ice, snow or a Radiator)
+  and a halved gradient without one.
+- **NeroLink module** — snapshot sections for beams, reactors, banks and generators; owner-scoped
+  for machines with a recorded owner, proximity-scoped (same dimension, 128 blocks, online only)
+  otherwise; actions *acknowledge alarm* and *SCRAM*, owner-only and re-checked server side.
+- **Player-data erasure** — a `PlayerDataEraser` registered with Core clears beam link-owner UUIDs
+  on loaded blocks at once and on unloaded ones at their next load (30-day pending list), verified
+  by Core's `ErasureConformance` fixture. `PRIVACY.md` and `wiki/Privacy.md` document the single
+  stored field and the crash-report telemetry below.
+- **Crash reporting (opt-out)** — `telemetry/NeroPowerTelemetry` sends anonymous error reports for
+  NeroPower code to NeroPower's own Sentry project (EU ingest), mirroring NeroTech: `sendDefaultPii`
+  off, no server name, home-directory paths scrubbed, NeroPower-only filter plus known-noise rules,
+  de-duplicated and capped at 10 events per session, release `neropower@<version>`. Opt out with the
+  client-local `telemetryEnabled=false`. The Sentry SDK (8.45.0) is embedded in all three loader
+  jars (Fabric `include`, NeoForge JarJar, Forge jarJar `-all` jar).
+- **Content** — survival recipes for every block and item (consuming NeroTech's Machine Frame,
+  Nero Coil and Circuit Board), lang, blockstates, models, placeholder textures, loot tables,
+  pickaxe tags, a `neropower` advancement tree (root plus one per feature), and a creative tab.
+- **Docs** — wiki pages for the Fission Reactor, Failure Stages, Battery Banks, Beamed Power,
+  RTG and Stirling, Configuration and Privacy; `docs/DESIGN.md` (design record) and
+  `docs/COMPAT.md` (recipe-viewer notes).
+- **Tooling** — `tools/check_content.py` audits registrations against resources, recipes, tags,
+  advancements and lang keys; `ContentCompletenessTest` runs the lang/resource subset in every CI
+  cell; unit tests for the failure ladder, fission maths, poison model, bank pooling, beam maths and
+  path walk, RTG decay, Stirling draw, link scoping and erasure conformance.
+
+### Changed
+
+- Config is NeroPower's own `config/neropower.properties` on Core's `ConfigSchema` (`neropower`),
+  server-authoritative and hot-reloadable; it never reads `nerotech.properties`. See
+  `wiki/Configuration.md` for every key.
+- Every energy block-entity type registers with NeroTech's `MachineTypeRegistry` so NeroTech's
+  loader glue attaches energy / item capabilities on all three loaders.
+- Release pipeline neutralised for the rebuild: `publish.yml` and the Modrinth sync workflows are
+  manual-only with an explicit confirm input; `auto-deps.yml` lost its schedule. Nothing can reach
+  CurseForge / Modrinth by accident until the pipeline is deliberately re-armed for the release.
+- Docs rewritten for the add-on status; the Modrinth and CurseForge descriptions describe the
+  add-on and its privacy posture.
+
+### Removed
+
+- Dead `syncModels` / `genAssets` Gradle tasks whose scripts never existed.
+- The whole retired standalone design (solar, wind, geothermal, nuclear, fusion generators): those
+  live in NeroTech; NeroPower ships only what NeroTech lacks.
+
 ## [0.2.0-alpha.1] - 2026-09-24
 
 EMI compatibility. No gameplay, id, tag or config change.
@@ -38,4 +133,3 @@ Minecraft **26.3** support. No gameplay, id, tag or config change.
 
 - Build: the shared `common/` Java source is now preprocessed by Stonecutter for every non-active node (`stonecutterProcessCommon`), so common code can carry `//? if >=26.3 {` blocks, and `common/src/main/resources-<mc>` overlay folders are merged over the shared resources for matching nodes (`mergeCommonResources`). The active node still compiles the raw `common/` folder.
 - Build plugins aligned with Neroland Core: ModDevGradle `2.0.147` (the older 2.0.141 cannot set up NeoForge 26.3), ForgeGradle `7.0.40`, Stonecutter `0.9.8`.
-

@@ -1,0 +1,3 @@
+{ "type": "minecraft:crafting_shapeless", "category": "misc",
+  "ingredients": [ "neropower:reprocessed_pellet", "neropower:reprocessed_pellet" ],
+  "result": { "id": "neropower:uranium_pellet" } }

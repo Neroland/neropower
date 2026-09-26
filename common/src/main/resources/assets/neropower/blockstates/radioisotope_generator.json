@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "neropower:block/radioisotope_generator" },
+    "facing=east":  { "model": "neropower:block/radioisotope_generator", "y": 90 },
+    "facing=south": { "model": "neropower:block/radioisotope_generator", "y": 180 },
+    "facing=west":  { "model": "neropower:block/radioisotope_generator", "y": 270 }
+  }
+}

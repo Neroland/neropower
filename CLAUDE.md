@@ -4,12 +4,19 @@
 
 ## The mod
 
-- **NeroPower** — part of the Neroland sci-fi Minecraft mod ecosystem, built on **Neroland Core**.
-  This repository is currently a **barebones multiloader skeleton** (no gameplay content yet); add
-  shared content under `common/` and wire it through each loader entry point.
+- **NeroPower** — part of the Neroland sci-fi Minecraft mod ecosystem, built on **Neroland Core** and an
+  **optional add-on to NeroTech** (`../nerotech`). NeroTech owns the machine framework (thermal model,
+  presets, GUI stack, capability wiring) and its seven generators; NeroPower ships only the power depth
+  NeroTech lacks — fission with a fuel cycle, a staged failure model, tiered pooled storage, beamed
+  transmission, RTG and Stirling generators. It never renames or moves a NeroTech block.
+- The staged build plan with acceptance criteria is **`PLAN-0.1.0.md`** (repo root). Design record:
+  `docs/DESIGN.md`. Work stage by stage; a stage is done only when all nine cells build green.
 - Mod id: **`neropower`** (matches the registry namespace + every loader manifest). Package root:
   `za.co.neroland.neropower`. Author: **Neroland**.
-- Version: **0.0.1-alpha.1**.
+- Version: **0.1.0-alpha.1** (pre-release; first release will be `0.1.0-beta.1`).
+- Dependencies: **Neroland Core** (`nerolandcore_version`, floor `[${nerolandcoreVersion},2.0)`) and
+  **NeroTech** (`nerotech_version`, floor `[${nerotechVersion},1.0)`). Both are real `implementation`
+  dependencies resolved from GitHub Packages / mavenLocal — never reflection.
 - Targets **MC 26.1.2, 26.2 AND 26.3** on **NeoForge, MinecraftForge/Forge, and Fabric** → the **"9 cells"**.
   **Java 25.** Mappings = official Mojang names (26.x ships de-obfuscated; no Parchment).
 
@@ -73,8 +80,29 @@
   wiki as part of "done"; code without a matching wiki update is incomplete.
 - One page per topic; keep `wiki/Home.md` as the index that links every page, with relative links
   between pages. Validate Markdown via the gradle MCP `markdown_check` (honours `.markdownlint.json`).
-- The wiki is **per-mod** — document only NeroPower here; cross-mod / ecosystem concepts live in the
-  umbrella docs and are referenced by relative path.
+- The wiki is **per-mod** and **PUBLIC** (it is pushed to the GitHub wiki). Document only NeroPower
+  here. Never reference private planning material, `PLAN-*.md`, audits or any private repository from
+  `wiki/`; `wiki.yml` carries a guard step that fails the sync if it finds one.
+
+## Release pipeline is NEUTRALISED
+
+- `publish.yml`, `modrinth-description.yml` and `modrinth-gallery.yml` are `workflow_dispatch`-only and
+  each requires an explicit `confirm_*` input. **Do not add a `push` trigger back** before
+  `PLAN-0.1.0.md` Stage 11. `auto-deps.yml` has no schedule until then.
+- Telemetry (Stage 9): opt-out, anonymous Sentry crash reports via `telemetry/NeroPowerTelemetry` (EU ingest,
+  NeroPower's own DSN). Keep it PII-free, and update `PRIVACY.md` **before** widening what it sends.
+
+## Safety rules specific to this mod
+
+- Failures (reactor explosions) go through `failure.FailureController` + `protection.ProtectionCheck`;
+  terrain damage is OFF by default on dedicated servers; radius is capped by config.
+- Transmission links need the linking player to be able to interact with BOTH endpoints. Never use
+  `getNearestPlayer` for authorisation.
+- Every `SavedData.get()` goes through Core's `data.SavedDataRecovery`.
+- Any player identifier stored (link owner UUID) is minimal, retention-limited and cleared by the
+  `PlayerDataEraser` registered with Core's `data.PlayerDataErasure`. See `PRIVACY.md`.
+- Link module (`link.NeroPowerLinkModule`) scopes by owner UUID where recorded, else by proximity to the
+  online requester. Never a server-wide roster.
 
 ## DO NOT
 

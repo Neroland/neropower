@@ -1,0 +1,5 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "G": "minecraft:glass", "E": "minecraft:ender_pearl",
+    "N": "nerotech:nero_coil", "F": "nerotech:machine_frame", "B": "nerotech:circuit_board" },
+  "pattern": [ "GEG", "NFB" ],
+  "result": { "id": "neropower:beam_transmitter" } }

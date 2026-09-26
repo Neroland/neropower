@@ -11,6 +11,8 @@ def mc = stonecutter.current.version
 def fabricApi = project.findProperty("fabric_api_version_${mc}")
 def jeiVersion = project.findProperty("jei_version_${mc}")
 def emiFile = project.findProperty("emi_file_fabric_${mc}")
+def nerolandcoreVersion = project.findProperty('nerolandcore_version')
+def nerotechVersion = project.findProperty('nerotech_version')
 
 // This node's projectDir is <loader>/versions/<v>; the authoritative loader source +
 // resources live in the BRANCH root (fabric/). Resolve branch-root paths via the parent.
@@ -24,6 +26,27 @@ base { archivesName = "neropower-fabric-${mc}" }
 sourceSets.main.java.srcDir rootProject.ext.commonJava
 sourceSets.main.resources.srcDir rootProject.ext.commonResources
 
+// Plain-JVM unit tests (JUnit 5, no game bootstrap) — the same shared tests the neoforge nodes run,
+// so a regression is caught on every loader instead of only one. They live in common/src/test/java
+// (mirroring Core's layout) but `common` is not a Gradle project (see settings.gradle), so each
+// loader node wires the source dir itself.
+// Loom has no equivalent of ModDevGradle's `addModdingDependenciesTo`, so the test source set simply
+// inherits main's resolved classpath (de-obfuscated Minecraft + fabric-api + Core + NeroTech).
+// Run with `gradlew :fabric:<mc>:test`; `build`/`check` runs them automatically.
+sourceSets.test.java.srcDir "${rootProject.projectDir}/common/src/test/java"
+configurations.testCompileClasspath.extendsFrom configurations.compileClasspath
+configurations.testRuntimeClasspath.extendsFrom configurations.runtimeClasspath
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.12.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${mc}"
     // NOTE: no `mappings` — de-obfuscated 26.x needs none (Fabric Loom 1.17+).
@@ -31,6 +54,19 @@ dependencies {
     if (fabricApi != null) {
         implementation "net.fabricmc.fabric-api:fabric-api:${fabricApi}"
     }
+
+    // Neroland Core — REQUIRED shared foundation (machine/energy framework, config, link, data
+    // erasure). Plain `implementation` (NOT `include`) — matching how fabric-api is declared here: this
+    // de-obf 26.x Loom setup omits `mappings`, so there is no intermediary→named remap and Loom's
+    // `modImplementation` configuration isn't available. Core's classes land on the compile + dev-runtime
+    // classpath and Fabric Loader discovers it as a mod via its bundled fabric.mod.json. Resolved from
+    // mavenLocal() / GitHub Packages. Core loads BEFORE NeroPower (see fabric.mod.json depends).
+    implementation "za.co.neroland.nerolandcore:nerolandcore-fabric-${mc}:${nerolandcoreVersion}"
+
+    // NeroTech — REQUIRED machine framework NeroPower is an add-on to (public api/ package, machine
+    // base classes, thermal model). Declared exactly like Core: plain `implementation`, never `include`;
+    // Fabric Loader discovers it as its own mod. Loads BEFORE NeroPower (fabric.mod.json depends).
+    implementation "za.co.neroland.nerotech:nerotech-fabric-${mc}:${nerotechVersion}"
 
     // Sentry SDK (telemetry/NeroPowerTelemetry): compile against it + embed it as a jar-in-jar so the
     // shipped Fabric jar carries it. Counterpart to the NeoForge JarJar bundling.
@@ -72,6 +108,10 @@ def generateModMetadata = tasks.register('generateModMetadata', ProcessResources
         mod_license          : rootProject.mod_license,
         fabric_loader_version: rootProject.fabric_loader_version,
         minecraft_version    : mc,
+        // Floor the required Core / NeroTech versions at what we compile against so the loader refuses
+        // to run against a dependency too old to have the APIs referenced.
+        nerolandcore_version : nerolandcoreVersion,
+        nerotech_version     : nerotechVersion,
     ]
     inputs.properties(props)
     expand(props)

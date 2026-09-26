@@ -12,6 +12,8 @@ def mc = stonecutter.current.version
 def forgeVersion = project.findProperty("forge_version_${mc}")
 def jeiVersion = project.findProperty("jei_version_${mc}")
 def emiFile = project.findProperty("emi_file_neoforge_${mc}")
+def nerolandcoreVersion = project.findProperty('nerolandcore_version')
+def nerotechVersion = project.findProperty('nerotech_version')
 
 if (!forgeVersion) {
     throw new GradleException("Missing forge_version_${mc} in gradle.properties")
@@ -26,12 +28,34 @@ def forgeMajor = forgeBuild.split('\\.')[0]
 // Distinct, descriptive jar name per cell.
 base { archivesName = "neropower-forge-${mc}" }
 
-// Enable Forge's Jar-in-Jar task for embedded Sentry, mirroring Fabric include and NeoForge JarJar.
+// Enable Forge's Jar-in-Jar task for the embedded Sentry SDK (telemetry/NeroPowerTelemetry), mirroring
+// Fabric `include` and NeoForge JarJar. The distributable is the jarJar output (`*-all.jar`).
 jarJar.register()
 
 // Pull in the shared common source + resources.
 sourceSets.main.java.srcDir rootProject.ext.commonJava
 sourceSets.main.resources.srcDir rootProject.ext.commonResources
+
+// Plain-JVM unit tests (JUnit 5, no game bootstrap) — the same shared tests the neoforge nodes run,
+// so a regression is caught on every loader instead of only one. They live in common/src/test/java
+// (mirroring Core's layout) but `common` is not a Gradle project (see settings.gradle), so each
+// loader node wires the source dir itself.
+// ForgeGradle has no equivalent of ModDevGradle's `addModdingDependenciesTo`, so the test source set
+// simply inherits main's resolved classpath (de-obfuscated Minecraft + Forge + Core + NeroTech).
+// Run with `gradlew :forge:<mc>:test`; `build`/`check` runs them automatically.
+sourceSets.test.java.srcDir "${rootProject.projectDir}/common/src/test/java"
+configurations.testCompileClasspath.extendsFrom configurations.compileClasspath
+configurations.testRuntimeClasspath.extendsFrom configurations.runtimeClasspath
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.12.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+}
 
 // Forge 26's ModLauncher builds a JPMS layer from the dev runtime classpath. If classes and
 // processed resources are separate entries, the mod's classes can be seen as module "main" while
@@ -71,6 +95,19 @@ dependencies {
     implementation minecraft.dependency("net.minecraftforge:forge:${forgeVersion}")
     annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.5'
 
+    // Neroland Core — REQUIRED shared foundation (machine/energy framework, config, link, data
+    // erasure). Compile + dev-runtime classpath; NOT jar-in-jar — Core ships as its own mod and loads
+    // BEFORE NeroPower (see mods.toml dependency). Resolved from mavenLocal() / GitHub Packages
+    // (nerolandcore-forge-<mc>).
+    implementation "za.co.neroland.nerolandcore:nerolandcore-forge-${mc}:${nerolandcoreVersion}"
+
+    // NeroTech — REQUIRED machine framework NeroPower is an add-on to (public api/ package, machine
+    // base classes, thermal model). Same posture as Core: compile + dev-runtime, never bundled; loads
+    // BEFORE NeroPower (mods.toml ordering AFTER). Resolved from mavenLocal() / GitHub Packages
+    // (nerotech-forge-<mc>).
+    implementation "za.co.neroland.nerotech:nerotech-forge-${mc}:${nerotechVersion}"
+
+    // Sentry SDK (telemetry/NeroPowerTelemetry): compile against it + embed it in the jarJar output.
     implementation 'io.sentry:sentry:8.45.0'
     jarJar(group: 'io.sentry', name: 'sentry', version: '8.45.0')
 
@@ -97,6 +134,11 @@ def generateModMetadata = tasks.register('generateModMetadata', ProcessResources
         mod_license               : rootProject.mod_license,
         forge_loader_version_range: "[${forgeMajor},)",
         minecraft_version_range   : "[${mc},)",
+        // Floor the required Core / NeroTech versions at what we compile against so Forge refuses to
+        // load against a dependency too old to have the APIs referenced, instead of crashing at
+        // registration. Never hardcode these ranges (PLAN-0.1.0.md ground rules).
+        nerolandcore_version_range: "[${nerolandcoreVersion},2.0)",
+        nerotech_version_range    : "[${nerotechVersion},1.0)",
     ]
     inputs.properties(props)
     expand(props)

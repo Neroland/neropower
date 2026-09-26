@@ -1,0 +1,79 @@
+{
+  "variants": {
+    "charge=0,facing=north": {
+      "model": "neropower:block/battery_cell_basic_charge0"
+    },
+    "charge=1,facing=north": {
+      "model": "neropower:block/battery_cell_basic_charge1"
+    },
+    "charge=2,facing=north": {
+      "model": "neropower:block/battery_cell_basic_charge2"
+    },
+    "charge=3,facing=north": {
+      "model": "neropower:block/battery_cell_basic_charge3"
+    },
+    "charge=4,facing=north": {
+      "model": "neropower:block/battery_cell_basic_charge4"
+    },
+    "charge=0,facing=east": {
+      "model": "neropower:block/battery_cell_basic_charge0",
+      "y": 90
+    },
+    "charge=1,facing=east": {
+      "model": "neropower:block/battery_cell_basic_charge1",
+      "y": 90
+    },
+    "charge=2,facing=east": {
+      "model": "neropower:block/battery_cell_basic_charge2",
+      "y": 90
+    },
+    "charge=3,facing=east": {
+      "model": "neropower:block/battery_cell_basic_charge3",
+      "y": 90
+    },
+    "charge=4,facing=east": {
+      "model": "neropower:block/battery_cell_basic_charge4",
+      "y": 90
+    },
+    "charge=0,facing=south": {
+      "model": "neropower:block/battery_cell_basic_charge0",
+      "y": 180
+    },
+    "charge=1,facing=south": {
+      "model": "neropower:block/battery_cell_basic_charge1",
+      "y": 180
+    },
+    "charge=2,facing=south": {
+      "model": "neropower:block/battery_cell_basic_charge2",
+      "y": 180
+    },
+    "charge=3,facing=south": {
+      "model": "neropower:block/battery_cell_basic_charge3",
+      "y": 180
+    },
+    "charge=4,facing=south": {
+      "model": "neropower:block/battery_cell_basic_charge4",
+      "y": 180
+    },
+    "charge=0,facing=west": {
+      "model": "neropower:block/battery_cell_basic_charge0",
+      "y": 270
+    },
+    "charge=1,facing=west": {
+      "model": "neropower:block/battery_cell_basic_charge1",
+      "y": 270
+    },
+    "charge=2,facing=west": {
+      "model": "neropower:block/battery_cell_basic_charge2",
+      "y": 270
+    },
+    "charge=3,facing=west": {
+      "model": "neropower:block/battery_cell_basic_charge3",
+      "y": 270
+    },
+    "charge=4,facing=west": {
+      "model": "neropower:block/battery_cell_basic_charge4",
+      "y": 270
+    }
+  }
+}

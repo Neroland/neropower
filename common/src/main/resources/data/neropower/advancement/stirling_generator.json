@@ -1,0 +1,33 @@
+{
+  "parent": "neropower:root",
+  "criteria": {
+    "has_stirling_generator": {
+      "conditions": {
+        "items": [
+          {
+            "items": "neropower:stirling_generator"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.neropower.stirling_generator.description"
+    },
+    "frame": "task",
+    "icon": {
+      "id": "neropower:stirling_generator"
+    },
+    "title": {
+      "translate": "advancement.neropower.stirling_generator.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_stirling_generator"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

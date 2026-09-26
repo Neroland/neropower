@@ -1,0 +1,34 @@
+{
+  "criteria": {
+    "has_control_rod": {
+      "conditions": {
+        "items": [
+          {
+            "items": "neropower:control_rod"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "background": "minecraft:textures/gui/advancements/backgrounds/stone.png",
+    "description": {
+      "translate": "advancement.neropower.root.description"
+    },
+    "icon": {
+      "id": "neropower:control_rod"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancement.neropower.root.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_control_rod"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

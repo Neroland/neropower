@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "U": "neropower:uranium_pellet", "I": "minecraft:iron_ingot" },
+  "pattern": [ " I ", "UUU", " I " ],
+  "result": { "id": "neropower:fuel_rod" } }

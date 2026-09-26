@@ -1,19 +1,26 @@
 # NeroPower Wiki
 
-Player- and contributor-facing documentation for **NeroPower**, part of the
-[Neroland ecosystem](../../neroland-mc-ecosystem/README.md). Built on **Neroland Core**.
+Player- and contributor-facing documentation for **NeroPower**, an optional power-depth add-on to
+**NeroTech**, built on **Neroland Core**.
 
-> **Status:** barebones — this mod is scaffolded (version `0.0.1-alpha.1`) but has no gameplay
-> content yet. Pages will grow as features land. Keep this wiki updated alongside code changes
-> (see [`../AGENTS.md`](../AGENTS.md) / [`../CLAUDE.md`](../CLAUDE.md)).
+> **Status:** in development — first release will be `0.1.0-beta.1`. Keep this wiki updated alongside
+> code changes (see the repository's contributor notes).
+
+NeroPower requires **NeroTech** and **Neroland Core** and runs on Minecraft 26.1.2, 26.2 and 26.3
+(NeoForge, Forge and Fabric). Its machines share NeroTech's GUI, side configuration, presets,
+upgrades and thermal model; the pages below cover only what NeroPower adds on top.
 
 ## Contents
 
-_No feature pages yet._ Add one page per block, item, machine, or system as it is built, and link it
-here. Keep this page as the index.
+- [Fission Reactor](Fission-Reactor.md) — multiblock, fuel rods, burn-up, control rods, poisoning
+- [Failure Stages](Failure-Stages.md) — how reactors warn, degrade and fail; server safety config
+- [Battery Banks](Battery-Banks.md) — cell tiers, pooling, buffer vs priority mode
+- [Beamed Power](Beamed-Power.md) — transmitters, receivers, relays, range and loss, linking rules
+- [RTG and Stirling](RTG-and-Stirling.md) — the two stateful generators
+- [Configuration](Configuration.md) — every `neropower.properties` key
+- [Privacy](Privacy.md) — what the mod stores about players and how to erase it
 
 ## See also
 
-- [Build & contributor context](../AGENTS.md)
-- [Ecosystem overview](../../neroland-mc-ecosystem/README.md)
-- [This mod's planning docs](../../neroland-mc-ecosystem/neropower/)
+- [Privacy notice](../PRIVACY.md) — the full disclosure in the repository
+- [NeroTech](https://github.com/Neroland/nerotech) — the machine framework this mod extends

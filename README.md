@@ -1,15 +1,29 @@
 # NeroPower
 
-> Part of the [Neroland](../neroland-mc-ecosystem) sci-fi Minecraft mod ecosystem, built on **Neroland Core**.
+> Part of the Neroland sci-fi Minecraft mod ecosystem, built on **Neroland Core**. NeroPower is an
+> **optional add-on to [NeroTech](https://github.com/Neroland/nerotech)**: it adds power *depth* on top
+> of NeroTech's machine framework and generators.
 
-**Status:** barebones multiloader skeleton — version `0.0.1-alpha.1`. No gameplay content yet.
+**Status:** in development — version `0.1.0-alpha.1`. First release will be `0.1.0-beta.1`.
+See [`PLAN-0.1.0.md`](PLAN-0.1.0.md) for the staged plan and [`docs/DESIGN.md`](docs/DESIGN.md) for the
+design record.
 
-## Build targets
+## What it adds
 
-- **Minecraft:** 26.1.2, 26.2 and 26.3
-- **Loaders:** NeoForge, MinecraftForge/Forge, Fabric (the "9 cells")
-- **Java:** 25
-- Mod id: `neropower` · package `za.co.neroland.neropower`
+- **Fission reactor** with a real fuel cycle — burn-up curves, control rods, neutron poisoning,
+  reprocessing.
+- **Staged failure model** — stable → warning → unstable → failure, always telegraphed, claim-aware,
+  terrain damage off by default on servers.
+- **Tiered, pooled battery banks** with buffer / priority-source modes.
+- **Beamed power** — line-of-sight transmitters, receivers and relays with distance loss and
+  owner-checked linking.
+- **RTG** and **Stirling gradient** generators — output that is a function of state, not a flat number.
+
+## Requirements
+
+- **Neroland Core** and **NeroTech** (both required; version floors are in `gradle.properties`).
+- **Minecraft:** 26.1.2, 26.2 and 26.3 · **Loaders:** NeoForge, MinecraftForge/Forge, Fabric (the "9 cells")
+- **Java:** 25 · Mod id: `neropower` · package `za.co.neroland.neropower`
 
 ## Layout
 
@@ -30,9 +44,5 @@ The build is the repo root, with a flattened cross-loader structure driven by St
           :fabric:26.1.2:build :fabric:26.2:build :fabric:26.3:build   # all nine
 ```
 
-See [`AGENTS.md`](AGENTS.md) / [`CLAUDE.md`](CLAUDE.md) for agent and contributor context.
-
-## Planning docs
-
-Design, feature and dependency docs for this mod live in the umbrella repo under
-[`../neroland-mc-ecosystem/neropower`](../neroland-mc-ecosystem/neropower).
+See [`AGENTS.md`](AGENTS.md) / [`CLAUDE.md`](CLAUDE.md) for agent and contributor context, and
+[`PRIVACY.md`](PRIVACY.md) for what the mod stores.

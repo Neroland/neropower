@@ -1,0 +1,4 @@
+{ "type": "minecraft:block", "pools": [ { "rolls": 1.0, "bonus_rolls": 0.0,
+  "conditions": [ { "condition": "minecraft:survives_explosion" } ],
+  "entries": [ { "type": "minecraft:item", "name": "neropower:control_rod_assembly" } ] } ],
+  "random_sequence": "neropower:blocks/control_rod_assembly" }

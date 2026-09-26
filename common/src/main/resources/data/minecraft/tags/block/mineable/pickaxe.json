@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    "neropower:beam_transmitter",
+    "neropower:beam_receiver",
+    "neropower:beam_relay",
+    "neropower:orbital_receiver",
+    "neropower:radioisotope_generator",
+    "neropower:stirling_generator",
+    "neropower:fission_core",
+    "neropower:fission_casing",
+    "neropower:control_rod_assembly",
+    "neropower:battery_cell_basic",
+    "neropower:battery_cell_advanced",
+    "neropower:battery_cell_elite",
+    "neropower:battery_bank_controller"
+  ]
+}

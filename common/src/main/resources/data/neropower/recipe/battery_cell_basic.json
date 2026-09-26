@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "R": "minecraft:redstone",
+    "I": "minecraft:iron_ingot",
+    "N": "nerotech:nero_coil"
+  },
+  "pattern": [
+    "RIR",
+    "INI",
+    "RIR"
+  ],
+  "result": {
+    "id": "neropower:battery_cell_basic"
+  }
+}

@@ -14,6 +14,8 @@ def mc = stonecutter.current.version
 def neoVersion = project.findProperty("neo_version_${mc}")
 def jeiVersion = project.findProperty("jei_version_${mc}")
 def emiFile = project.findProperty("emi_file_neoforge_${mc}")
+def nerolandcoreVersion = project.findProperty('nerolandcore_version')
+def nerotechVersion = project.findProperty('nerotech_version')
 
 // This node's projectDir is <loader>/versions/<v>; the authoritative loader source +
 // templates live in the BRANCH root (neoforge/). Resolve branch-root paths via the parent.
@@ -31,10 +33,39 @@ repositories {
 sourceSets.main.java.srcDir rootProject.ext.commonJava
 sourceSets.main.resources.srcDir rootProject.ext.commonResources
 
+// Plain-JVM unit tests (JUnit 5, no game bootstrap). The shared tests live in
+// common/src/test/java (mirroring Core's and NeroTech's layout) but — since `common` is not a
+// Gradle project (see settings.gradle) — each loader node wires the source dir itself. ModDevGradle
+// cleanly exposes the modding classpath to extra source sets via addModdingDependenciesTo (below).
+// Run with `gradlew :neoforge:<mc>:test`; `build`/`check` runs them automatically.
+sourceSets.test.java.srcDir "${rootProject.projectDir}/common/src/test/java"
+
 dependencies {
-    // Sentry SDK embedded via NeoForge JarJar so players need no extra download (JarJar dedupes if
-    // another mod also ships Sentry). Adds it to the compile classpath AND the mod jar.
+    testImplementation platform('org.junit:junit-bom:5.12.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+}
+
+dependencies {
+    // Neroland Core — REQUIRED shared foundation (machine/energy framework, config, link, data
+    // erasure). Compile + dev-runtime classpath; NOT jar-in-jar — Core ships as its own mod and loads
+    // BEFORE NeroPower (see the mods.toml dependency). Resolved from mavenLocal() / GitHub Packages
+    // (nerolandcore-neoforge-<mc>).
+    implementation "za.co.neroland.nerolandcore:nerolandcore-neoforge-${mc}:${nerolandcoreVersion}"
+
+    // Sentry SDK (telemetry/NeroPowerTelemetry) embedded via NeoForge JarJar so players need no extra
+    // download (JarJar dedupes with NeroTech's/Core's copy). Compile classpath AND the mod jar.
     jarJar(implementation('io.sentry:sentry:8.45.0'))
+
+    // NeroTech — REQUIRED machine framework NeroPower is an add-on to (public api/ package, machine
+    // base classes, thermal model). Same posture as Core: compile + dev-runtime, never bundled; loads
+    // BEFORE NeroPower (mods.toml ordering AFTER). Resolved from mavenLocal() / GitHub Packages
+    // (nerotech-neoforge-<mc>).
+    implementation "za.co.neroland.nerotech:nerotech-neoforge-${mc}:${nerotechVersion}"
 
     // JEI (optional recipe-viewer compat; the compat/jei plugin loads only when JEI is present). The API
     // is compile-time; the full NeoForge artifact is runtime-only (dev/test) so it is never published as a
@@ -62,13 +93,27 @@ dependencies {
 // neoForge.ideSyncTask runs this on IDE sync so bin/main gets the EXPANDED manifest
 // and Run & Debug works — values stay dynamic (from gradle.properties).
 def generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
+    // NeoForge 26.2 deprecated the `logoFile` property in favour of `bannerFile` (wide banner) and
+    // `iconFile` (square icon); 26.2+ shows a dev-only warning screen for any mod still using it, while
+    // 26.1.2's FML only understands `logoFile`. Our logo is a square PNG, so emit `iconFile` on 26.2+
+    // and keep `logoFile` on 26.1.2 — one template, correct metadata on every cell, no warning.
+    def mcParts = mc.tokenize('.').collect { it.toInteger() }
+    def squareIconKey = mcParts[0] > 26 || (mcParts[0] == 26 && (mcParts.size() < 2 || mcParts[1] >= 2))
+    def modLogoEntry = (squareIconKey ? 'iconFile' : 'logoFile') + ' = "neropower_logo.png"'
+
     def props = [
         mod_id                 : rootProject.mod_id,
         mod_version            : rootProject.mod_version,
         mod_name               : rootProject.mod_name,
         mod_authors            : rootProject.mod_authors,
         mod_license            : rootProject.mod_license,
+        mod_logo_entry         : modLogoEntry,
         minecraft_version_range: "[${mc},)",
+        // Floor the required Core / NeroTech versions at what we compile against so the loader refuses
+        // to run against a dependency too old to have the APIs referenced, instead of crashing at
+        // registration. Never hardcode these ranges (PLAN-0.1.0.md ground rules).
+        nerolandcore_version_range: "[${nerolandcoreVersion},2.0)",
+        nerotech_version_range    : "[${nerotechVersion},1.0)",
     ]
     inputs.properties(props)
     expand(props)
@@ -80,6 +125,11 @@ sourceSets.main.resources.srcDir generateModMetadata
 neoForge {
     version = neoVersion
     ideSyncTask generateModMetadata
+
+    // Give the unit-test source set the same (de-obfuscated) Minecraft + NeoForge classpath as
+    // main, so tests can construct game-typed objects without a running server. testImplementation
+    // already extends implementation, which carries Core and NeroTech.
+    addModdingDependenciesTo sourceSets.test
 
     def at = rootProject.file('common/src/main/resources/META-INF/accesstransformer.cfg')
     if (at.exists()) {

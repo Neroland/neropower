@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:gold_ingot",
+    "C": "neropower:battery_cell_basic",
+    "B": "nerotech:circuit_board"
+  },
+  "pattern": [
+    " G ",
+    "GCG",
+    "GB "
+  ],
+  "result": {
+    "id": "neropower:battery_cell_advanced"
+  }
+}

@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "R": "neropower:control_rod", "I": "minecraft:iron_ingot" },
+  "pattern": [ "RIR" ],
+  "result": { "id": "neropower:control_rod_assembly" } }

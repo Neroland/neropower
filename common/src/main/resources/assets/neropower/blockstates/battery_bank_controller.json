@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "neropower:block/battery_bank_controller"
+    },
+    "facing=east": {
+      "model": "neropower:block/battery_bank_controller",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "neropower:block/battery_bank_controller",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "neropower:block/battery_bank_controller",
+      "y": 270
+    }
+  }
+}

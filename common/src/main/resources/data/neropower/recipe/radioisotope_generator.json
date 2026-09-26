@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "I": "minecraft:iron_ingot", "C": "nerotech:nero_coil", "F": "nerotech:machine_frame", "B": "nerotech:circuit_board" },
+  "pattern": [ "ICI", "BFC", "I I" ],
+  "result": { "id": "neropower:radioisotope_generator" } }

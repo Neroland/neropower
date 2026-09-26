@@ -1,0 +1,1 @@
+{ "type": "nerotech:chemical_processing", "ingredient": "neropower:spent_fuel_rod", "result": { "id": "neropower:reprocessed_pellet", "count": 1 } }

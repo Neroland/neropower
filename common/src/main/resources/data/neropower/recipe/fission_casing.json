@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "I": "minecraft:iron_ingot", "F": "nerotech:machine_frame" },
+  "pattern": [ "III", "IFI", "III" ],
+  "result": { "id": "neropower:fission_casing", "count": 4 } }

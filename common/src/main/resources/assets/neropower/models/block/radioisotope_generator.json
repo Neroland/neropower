@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "neropower:block/radioisotope_generator_front",
+    "side": "neropower:block/radioisotope_generator",
+    "top": "neropower:block/radioisotope_generator_top",
+    "particle": "neropower:block/radioisotope_generator"
+  }
+}

@@ -1,0 +1,5 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "G": "minecraft:gold_ingot", "E": "minecraft:ender_eye",
+    "R": "neropower:beam_receiver", "B": "nerotech:circuit_board" },
+  "pattern": [ "GEG", " R ", " B " ],
+  "result": { "id": "neropower:orbital_receiver" } }

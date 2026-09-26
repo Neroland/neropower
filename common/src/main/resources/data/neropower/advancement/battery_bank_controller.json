@@ -1,0 +1,33 @@
+{
+  "parent": "neropower:root",
+  "criteria": {
+    "has_battery_bank_controller": {
+      "conditions": {
+        "items": [
+          {
+            "items": "neropower:battery_bank_controller"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.neropower.battery_bank_controller.description"
+    },
+    "frame": "task",
+    "icon": {
+      "id": "neropower:battery_bank_controller"
+    },
+    "title": {
+      "translate": "advancement.neropower.battery_bank_controller.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_battery_bank_controller"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

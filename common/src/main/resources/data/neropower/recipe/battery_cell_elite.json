@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "D": "minecraft:diamond",
+    "C": "neropower:battery_cell_advanced",
+    "B": "nerotech:circuit_board"
+  },
+  "pattern": [
+    "BDB",
+    "DCD",
+    " D "
+  ],
+  "result": {
+    "id": "neropower:battery_cell_elite"
+  }
+}

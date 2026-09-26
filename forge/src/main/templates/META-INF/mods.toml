@@ -1,6 +1,7 @@
 modLoader = "javafml"
 loaderVersion = "${forge_loader_version_range}"
 license = "${mod_license}"
+logoFile = "neropower_logo.png"
 
 [[mods]]
 modId = "${mod_id}"
@@ -8,7 +9,7 @@ version = "${mod_version}"
 displayName = "${mod_name}"
 authors = "${mod_authors}"
 description = '''
-NeroPower - multiloader build (Forge).
+Optional power-depth add-on for NeroTech: fission fuel cycles, staged reactor failure, tiered storage, beamed transmission.
 '''
 
 [[mixins]]
@@ -26,4 +27,30 @@ modId = "minecraft"
 mandatory = true
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
+side = "BOTH"
+
+# Neroland Core — required shared foundation; must load BEFORE NeroPower (ordering = AFTER).
+[[dependencies.${mod_id}]]
+modId = "nerolandcore"
+mandatory = true
+versionRange = "${nerolandcore_version_range}"
+ordering = "AFTER"
+side = "BOTH"
+
+# NeroTech — the machine framework NeroPower extends; must load BEFORE NeroPower (ordering = AFTER)
+# so its MachineTypeRegistry is seeded and its capability wiring sees NeroPower's machine types.
+[[dependencies.${mod_id}]]
+modId = "nerotech"
+mandatory = true
+versionRange = "${nerotech_version_range}"
+ordering = "AFTER"
+side = "BOTH"
+
+# Nerospace — optional planet interop reached through NeroTech's public PlanetApi (never a hard
+# import). When present it must load BEFORE NeroPower so planet traits are ready when generators ask.
+[[dependencies.${mod_id}]]
+modId = "nerospace"
+mandatory = false
+versionRange = "[0,)"
+ordering = "AFTER"
 side = "BOTH"

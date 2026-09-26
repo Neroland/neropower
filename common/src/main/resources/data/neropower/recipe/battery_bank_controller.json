@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": "nerotech:machine_frame",
+    "B": "nerotech:circuit_board",
+    "N": "nerotech:nero_coil",
+    "C": "neropower:battery_cell_basic"
+  },
+  "pattern": [
+    " B ",
+    "NFN",
+    " C "
+  ],
+  "result": {
+    "id": "neropower:battery_bank_controller"
+  }
+}

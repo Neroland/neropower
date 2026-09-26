@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "neropower:block/orbital_receiver" },
+    "facing=east":  { "model": "neropower:block/orbital_receiver", "y": 90 },
+    "facing=south": { "model": "neropower:block/orbital_receiver", "y": 180 },
+    "facing=west":  { "model": "neropower:block/orbital_receiver", "y": 270 }
+  }
+}

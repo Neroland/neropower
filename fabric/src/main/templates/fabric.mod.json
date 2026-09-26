@@ -3,9 +3,10 @@
   "id": "${mod_id}",
   "version": "${mod_version}",
   "name": "${mod_name}",
-  "description": "NeroPower - multiloader build (Fabric).",
+  "description": "Optional power-depth add-on for NeroTech: fission fuel cycles, staged reactor failure, tiered storage, beamed transmission.",
   "authors": ["${mod_authors}"],
   "license": "${mod_license}",
+  "icon": "neropower_logo.png",
   "accessWidener": "neropower.accesswidener",
   "environment": "*",
   "entrypoints": {
@@ -20,6 +21,11 @@
     "fabricloader": ">=${fabric_loader_version}",
     "minecraft": ">=${minecraft_version}",
     "java": ">=21",
-    "fabric-api": "*"
+    "fabric-api": "*",
+    "nerolandcore": ">=${nerolandcore_version}",
+    "nerotech": ">=${nerotech_version}"
+  },
+  "suggests": {
+    "nerospace": "*"
   }
 }
