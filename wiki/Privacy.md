@@ -33,7 +33,7 @@ in NeroPower's own code fails: the stack trace, mod / Minecraft / loader / Java 
 installed mod list and three NeroPower settings. Never a username, UUID, IP, coordinates or world
 data, and your account name is scrubbed from file paths. At most 10 reports per session.
 
-To turn it off, set `telemetryEnabled=false` in `config/neropower.properties` and restart. The full
+It is **on by default**. To opt out, set `telemetryEnabled=false` in `config/neropower.properties` and restart. The full
 details are in [`PRIVACY.md`](../PRIVACY.md).
 
 ## Erasing your data

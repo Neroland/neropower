@@ -1,3 +1,11 @@
+[![NeroLink App — Beta](https://img.shields.io/badge/NeroLink_App-Now_in_Beta-60d4e8?style=for-the-badge)](https://nerolandmc.net/nerolink/#beta) [![Explore the Neroland ecosystem](https://img.shields.io/badge/Explore-The_Neroland_Ecosystem-1a5a6c?style=for-the-badge)](https://nerolandmc.net/ecosystem/)
+
+> 📱 **NeroLink App Beta — your Neroland world on your phone.** Check energy, alerts and machines live, claim quest rewards and search your storage without logging in. **[Join the beta at nerolandmc.net →](https://nerolandmc.net/nerolink/#beta)**
+>
+> 🌌 **Explore the Neroland ecosystem.** See how NeroPower fits together with the rest of the Nero mods — every mod, wiki and changelog in one place. **[View the ecosystem at nerolandmc.net →](https://nerolandmc.net/ecosystem/)** · [NeroPower on the website](https://nerolandmc.net/mods/neropower/)
+
+---
+
 # NeroPower
 
 **Run it, cool it, risk it — power depth for NeroTech, where every reactor is a system you have to operate.**
@@ -21,7 +29,7 @@ Built on **Neroland Core**, so it speaks the ecosystem's one Nero Energy type, s
 
 ## Privacy (POPIA / GDPR)
 
-NeroPower stores exactly one thing about players: the **UUID of the player who linked a Beam Transmitter or Relay**, kept in that block's own world data so that only they (or an operator) can unlink it. It is never a name, never sent to clients, never logged. Erase it at any time with Neroland Core's `/neroland data eraseme`. Every other block — reactors, batteries, receivers, generators — records no player at all, and NeroPower carries no analytics. It does send **anonymous crash reports** for errors in its own code (Sentry, EU servers; no names, UUIDs, IPs or world data), which you can turn off with `telemetryEnabled=false` in `config/neropower.properties`.
+NeroPower stores exactly one thing about players: the **UUID of the player who linked a Beam Transmitter or Relay**, kept in that block's own world data so that only they (or an operator) can unlink it. It is never a name, never sent to clients, never logged. Erase it at any time with Neroland Core's `/neroland data eraseme`. Every other block — reactors, batteries, receivers, generators — records no player at all, and NeroPower carries no analytics. It does send **anonymous crash reports** for errors in its own code (Sentry, EU servers; no names, UUIDs, IPs or world data). On by default — opt out any time by setting `telemetryEnabled=false` in `config/neropower.properties`.
 
 ## Why it fits the ecosystem
 

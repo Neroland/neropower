@@ -67,7 +67,7 @@ public final class NeroPowerConfig {
 
     // --- telemetry (anonymous crash reporting; CLIENT-LOCAL opt-out, not server-synced) -----
     private static final ConfigValue<Boolean> TELEMETRY_ENABLED = SCHEMA.bool("telemetryEnabled",
-            true, false, "anonymous error reporting to the developers (Sentry, EU servers): NeroPower stack "
+            true, false, "On by default: anonymous error reporting to the developers (Sentry, EU servers): NeroPower stack "
             + "traces + mod/MC/loader/OS/Java versions, installed mod list and a few NeroPower config values "
             + "only — never names, UUIDs, IPs, coordinates or world data; file paths are scrubbed of your "
             + "account name (POPIA/GDPR-compliant, see PRIVACY.md). Set false to opt out (takes effect on restart)");

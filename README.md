@@ -45,4 +45,5 @@ The build is the repo root, with a flattened cross-loader structure driven by St
 ```
 
 See [`AGENTS.md`](AGENTS.md) / [`CLAUDE.md`](CLAUDE.md) for agent and contributor context, and
-[`PRIVACY.md`](PRIVACY.md) for what the mod stores.
+[`PRIVACY.md`](PRIVACY.md) for what the mod stores. Anonymous crash reporting (Sentry, EU servers)
+is **on by default** and **opt-out**: set `telemetryEnabled=false` in `config/neropower.properties`.

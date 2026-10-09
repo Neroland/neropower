@@ -102,4 +102,4 @@ See [RTG and Stirling](RTG-and-Stirling.md).
 
 | Key | Default | Range | What it does |
 | --- | --- | --- | --- |
-| `telemetryEnabled` | `true` | — | Anonymous crash reports for errors in NeroPower code (Sentry, EU servers; no names, UUIDs, IPs or world data). Set `false` to opt out; takes effect on restart. Client-local, never synced. See [Privacy](Privacy.md). |
+| `telemetryEnabled` | `true` | — | Anonymous crash reports for errors in NeroPower code (Sentry, EU servers; no names, UUIDs, IPs or world data). **On by default**; set `false` to opt out (takes effect on restart). Client-local, never synced. See [Privacy](Privacy.md). |
