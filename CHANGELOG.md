@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Data only; no code, id or config change.
+
+### Added
+
+- **Item tags** for other mods to key on: `neropower:pellets` (uranium, reprocessed and isotope
+  pellets), `neropower:battery_cells` (basic, advanced and elite cells) and `neropower:spent_fuel`
+  (spent fuel rod, spent isotope pellet). Every entry is `"required": false`.
+- The partly burnt `neropower:fuel_rod`, whose burn state lives in item components, is added to the
+  optional `neroeconomy:never_commodity` item tag (`"replace": false`) so an economy mod never prices it
+  by id. The tag is ignored when no such mod is installed.
+
 ## [0.1.0-beta.1] — 2026-09-26
 
 NeroPower returns as an **optional add-on that depends on NeroTech** (`0.4.0-beta.1` or later) and

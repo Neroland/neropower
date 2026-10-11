@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "neropower:fuel_rod",
+      "required": false
+    }
+  ]
+}

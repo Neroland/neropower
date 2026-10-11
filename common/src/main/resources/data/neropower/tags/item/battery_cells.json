@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "neropower:battery_cell_basic",
+      "required": false
+    },
+    {
+      "id": "neropower:battery_cell_advanced",
+      "required": false
+    },
+    {
+      "id": "neropower:battery_cell_elite",
+      "required": false
+    }
+  ]
+}

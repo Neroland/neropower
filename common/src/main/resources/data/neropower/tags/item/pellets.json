@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "neropower:uranium_pellet",
+      "required": false
+    },
+    {
+      "id": "neropower:reprocessed_pellet",
+      "required": false
+    },
+    {
+      "id": "neropower:isotope_pellet",
+      "required": false
+    }
+  ]
+}
