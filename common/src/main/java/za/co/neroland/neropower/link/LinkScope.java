@@ -1,7 +1,6 @@
 package za.co.neroland.neropower.link;
 
 import java.util.Optional;
-import java.util.OptionalLong;
 import java.util.UUID;
 
 /**
@@ -19,17 +18,16 @@ import java.util.UUID;
  *       who also passes NeroPower's protection seam ({@code mayInteract}) — the same person who
  *       could walk up and do it by hand.</li>
  *   <li><b>Failure events</b> — go to the machine's owner only; an unowned machine's events go only
- *       to online players within proximity of it (resolved by the module from the scope string,
- *       {@link #dimensionOf} / {@link #packedPosOf}). Never a server-wide broadcast.</li>
+ *       to online players within proximity of it (resolved by the module from the machine itself,
+ *       never from a published scope). Never a server-wide broadcast. Their scope
+ *       ({@link #failureScope}) names a machine type and a dimension — never a position: a base's
+ *       coordinates identify its builder.</li>
  * </ul>
  */
 public final class LinkScope {
 
     /** Proximity radius (blocks) around the requesting player. */
     public static final int PROXIMITY_BLOCKS = 128;
-
-    /** The machine-id prefix every NeroPower failure-channel scope starts with. */
-    public static final String SCOPE_PREFIX = "neropower:";
 
     private LinkScope() {
     }
@@ -80,55 +78,12 @@ public final class LinkScope {
         return (PROXIMITY_BLOCKS + 15) / 16;
     }
 
-    /** Whether a NeroTech failure-channel scope ({@code <machineId>@<dim>:<pos>}) names a NeroPower machine. */
-    public static boolean isNeroPowerScope(String scope) {
-        return scope != null && scope.startsWith(SCOPE_PREFIX);
-    }
-
-    /** The {@code machineId} part of a failure-channel scope, or the whole string when it has no {@code @}. */
-    public static String machineIdOf(String scope) {
-        if (scope == null) {
-            return "";
-        }
-        int at = scope.indexOf('@');
-        return at < 0 ? scope : scope.substring(0, at);
-    }
-
     /**
-     * The dimension id of a failure-channel scope ({@code <machineId>@<dim>:<pos.asLong()>}), e.g.
-     * {@code minecraft:overworld}; {@code ""} when the scope is malformed.
+     * The scope a NeroLink {@code failure} event carries: {@code <machineId>@<dimensionId>}, e.g.
+     * {@code neropower:fission_core@minecraft:overworld} — the same shape as NeroTech's
+     * {@code nerotech:machine_failure} channel. No player and no position.
      */
-    public static String dimensionOf(String scope) {
-        int split = posSeparator(scope);
-        if (split < 0 || packedPosOf(scope).isEmpty()) {
-            return "";
-        }
-        return scope.substring(scope.indexOf('@') + 1, split);
-    }
-
-    /** The packed block position ({@code BlockPos.asLong()}) of a failure-channel scope; empty when malformed. */
-    public static OptionalLong packedPosOf(String scope) {
-        int split = posSeparator(scope);
-        if (split < 0) {
-            return OptionalLong.empty();
-        }
-        try {
-            return OptionalLong.of(Long.parseLong(scope.substring(split + 1)));
-        } catch (NumberFormatException e) {
-            return OptionalLong.empty();
-        }
-    }
-
-    /** Index of the {@code :} before the packed position, or -1 unless both a non-empty dimension and it exist. */
-    private static int posSeparator(String scope) {
-        if (scope == null) {
-            return -1;
-        }
-        int at = scope.indexOf('@');
-        if (at < 0) {
-            return -1;
-        }
-        int split = scope.lastIndexOf(':');
-        return split > at + 1 && split < scope.length() - 1 ? split : -1;
+    public static String failureScope(String machineId, String dimensionId) {
+        return machineId + "@" + dimensionId;
     }
 }

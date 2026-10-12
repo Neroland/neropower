@@ -132,47 +132,38 @@ class NeroPowerLinkModuleTest {
     }
 
     @Test
-    void failureCrossingsAreNeverBroadcastAndDropWithoutAServer() {
-        // No captured server ⇒ neither an owner nor a nearby online player can be resolved ⇒ the
-        // event is dropped. In-game it goes player-targeted to the owner or nearby players only.
-        String scope = "neropower:fission_core@minecraft:overworld:12345";
-        List<LinkEvent> seen = capture(() -> ThresholdEvents.fire(new ThresholdEvents.ThresholdCrossing(
-                MachineFailureEvents.CHANNEL, scope, MachineFailureEvents.STAGE_UNSTABLE,
-                MachineFailureEvents.STAGE_UNSTABLE, true)));
-        List<LinkEvent> ours = seen.stream().filter(e -> "neropower".equals(e.moduleId())).toList();
-        assertTrue(ours.isEmpty(), "no recipients resolvable ⇒ nothing published");
-        assertTrue(seen.stream().filter(e -> "neropower".equals(e.moduleId())).noneMatch(LinkEvent::isBroadcast));
+    void busCrossingsAreNotForwarded() {
+        // The module no longer listens on NeroTech's failure channel: FailureTelegraph hands it the
+        // machine directly, because the bus scope carries no position to resolve recipients from.
+        List<LinkEvent> seen = capture(() -> {
+            ThresholdEvents.fire(new ThresholdEvents.ThresholdCrossing(MachineFailureEvents.CHANNEL,
+                    "neropower:fission_core@minecraft:overworld", MachineFailureEvents.STAGE_UNSTABLE,
+                    MachineFailureEvents.STAGE_UNSTABLE, true));
+            ThresholdEvents.fire(new ThresholdEvents.ThresholdCrossing(MachineFailureEvents.CHANNEL,
+                    "nerotech:fusion_reactor@minecraft:overworld", 3, 3, true));
+            ThresholdEvents.fire(new ThresholdEvents.ThresholdCrossing(
+                    Identifier.parse("nerotech:pollution"), "neropower:not_a_failure", 1, 1, true));
+        });
+        assertTrue(seen.stream().noneMatch(e -> "neropower".equals(e.moduleId())));
     }
 
     @Test
     void failurePayloadCarriesScopeStageAndDirection() {
-        String scope = "neropower:fission_core@minecraft:overworld:12345";
-        JsonObject payload = NeroPowerLinkModule.failurePayload(new ThresholdEvents.ThresholdCrossing(
-                MachineFailureEvents.CHANNEL, scope, MachineFailureEvents.STAGE_UNSTABLE,
-                MachineFailureEvents.STAGE_UNSTABLE, true));
-        assertEquals(scope, payload.get("scope").getAsString());
+        JsonObject payload = NeroPowerLinkModule.failurePayload("neropower:fission_core", "minecraft:overworld",
+                MachineFailureEvents.STAGE_UNSTABLE, true);
+        assertEquals("neropower:fission_core@minecraft:overworld", payload.get("scope").getAsString());
         assertEquals("neropower:fission_core", payload.get("machineId").getAsString());
         assertEquals(MachineFailureEvents.STAGE_UNSTABLE, payload.get("stage").getAsInt());
         assertTrue(payload.get("rising").getAsBoolean());
     }
 
     @Test
-    void otherPublishersAndChannelsAreIgnored() {
-        List<LinkEvent> seen = capture(() -> {
-            ThresholdEvents.fire(new ThresholdEvents.ThresholdCrossing(MachineFailureEvents.CHANNEL,
-                    "nerotech:fusion_reactor@minecraft:overworld:1", 3, 3, true));
-            ThresholdEvents.fire(new ThresholdEvents.ThresholdCrossing(
-                    Identifier.parse("nerotech:pollution"), "neropower:not_a_failure", 1, 1, true));
-        });
-        assertTrue(seen.stream().noneMatch(e -> "neropower".equals(e.moduleId())),
-                "only NeroPower machines on the failure channel are forwarded");
-    }
-
-    @Test
-    void failurePayloadCarriesNoPersonalFields() {
-        JsonObject payload = NeroPowerLinkModule.failurePayload(new ThresholdEvents.ThresholdCrossing(
-                MachineFailureEvents.CHANNEL, "neropower:fission_core@minecraft:the_nether:7", 1, 1, false));
+    void failurePayloadCarriesNoPersonalFieldsOrPosition() {
+        JsonObject payload = NeroPowerLinkModule.failurePayload("neropower:fission_core", "minecraft:the_nether",
+                1, false);
         assertEquals(List.of("scope", "machineId", "stage", "rising"), new ArrayList<>(payload.keySet()));
+        assertEquals("neropower:fission_core@minecraft:the_nether", payload.get("scope").getAsString(),
+                "a machine type and a place — a base's coordinates identify its builder");
         assertFalse(payload.get("rising").getAsBoolean());
     }
 
@@ -231,26 +222,9 @@ class NeroPowerLinkModuleTest {
     }
 
     @Test
-    void scopeDimensionAndPositionAreParsed() {
-        String scope = "neropower:fission_core@minecraft:the_nether:-274877906944";
-        assertEquals("minecraft:the_nether", LinkScope.dimensionOf(scope));
-        assertEquals(-274877906944L, LinkScope.packedPosOf(scope).orElseThrow());
-        assertEquals("nerospace:moon", LinkScope.dimensionOf("neropower:beam_relay@nerospace:moon:7"));
-        assertEquals(7L, LinkScope.packedPosOf("neropower:beam_relay@nerospace:moon:7").orElseThrow());
-        for (String bad : new String[] {null, "", "neropower:fission_core", "neropower:x@:5",
-                "neropower:x@minecraft:overworld", "neropower:x@minecraft:overworld:", "neropower:x@minecraft:overworld:abc"}) {
-            assertEquals("", LinkScope.dimensionOf(bad), String.valueOf(bad));
-            assertTrue(LinkScope.packedPosOf(bad).isEmpty(), String.valueOf(bad));
-        }
-    }
-
-    @Test
-    void scopeStringsAreParsedByPrefix() {
-        assertTrue(LinkScope.isNeroPowerScope("neropower:fission_core@minecraft:overworld:1"));
-        assertFalse(LinkScope.isNeroPowerScope("nerotech:fusion_reactor@minecraft:overworld:1"));
-        assertFalse(LinkScope.isNeroPowerScope(null));
-        assertEquals("neropower:fission_core", LinkScope.machineIdOf("neropower:fission_core@minecraft:overworld:1"));
-        assertEquals("neropower:fission_core", LinkScope.machineIdOf("neropower:fission_core"));
-        assertEquals("", LinkScope.machineIdOf(null));
+    void failureScopeIsMachineAtDimension() {
+        assertEquals("neropower:fission_core@minecraft:overworld",
+                LinkScope.failureScope("neropower:fission_core", "minecraft:overworld"));
+        assertEquals("neropower:beam_relay@nerospace:moon", LinkScope.failureScope("neropower:beam_relay", "nerospace:moon"));
     }
 }

@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import za.co.neroland.neropower.NeroPowerCommon;
 import za.co.neroland.neropower.command.NeroPowerCommands;
 import za.co.neroland.neropower.fission.ScorchTicker;
+import za.co.neroland.neropower.progression.QuestHooks;
 
 /**
  * Fabric entry point for NeroPower. Registration is eager (the {@code RegistrationProvider} seam
@@ -26,6 +27,8 @@ public final class NeroPowerFabric implements ModInitializer {
         NeroPowerCommon.init();
         // Scorch zones (fission failure aftermath) expire and hurt on the server tick.
         ServerTickEvents.END_SERVER_TICK.register(ScorchTicker::tick);
+        // Quest hook delivery (pending hook gates on login) rides the same tick.
+        ServerTickEvents.END_SERVER_TICK.register(QuestHooks::tick);
         // Creative-only debug commands (/neropower gallery); shared brigadier tree in common.
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
                 NeroPowerCommands.register(dispatcher));

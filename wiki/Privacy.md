@@ -18,7 +18,10 @@ you picked first — in memory only, for at most 30 seconds.
 
 A Fission Reactor's "owner" is NeroTech's own machine-owner field, stored only when a server admin
 turned on NeroTech's per-player pollution attribution (off by default). NeroTech documents and
-erases it; NeroPower only reads it to address failure events and gate remote actions.
+erases it; NeroPower only reads it to address failure events, gate remote actions and open the
+owner's quest milestone records (see [Quest Chapter](Quest-Chapter.md)). Those records are
+player-scope gates in Neroland Core's progression store, covered and erased by Core's own privacy
+disclosure; an owner who opted out of attribution gets none.
 
 ## What NeroPower never stores or sends
 

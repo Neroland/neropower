@@ -13,7 +13,7 @@
   `docs/DESIGN.md`. Work stage by stage; a stage is done only when all nine cells build green.
 - Mod id: **`neropower`** (matches the registry namespace + every loader manifest). Package root:
   `za.co.neroland.neropower`. Author: **Neroland**.
-- Version: **0.1.0-alpha.1** (pre-release; first release will be `0.1.0-beta.1`).
+- Version: **0.2.0-alpha.1** (pre-release; first release will be `0.2.0-beta.1`).
 - Dependencies: **Neroland Core** (`nerolandcore_version`, floor `[${nerolandcoreVersion},2.0)`) and
   **NeroTech** (`nerotech_version`, floor `[${nerotechVersion},1.0)`). Both are real `implementation`
   dependencies resolved from GitHub Packages / mavenLocal — never reflection.
@@ -91,7 +91,12 @@
   `main` that changes `gradle.properties` and publishes any `mod_version` that has no `v<version>` tag
   yet. Only bump `mod_version` to a new value when that version is meant to ship.
 - Recipes use **natural progression only** (NeroTech intermediates such as Machine Frame, Nero Coil and
-  Circuit Board). No Core progression gates or material-milestone gates.
+  Circuit Board). No Core progression gates or material-milestone gates lock anything. The player-scope
+  gates under `data/neropower/neroland_gates/` (`progression.MilestoneGates`, `hook/*`) are **records**
+  for the quest pack only — never check one for access.
+- **Quest pack** (`data/neropower/neroquests/`, chapter `neropower:reactor_log`) is inert data read by
+  NeroQuests when installed. **No dependency on NeroQuests in any form** (no import, manifest entry or
+  compileOnly); `progression.QuestHooks` listens on Core's progression events only.
 - Telemetry (Stage 9): opt-out, anonymous Sentry crash reports via `telemetry/NeroPowerTelemetry` (EU ingest,
   NeroPower's own DSN). Keep it PII-free, and update `PRIVACY.md` **before** widening what it sends.
 

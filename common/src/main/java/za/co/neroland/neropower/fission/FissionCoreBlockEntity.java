@@ -3,6 +3,7 @@ package za.co.neroland.neropower.fission;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -30,6 +31,8 @@ import za.co.neroland.neropower.failure.FailureAction;
 import za.co.neroland.neropower.failure.FailureContext;
 import za.co.neroland.neropower.failure.FailureStage;
 import za.co.neroland.neropower.machine.NeroPowerMachineBlockEntity;
+import za.co.neroland.neropower.progression.FissionWorldLog;
+import za.co.neroland.neropower.progression.MilestoneGates;
 
 /**
  * Fission Reactor controller (Stage 4) — NeroPower's first reactor and the first machine on the
@@ -76,6 +79,9 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity {
     public static final int EXTRA_CONTROL_ROD = ROD_SLOTS + 1;
     public static final int EXTRA_FAILURE_STAGE = ROD_SLOTS + 2;
     public static final int EXTRA_SHELL_SIZE = ROD_SLOTS + 3;
+
+    /** Whether this loaded core has already recorded its first burn (criticality + world log). Transient. */
+    private boolean burnRecorded;
 
     /** Formed state (persisted so a reload never flickers through "unformed"; synced to the BER via the update tag). */
     private int shellSize;
@@ -321,6 +327,13 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity {
         }
         int delta = (int) Math.min(FissionMath.MAX_BURNUP, this.burnupAccumulator / 1000L);
         this.burnupAccumulator %= 1000L;
+        if (!this.burnRecorded && this.level instanceof ServerLevel serverLevel) {
+            // Criticality: the owner's record gate and the dimension's world-log crossing, checked once
+            // per loaded core (both are idempotent, so a reload costs one cheap re-check).
+            this.burnRecorded = true;
+            MilestoneGates.record(serverLevel, ownerId(), MilestoneGates.CRITICALITY);
+            FissionWorldLog.recordBurn(serverLevel);
+        }
         for (int slot = 0; slot < usable; slot++) {
             ItemStack stack = this.items.get(slot);
             if (!isFuelRod(stack)) {

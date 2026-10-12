@@ -1,0 +1,15 @@
+{
+  "title": "quest.neropower.reactor_log.tiered_storage.title",
+  "description": "quest.neropower.reactor_log.tiered_storage.desc",
+  "icon": "neropower:battery_cell_elite",
+  "prerequisites": ["neropower:reactor_log/cells"],
+  "objectives": [
+    { "type": "neroquests:craft_item", "item": "neropower:battery_cell_advanced", "count": 1 },
+    { "type": "neroquests:craft_item", "item": "neropower:battery_cell_elite", "count": 1 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 100 },
+    { "type": "neroquests:currency", "amount": 75 }
+  ],
+  "scope": "player"
+}

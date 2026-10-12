@@ -1,0 +1,15 @@
+{
+  "title": "quest.neropower.reactor_log.gradient.title",
+  "description": "quest.neropower.reactor_log.gradient.desc",
+  "icon": "neropower:stirling_generator",
+  "prerequisites": ["neropower:reactor_log/cells"],
+  "objectives": [
+    { "type": "neroquests:craft_item", "item": "neropower:stirling_generator", "count": 1 },
+    { "type": "neroquests:craft_item", "item": "neropower:radioisotope_generator", "count": 1 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 100 },
+    { "type": "neroquests:currency", "amount": 75 }
+  ],
+  "scope": "player"
+}

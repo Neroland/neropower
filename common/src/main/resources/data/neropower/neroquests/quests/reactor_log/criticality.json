@@ -1,0 +1,14 @@
+{
+  "title": "quest.neropower.reactor_log.criticality.title",
+  "description": "quest.neropower.reactor_log.criticality.desc",
+  "icon": "neropower:control_rod_assembly",
+  "prerequisites": ["neropower:reactor_log/fission_build"],
+  "objectives": [
+    { "type": "neroquests:gate_open", "gate": "neropower:criticality" }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 200 },
+    { "type": "neroquests:currency", "amount": 150 }
+  ],
+  "scope": "player"
+}

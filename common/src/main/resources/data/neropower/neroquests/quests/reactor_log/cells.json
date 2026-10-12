@@ -1,0 +1,15 @@
+{
+  "title": "quest.neropower.reactor_log.cells.title",
+  "description": "quest.neropower.reactor_log.cells.desc",
+  "icon": "neropower:battery_cell_basic",
+  "prerequisites": [],
+  "objectives": [
+    { "type": "neroquests:craft_item", "item": "neropower:battery_cell_basic", "count": 1 },
+    { "type": "neroquests:craft_item", "item": "neropower:battery_bank_controller", "count": 1 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 50 },
+    { "type": "neroquests:currency", "amount": 50 }
+  ],
+  "scope": "player"
+}

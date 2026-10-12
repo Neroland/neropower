@@ -12,6 +12,7 @@ import za.co.neroland.neropower.environmental.EnvironmentalContent;
 import za.co.neroland.neropower.fission.FissionConfig;
 import za.co.neroland.neropower.fission.FissionContent;
 import za.co.neroland.neropower.link.NeroPowerLinkModule;
+import za.co.neroland.neropower.progression.QuestHooks;
 import za.co.neroland.neropower.registry.ModBlockEntities;
 import za.co.neroland.neropower.registry.ModRegistries;
 import za.co.neroland.neropower.storage.StorageConfig;
@@ -72,5 +73,8 @@ public final class NeroPowerCommon {
         // machine type it enumerates is registered first.
         NeroPowerDataErasure.register();
         NeroPowerLinkModule.register();
+        // Quest-pack hook gates (Core progression events only; no quest-mod dependency). The loaders
+        // feed QuestHooks.tick from the server tick for offline-to-online delivery.
+        QuestHooks.init();
     }
 }

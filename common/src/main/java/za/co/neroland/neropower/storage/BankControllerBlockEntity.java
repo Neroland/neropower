@@ -6,6 +6,7 @@ import java.util.Set;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -23,6 +24,7 @@ import za.co.neroland.nerolandcore.sideconfig.SidePreset;
 import za.co.neroland.nerotech.machine.MachineStatus;
 
 import za.co.neroland.neropower.machine.NeroPowerMachineBlockEntity;
+import za.co.neroland.neropower.progression.MilestoneGates;
 
 /**
  * Battery Bank Controller (Stage 5) — pools the Battery Cells connected to it into one energy
@@ -138,6 +140,12 @@ public class BankControllerBlockEntity extends NeroPowerMachineBlockEntity {
             positions.add(cell.getBlockPos().immutable());
         }
         this.memberPositions = positions;
+        // Milestone record for the controller's owner once the pooled capacity reaches the configured
+        // size (idempotent; skipped for an unowned controller).
+        if (level instanceof ServerLevel serverLevel && this.pool.formed()
+                && this.pool.getCapacity() >= StorageConfig.bankCapacityMilestone()) {
+            MilestoneGates.record(serverLevel, ownerId(), MilestoneGates.BANK_CAPACITY);
+        }
     }
 
     /** Shedding a buffer would achieve nothing — it has no work rate to throttle. */

@@ -12,6 +12,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import za.co.neroland.neropower.NeroPowerCommon;
 import za.co.neroland.neropower.command.NeroPowerCommands;
 import za.co.neroland.neropower.fission.ScorchTicker;
+import za.co.neroland.neropower.progression.QuestHooks;
 import za.co.neroland.neropower.registry.NeoForgeRegistrationFactory;
 
 /**
@@ -36,6 +37,8 @@ public final class NeroPowerNeoForge {
         NeoForgeRegistrationFactory.registerAll(modEventBus);
         // Scorch zones (fission failure aftermath) expire and hurt on the server tick.
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> ScorchTicker.tick(event.getServer()));
+        // Quest hook delivery (pending hook gates on login) rides the same tick.
+        NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> QuestHooks.tick(event.getServer()));
         // Creative-only debug commands (/neropower gallery); shared brigadier tree in common.
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) ->
                 NeroPowerCommands.register(event.getDispatcher()));

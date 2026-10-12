@@ -1,0 +1,14 @@
+{
+  "title": "quest.neropower.reactor_log.beam_link.title",
+  "description": "quest.neropower.reactor_log.beam_link.desc",
+  "icon": "neropower:beam_receiver",
+  "prerequisites": ["neropower:reactor_log/beamed"],
+  "objectives": [
+    { "type": "neroquests:gate_open", "gate": "neropower:beam_linked" }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 150 },
+    { "type": "neroquests:currency", "amount": 100 }
+  ],
+  "scope": "player"
+}

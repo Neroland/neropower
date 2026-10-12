@@ -4,7 +4,7 @@
 > **optional add-on to [NeroTech](https://github.com/Neroland/nerotech)**: it adds power *depth* on top
 > of NeroTech's machine framework and generators.
 
-**Status:** in development — version `0.1.0-alpha.1`. First release will be `0.1.0-beta.1`.
+**Status:** in development — version `0.2.0-alpha.1`. First release will be `0.2.0-beta.1`.
 See [`PLAN-0.1.0.md`](PLAN-0.1.0.md) for the staged plan and [`docs/DESIGN.md`](docs/DESIGN.md) for the
 design record.
 
@@ -18,10 +18,13 @@ design record.
 - **Beamed power** — line-of-sight transmitters, receivers and relays with distance loss and
   owner-checked linking.
 - **RTG** and **Stirling gradient** generators — output that is a function of state, not a flat number.
+- **Quest chapter** — a NeroQuests quest pack, *Reactor Log* (14 quests), ships inside the jar and
+  appears in the quest book when NeroQuests is installed. NeroQuests is **optional**: without it the
+  pack is inert data and NeroPower has no dependency on it.
 
 ## Requirements
 
-- **Neroland Core** and **NeroTech** (both required; version floors are in `gradle.properties`).
+- **Neroland Core** 1.15.0+ and **NeroTech** 0.6.0-beta.1+ (both required; version floors are in `gradle.properties`).
 - **Minecraft:** 26.1.2, 26.2 and 26.3 · **Loaders:** NeoForge, MinecraftForge/Forge, Fabric (the "9 cells")
 - **Java:** 25 · Mod id: `neropower` · package `za.co.neroland.neropower`
 

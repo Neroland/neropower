@@ -1,0 +1,15 @@
+{
+  "title": "quest.neropower.reactor_log.first_burn.title",
+  "description": "quest.neropower.reactor_log.first_burn.desc",
+  "icon": "neropower:fuel_rod",
+  "prerequisites": ["neropower:reactor_log/fission_build"],
+  "objectives": [
+    { "type": "neroquests:collect_item", "item": "neropower:spent_fuel_rod", "count": 1 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 300 },
+    { "type": "neroquests:currency", "amount": 250 },
+    { "type": "neroquests:mod_hook", "gate": "neropower:hook/fuel_rod_refill" }
+  ],
+  "scope": "player"
+}

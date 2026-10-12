@@ -1,0 +1,14 @@
+{
+  "title": "quest.neropower.reactor_log.closing_the_loop.title",
+  "description": "quest.neropower.reactor_log.closing_the_loop.desc",
+  "icon": "neropower:reprocessed_pellet",
+  "prerequisites": ["neropower:reactor_log/first_burn"],
+  "objectives": [
+    { "type": "neroquests:collect_item", "item": "neropower:reprocessed_pellet", "count": 2 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 400 },
+    { "type": "neroquests:currency", "amount": 400 }
+  ],
+  "scope": "player"
+}

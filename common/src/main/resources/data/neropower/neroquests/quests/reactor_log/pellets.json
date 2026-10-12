@@ -1,0 +1,15 @@
+{
+  "title": "quest.neropower.reactor_log.pellets.title",
+  "description": "quest.neropower.reactor_log.pellets.desc",
+  "icon": "neropower:uranium_pellet",
+  "prerequisites": ["neropower:reactor_log/gradient"],
+  "objectives": [
+    { "type": "neroquests:collect_item", "item": "neropower:uranium_pellet", "count": 4 },
+    { "type": "neroquests:craft_item", "item": "neropower:isotope_pellet", "count": 1 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 150 },
+    { "type": "neroquests:currency", "amount": 100 }
+  ],
+  "scope": "player"
+}

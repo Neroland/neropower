@@ -1,0 +1,14 @@
+{
+  "title": "quest.neropower.reactor_log.decay_heat.title",
+  "description": "quest.neropower.reactor_log.decay_heat.desc",
+  "icon": "neropower:radioisotope_generator",
+  "prerequisites": ["neropower:reactor_log/pellets"],
+  "objectives": [
+    { "type": "neroquests:collect_item", "item": "neropower:spent_isotope_pellet", "count": 1 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 200 },
+    { "type": "neroquests:currency", "amount": 150 }
+  ],
+  "scope": "player"
+}

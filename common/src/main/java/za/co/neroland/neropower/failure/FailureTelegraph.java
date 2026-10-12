@@ -18,6 +18,7 @@ import za.co.neroland.nerolandcore.link.LinkAlerts;
 import za.co.neroland.nerotech.api.MachineFailureEvents;
 
 import za.co.neroland.neropower.NeroPowerCommon;
+import za.co.neroland.neropower.link.NeroPowerLinkModule;
 import za.co.neroland.neropower.machine.NeroPowerMachineBlock;
 import za.co.neroland.neropower.machine.NeroPowerMachineBlockEntity;
 
@@ -25,7 +26,9 @@ import za.co.neroland.neropower.machine.NeroPowerMachineBlockEntity;
  * Makes a failure-stage transition visible, server side, in every channel NeroPower has:
  * <ol>
  *   <li>NeroTech's ecosystem bus — {@link MachineFailureEvents#fire} with the stage entered (rising)
- *       or left (falling), so NeroEvents / NeroLink / another mod's interlock hears it;</li>
+ *       or left (falling), so NeroEvents / another mod's interlock hears it;</li>
+ *   <li>NeroLink {@code failure} events to the owner (or nearby players) —
+ *       {@link NeroPowerLinkModule#publishFailure}, handed the machine directly;</li>
  *   <li>the block's {@link NeroPowerMachineBlock#ALARM} state, when the block declares it, for the
  *       model / renderer;</li>
  *   <li>a sound and a particle burst at the machine — escalating with the stage, one soft note on
@@ -34,7 +37,9 @@ import za.co.neroland.neropower.machine.NeroPowerMachineBlockEntity;
  * </ol>
  *
  * <p>Privacy (POPIA/GDPR): the owner UUID is used only to address the alert — it never enters the
- * event scope, a log line or a packet.
+ * event scope, a log line or a packet. The machine's position is used only in process (proximity,
+ * sound, particles, the owner's own alert); the published scopes name a machine type and a
+ * dimension only (NeroTech 0.6.0+ ignores the position argument of {@code fire}).
  */
 public final class FailureTelegraph {
 
@@ -58,6 +63,9 @@ public final class FailureTelegraph {
         FailureStage published = rising ? to : from;
         MachineFailureEvents.fire(be.machineId(), serverLevel.dimension().identifier().toString(), pos,
                 published.code(), rising);
+        // ...and NeroLink, with the machine in hand: recipients come from the block entity, never
+        // from the bus scope (which carries no position from NeroTech 0.6.0 on).
+        NeroPowerLinkModule.publishFailure(serverLevel, be, published.code(), rising);
 
         // (b) The alarm block state, for blocks that declare it.
         BlockState state = be.getBlockState();

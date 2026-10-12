@@ -1,0 +1,14 @@
+{
+  "title": "quest.neropower.reactor_log.orbital.title",
+  "description": "quest.neropower.reactor_log.orbital.desc",
+  "icon": "neropower:orbital_receiver",
+  "prerequisites": ["neropower:reactor_log/beamed"],
+  "objectives": [
+    { "type": "neroquests:craft_item", "item": "neropower:orbital_receiver", "count": 1 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 250 },
+    { "type": "neroquests:currency", "amount": 200 }
+  ],
+  "scope": "player"
+}

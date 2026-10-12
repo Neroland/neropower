@@ -67,6 +67,7 @@ See [Battery Banks](Battery-Banks.md).
 | `bankScanRadius` | `2` | 1–4 | How far (blocks, each axis) a Battery Bank Controller looks for connected cells: 1 = 3×3×3, 2 = 5×5×5, … 4 = 9×9×9. |
 | `bankMaxIoCap` | `64000` | 1–10000000 | Hard cap on a bank's pooled insert / extract per tick; otherwise min(member cell I/O) × member count. |
 | `bankPriorityThresholdPermille` | `300` | 0–1000 | Priority Source mode: a bank only pushes into a neighbour whose own buffer is below this fill. Buffer mode ignores it. |
+| `bankCapacityMilestone` | `32000000` | 1000–1000000000000 | Pooled capacity (NE) at which a bank opens its owner's `neropower:bank_capacity` milestone record — the *Power Bank* quest signal. It gates nothing. |
 
 ## Beamed power
 

@@ -7,16 +7,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Data only; no code, id or config change.
+## [0.2.0-alpha.1] - 2026-10-11
+
+NeroQuests quest pack, milestone gates and the fuel-rod hook. **Requires Neroland Core 1.15.0** and
+NeroTech 0.6.0-beta.1. No id change; one new config key. (Supersedes the never-published 2026-09-24 entry of the same number below.)
 
 ### Added
 
+- **Quest pack.** Ships a NeroQuests quest pack — chapter `neropower:reactor_log` "Reactor Log",
+  14 quests (13 player, 1 server world-log) — that appears in the quest book when NeroQuests is
+  installed; inert otherwise, no dependency. The pack is data + lang inside the jar
+  (`data/neropower/neroquests/`); `common/src/test/.../QuestPackTest` checks it against the pack
+  rules on every build. *First Burn* rewards a fresh Fuel Rod through the `mod_hook` below.
+- **Milestone record gates** (`data/neropower/neroland_gates/`, player scope, Neroland Core's store):
+  `neropower:criticality` (a formed reactor burns fuel, for its owner), `neropower:beam_linked` (the
+  player links a Beam Transmitter) and `neropower:bank_capacity` (a bank's pooled capacity reaches the
+  new `bankCapacityMilestone` config, default 32 000 000 NE, for the controller's owner). Opened
+  through `progression.MilestoneGates` for online or offline owners; an unowned machine or an owner
+  who opted out of NeroTech's attribution records nothing. They are records only — nothing checks
+  them for access.
+- **`neropower:fission_output` channel.** The first time a reactor burns fuel in a dimension, one
+  rising crossing (scope = the dimension id, value = threshold = 1) is published on Core's threshold
+  bus, attributed to `neropower`; the dimensions that have burned persist in the new
+  `neropower:fission_log` saved data (dimension ids only).
+- **`neropower:hook/fuel_rod_refill` hook gate** with a `progression.QuestHooks` listener on Core's
+  progression events: hands the completing player one fresh `neropower:fuel_rod`, on their next login
+  when the hook opened while they were offline, then closes the gate to re-arm it. A new item every
+  time; a burning rod's components are never touched. Lang key `message.neropower.fuel_rod_refill`.
+- New config key `bankCapacityMilestone` (1 000 – 1 000 000 000 000 NE).
 - **Item tags** for other mods to key on: `neropower:pellets` (uranium, reprocessed and isotope
   pellets), `neropower:battery_cells` (basic, advanced and elite cells) and `neropower:spent_fuel`
   (spent fuel rod, spent isotope pellet). Every entry is `"required": false`.
 - The partly burnt `neropower:fuel_rod`, whose burn state lives in item components, is added to the
   optional `neroeconomy:never_commodity` item tag (`"replace": false`) so an economy mod never prices it
   by id. The tag is ignored when no such mod is installed.
+
+### Changed
+
+- **Requires Neroland Core 1.15.0** (`ProgressionGates.open(server, uuid, gate)` for offline
+  owners and sourced threshold crossings) and **NeroTech 0.6.0-beta.1**, whose
+  `nerotech:machine_failure` scope is `machineId@dimension` with no coordinates — NeroPower's
+  failure crossings follow it with no code change, since NeroTech builds that scope.
+- **NeroLink `failure` events: `scope` is now `machineId@dimension`** (e.g.
+  `neropower:fission_core@minecraft:overworld`) — the packed block position is gone. App clients or
+  bridges that parsed a position out of the scope must stop doing so; `machineId`, `stage` and
+  `rising` are unchanged. Recipients (the owner, or online players within 128 blocks of an unowned
+  machine) are now resolved from the machine itself when it changes stage, rather than from the
+  machine-failure channel, so delivery keeps working with NeroTech 0.6.0+, whose
+  `nerotech:machine_failure` scope no longer carries a position.
+
+### Privacy
+
+- The four new gates are rows in Core's progression store (gate id against the player's UUID,
+  written only through `ProgressionGates`, never logged or broadcast) and are covered, exported and
+  erased by Core's own privacy disclosure; `PRIVACY.md` and `wiki/Privacy.md` describe them. The
+  `fission_output` scope is a dimension id, never a player or a position.
+- Failure events no longer carry a machine's coordinates: on a shared server a base's location
+  identifies its builder. The position is used only in process, for the proximity check.
 
 ## [0.1.0-beta.1] — 2026-09-26
 

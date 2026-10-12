@@ -1,0 +1,18 @@
+{
+  "title": "quest.neropower.reactor_log.fission_build.title",
+  "description": "quest.neropower.reactor_log.fission_build.desc",
+  "icon": "neropower:fission_core",
+  "prerequisites": ["neropower:reactor_log/pellets"],
+  "objectives": [
+    { "type": "neroquests:craft_item", "item": "neropower:fission_core", "count": 1 },
+    { "type": "neroquests:craft_item", "item": "neropower:control_rod_assembly", "count": 1 },
+    { "type": "neroquests:collect_item", "item": "neropower:fission_casing", "count": 16 },
+    { "type": "neroquests:collect_item", "item": "neropower:control_rod", "count": 4 },
+    { "type": "neroquests:collect_item", "item": "neropower:fuel_rod", "count": 2 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 250 },
+    { "type": "neroquests:currency", "amount": 200 }
+  ],
+  "scope": "player"
+}

@@ -1,0 +1,21 @@
+{
+  "title": "chapter.neropower.reactor_log.title",
+  "icon": "neropower:fission_core",
+  "allow_server_scope": true,
+  "quests": [
+    { "quest": "neropower:reactor_log/cells", "x": 0, "y": 0 },
+    { "quest": "neropower:reactor_log/tiered_storage", "x": 2, "y": -1 },
+    { "quest": "neropower:reactor_log/power_bank", "x": 2, "y": -3 },
+    { "quest": "neropower:reactor_log/gradient", "x": 2, "y": 1 },
+    { "quest": "neropower:reactor_log/pellets", "x": 4, "y": 1 },
+    { "quest": "neropower:reactor_log/beamed", "x": 4, "y": -1 },
+    { "quest": "neropower:reactor_log/beam_link", "x": 4, "y": -3 },
+    { "quest": "neropower:reactor_log/orbital", "x": 6, "y": -2 },
+    { "quest": "neropower:reactor_log/fission_build", "x": 6, "y": 0 },
+    { "quest": "neropower:reactor_log/criticality", "x": 8, "y": -1 },
+    { "quest": "neropower:reactor_log/first_burn", "x": 8, "y": 0 },
+    { "quest": "neropower:reactor_log/decay_heat", "x": 8, "y": 2 },
+    { "quest": "neropower:reactor_log/closing_the_loop", "x": 10, "y": 0 },
+    { "quest": "neropower:reactor_log/world_first_fission", "x": 10, "y": -2 }
+  ]
+}

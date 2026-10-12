@@ -14,6 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 import za.co.neroland.nerolandcore.worldgen.SpaceTags;
 
+import za.co.neroland.neropower.progression.MilestoneGates;
 import za.co.neroland.neropower.protection.Protection;
 
 /**
@@ -123,6 +124,8 @@ public final class BeamLinking {
         source.link(BeamTarget.of(targetPos, dimension), actor);
         session.clear(actor);
         tell(player, "neropower.beam.link.linked");
+        // Milestone record for the linking player (a read-only quest signal; gates nothing).
+        MilestoneGates.record(player, MilestoneGates.BEAM_LINKED);
     }
 
     /**

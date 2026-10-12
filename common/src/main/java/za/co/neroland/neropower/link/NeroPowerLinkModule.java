@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.OptionalLong;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -26,15 +25,12 @@ import net.minecraft.world.level.chunk.LevelChunk;
 
 import org.jetbrains.annotations.Nullable;
 
-import za.co.neroland.nerolandcore.event.ThresholdEvents;
 import za.co.neroland.nerolandcore.link.LinkActionHandler;
 import za.co.neroland.nerolandcore.link.LinkActionResult;
 import za.co.neroland.nerolandcore.link.LinkEvent;
 import za.co.neroland.nerolandcore.link.LinkModuleInfo;
 import za.co.neroland.nerolandcore.link.LinkSnapshotProvider;
 import za.co.neroland.nerolandcore.link.NeroLinkRegistry;
-
-import za.co.neroland.nerotech.api.MachineFailureEvents;
 
 import za.co.neroland.neropower.NeroPowerCommon;
 import za.co.neroland.neropower.beam.BeamEndpointBlockEntity;
@@ -76,13 +72,14 @@ import za.co.neroland.neropower.storage.BankControllerBlockEntity;
  * The bridge validates token, module presence, action-enabled config, rate limit and offline
  * policy; this handler still re-checks authority, exactly as NeroTech.
  *
- * <p><b>Events.</b> Failure-stage crossings NeroPower publishes on NeroTech's
- * {@link MachineFailureEvents#CHANNEL} are forwarded as <i>player-targeted</i>
- * ({@link LinkEvent#forPlayer}) {@code failure} events carrying the non-personal scope string
- * (machine id, dimension, packed position). The machine at the scope position is resolved if its
- * chunk is loaded: an owned machine's event goes to its owner only; otherwise one event goes to
- * each online player in that dimension within {@value LinkScope#PROXIMITY_BLOCKS} blocks of it.
- * Nothing is ever broadcast server-wide, and with no captured server nothing is published.
+ * <p><b>Events.</b> Every failure-stage transition is handed to {@link #publishFailure} by
+ * {@code FailureTelegraph}, with the machine in hand, and delivered as <i>player-targeted</i>
+ * ({@link LinkEvent#forPlayer}) {@code failure} events whose scope names the machine type and
+ * dimension ({@code machineId@dimension}) — never a player and never a position. An owned
+ * machine's event goes to its owner only; otherwise one event goes to each online player in that
+ * dimension within {@value LinkScope#PROXIMITY_BLOCKS} blocks of it. Nothing is ever broadcast
+ * server-wide. The module does not listen on NeroTech's {@code nerotech:machine_failure} bus: that
+ * scope carries no position, so the machine could not be found from it.
  *
  * <p><b>Server handle.</b> The link SPI passes no server; {@link #rememberServer(MinecraftServer)}
  * captures it from the per-loader server tick (see {@code ScorchTicker.tick}), as NeroTech does from
@@ -117,21 +114,14 @@ public final class NeroPowerLinkModule implements LinkSnapshotProvider, LinkActi
     @Nullable
     private static volatile MinecraftServer server;
 
-    /** Guards the one-time failure-event subscription (register() is idempotent per process). */
-    private static volatile boolean eventsSubscribed;
-
     private NeroPowerLinkModule() {
     }
 
-    /** Register the module (snapshot + action + event forwarding) with Core's link registry. Idempotent per process. */
+    /** Register the module (snapshot + action) with Core's link registry. Idempotent per process. */
     public static void register() {
         LinkModuleInfo info = new LinkModuleInfo(MODULE_ID, MOD_VERSION, SCHEMA_VERSION, SECTIONS, ACTIONS);
         NeroLinkRegistry.registerSnapshotProvider(INSTANCE, info);
         NeroLinkRegistry.registerActionHandler(INSTANCE, info);
-        if (!eventsSubscribed) {
-            eventsSubscribed = true;
-            ThresholdEvents.onCrossing(NeroPowerLinkModule::forwardFailureCrossing);
-        }
     }
 
     /** Capture the running server so provider/action calls can resolve players + levels. */
@@ -431,52 +421,31 @@ public final class NeroPowerLinkModule implements LinkSnapshotProvider, LinkActi
     // --- live events -----------------------------------------------------------------
 
     /**
-     * Forward a NeroPower failure-stage crossing from NeroTech's machine-failure channel as
-     * player-targeted {@code failure} events (see {@link #failureRecipients}): the non-personal scope
-     * string, the stage and direction. Other publishers' crossings (NeroTech's own fusion reactor,
-     * other channels) are ignored, and nothing is ever broadcast.
+     * Deliver one failure-stage transition as player-targeted {@code failure} events. Called by
+     * {@code FailureTelegraph} on the server thread with the machine in hand, so the recipients come
+     * from the block entity itself: an owned machine ({@code ownerOf}) → its owner alone, online or
+     * not (the bridge may notify a closed app); an unowned one → every online player in its dimension
+     * within {@value LinkScope#PROXIMITY_BLOCKS} blocks — people who could see or hear it anyway.
+     * The machine's position is used only for that proximity check, in process; it is never part of
+     * the payload. Nothing is ever broadcast.
+     *
+     * @param stage  the stage entered ({@code rising}) or left (falling), as on NeroTech's channel
+     * @param rising {@code true} when the machine entered {@code stage}
      */
-    static void forwardFailureCrossing(ThresholdEvents.ThresholdCrossing crossing) {
-        if (!MachineFailureEvents.CHANNEL.equals(crossing.channel()) || !LinkScope.isNeroPowerScope(crossing.scope())) {
-            return;
-        }
-        for (UUID recipient : failureRecipients(crossing.scope())) {
+    public static void publishFailure(ServerLevel level, NeroPowerMachineBlockEntity machine, int stage,
+            boolean rising) {
+        JsonObject payload = failurePayload(machine.machineId(), level.dimension().identifier().toString(),
+                stage, rising);
+        for (UUID recipient : failureRecipients(level, machine.getBlockPos(), ownerOf(machine))) {
             NeroLinkRegistry.eventBus().publish(LinkEvent.forPlayer(MODULE_ID, TOPIC_FAILURE, recipient,
-                    failurePayload(crossing)));
+                    payload.deepCopy()));
         }
     }
 
-    /**
-     * Who a failure event is for: resolve the block entity at the scope's position (only if its
-     * chunk is loaded — never force-loaded). An owned machine ({@link #ownerOf}) → its owner alone,
-     * online or not (the bridge may notify a closed app). Otherwise — unowned, or the block already
-     * gone (a FAILURE removes it) — every online player in that dimension within
-     * {@value LinkScope#PROXIMITY_BLOCKS} blocks: people who could see or hear it anyway. No server,
-     * a malformed scope or an unknown dimension → nobody.
-     */
-    private static List<UUID> failureRecipients(String scope) {
-        MinecraftServer srv = server;
-        String dim = LinkScope.dimensionOf(scope);
-        OptionalLong packed = LinkScope.packedPosOf(scope);
-        if (srv == null || dim.isEmpty() || packed.isEmpty()) {
-            return List.of();
-        }
-        Identifier dimId;
-        try {
-            dimId = Identifier.parse(dim);
-        } catch (RuntimeException e) {
-            return List.of();
-        }
-        ServerLevel level = srv.getLevel(ResourceKey.create(Registries.DIMENSION, dimId));
-        if (level == null) {
-            return List.of();
-        }
-        BlockPos pos = BlockPos.of(packed.getAsLong());
-        if (level.hasChunkAt(pos) && level.getBlockEntity(pos) instanceof NeroPowerMachineBlockEntity machine) {
-            Optional<UUID> owner = ownerOf(machine);
-            if (owner.isPresent()) {
-                return List.of(owner.get());
-            }
+    /** Who a failure event is for: the owner alone, or else the online players near {@code pos}. */
+    private static List<UUID> failureRecipients(ServerLevel level, BlockPos pos, Optional<UUID> owner) {
+        if (owner.isPresent()) {
+            return List.of(owner.get());
         }
         List<UUID> nearby = new ArrayList<>();
         for (ServerPlayer player : level.players()) {
@@ -488,13 +457,16 @@ public final class NeroPowerLinkModule implements LinkSnapshotProvider, LinkActi
         return nearby;
     }
 
-    /** The {@code failure} event payload: scope (machine + place), machine id, stage, rising. Pure; tested. */
-    static JsonObject failurePayload(ThresholdEvents.ThresholdCrossing crossing) {
+    /**
+     * The {@code failure} event payload: scope ({@code machineId@dimension} — a machine type and a
+     * place, no position), machine id, stage, rising. Pure; tested.
+     */
+    static JsonObject failurePayload(String machineId, String dimensionId, int stage, boolean rising) {
         JsonObject payload = new JsonObject();
-        payload.addProperty("scope", crossing.scope());
-        payload.addProperty("machineId", LinkScope.machineIdOf(crossing.scope()));
-        payload.addProperty("stage", crossing.value());
-        payload.addProperty("rising", crossing.rising());
+        payload.addProperty("scope", LinkScope.failureScope(machineId, dimensionId));
+        payload.addProperty("machineId", machineId);
+        payload.addProperty("stage", stage);
+        payload.addProperty("rising", rising);
         return payload;
     }
 }

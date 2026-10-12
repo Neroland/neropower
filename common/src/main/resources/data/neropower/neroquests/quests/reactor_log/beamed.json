@@ -1,0 +1,16 @@
+{
+  "title": "quest.neropower.reactor_log.beamed.title",
+  "description": "quest.neropower.reactor_log.beamed.desc",
+  "icon": "neropower:beam_transmitter",
+  "prerequisites": ["neropower:reactor_log/tiered_storage"],
+  "objectives": [
+    { "type": "neroquests:craft_item", "item": "neropower:beam_transmitter", "count": 1 },
+    { "type": "neroquests:craft_item", "item": "neropower:beam_receiver", "count": 1 },
+    { "type": "neroquests:craft_item", "item": "neropower:beam_relay", "count": 1 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 150 },
+    { "type": "neroquests:currency", "amount": 100 }
+  ],
+  "scope": "player"
+}

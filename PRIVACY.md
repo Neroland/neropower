@@ -35,10 +35,21 @@ or on an erasure request.
 A Fission Reactor is a NeroTech-family machine. The "owner" a reactor may record is NeroTech's
 own per-machine owner field, which NeroTech stores **only when a server admin has enabled
 per-player pollution attribution** (`pollutionPerPlayerAttribution=true` in
-`config/nerotech.properties`, off by default). NeroPower reads it for two things only — to address
-a failure event to the owner only, and to gate the NeroLink actions below — and never stores a copy.
-Its retention and erasure are documented in NeroTech's `PRIVACY.md` and handled by NeroTech's own
-eraser; NeroPower does not duplicate that.
+`config/nerotech.properties`, off by default). NeroPower reads it for three things only — to address
+a failure event to the owner only, to gate the NeroLink actions below, and to open the owner's quest
+milestone records (next section) — and never stores a copy. Its retention and erasure are documented
+in NeroTech's `PRIVACY.md` and handled by NeroTech's own eraser; NeroPower does not duplicate that.
+
+### Quest milestone records (Neroland Core's store, not NeroPower's)
+
+NeroPower opens four **player-scope progression gates** in Neroland Core's store — `neropower:criticality`,
+`neropower:beam_linked`, `neropower:bank_capacity` and `neropower:hook/fuel_rod_refill` — the first time a
+player's reactor burns fuel, they link a beam, their battery bank reaches `bankCapacityMilestone`, or a
+quest mod rewards them a fuel rod. Each row is a gate id against the player's UUID, nothing else; it is
+written only through Core's `ProgressionGates` API (never logged or broadcast), an owner who opted out of
+NeroTech's attribution gets none, and the rows are stored, exported and erased by Neroland Core under
+Core's own privacy disclosure. The records gate nothing. The world-log crossing
+`neropower:fission_output` names a dimension only — never a player or a position.
 
 ## What is NOT stored
 

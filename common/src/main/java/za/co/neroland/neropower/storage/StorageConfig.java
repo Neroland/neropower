@@ -48,6 +48,10 @@ public final class StorageConfig {
             "bankPriorityThresholdPermille", 300, 0, 1_000, true,
             "PRIORITY_SOURCE mode: a bank only pushes into a neighbour whose own buffer is below this fill "
             + "(permille of its capacity); BUFFER mode ignores it");
+    private static final ConfigValue<Long> BANK_CAPACITY_MILESTONE = NeroPowerConfig.schema().longRange(
+            "bankCapacityMilestone", 32_000_000L, 1_000L, 1_000_000_000_000L, true,
+            "pooled capacity (NE) at which a Battery Bank opens its owner's neropower:bank_capacity milestone "
+            + "record gate (a quest signal; it gates nothing)");
 
     private StorageConfig() {
     }
@@ -93,5 +97,10 @@ public final class StorageConfig {
     /** PRIORITY_SOURCE fill threshold (permille of the neighbour's capacity). */
     public static int bankPriorityThresholdPermille() {
         return BANK_PRIORITY_THRESHOLD.get();
+    }
+
+    /** Pooled capacity (NE) that opens the owner's {@code neropower:bank_capacity} milestone record. */
+    public static long bankCapacityMilestone() {
+        return BANK_CAPACITY_MILESTONE.get();
     }
 }

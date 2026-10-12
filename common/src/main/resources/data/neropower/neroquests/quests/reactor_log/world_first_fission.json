@@ -1,0 +1,13 @@
+{
+  "title": "quest.neropower.reactor_log.world_first_fission.title",
+  "description": "quest.neropower.reactor_log.world_first_fission.desc",
+  "icon": "neropower:fission_casing",
+  "prerequisites": [],
+  "objectives": [
+    { "type": "neroquests:custom_event", "channel": "neropower:fission_output", "direction": "rising", "audience": "world" }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 100 }
+  ],
+  "scope": "server"
+}

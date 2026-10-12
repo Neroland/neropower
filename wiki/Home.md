@@ -3,7 +3,7 @@
 Player- and contributor-facing documentation for **NeroPower**, an optional power-depth add-on to
 **NeroTech**, built on **Neroland Core**.
 
-> **Status:** in development — version `0.1.0-alpha.1`; the first release will be `0.1.0-beta.1`.
+> **Status:** in development — version `0.2.0-alpha.1`; the first release will be `0.2.0-beta.1`.
 > Keep this wiki updated alongside code changes (see the repository's contributor notes).
 
 NeroPower requires **NeroTech** and **Neroland Core** and runs on Minecraft 26.1.2, 26.2 and 26.3
@@ -19,6 +19,7 @@ upgrades and thermal model; the pages below cover only what NeroPower adds on to
 - [RTG and Stirling](RTG-and-Stirling.md) — the two stateful generators
 - [Configuration](Configuration.md) — every `neropower.properties` key
 - [Privacy](Privacy.md) — what the mod stores about players and how to erase it
+- [Quest Chapter](Quest-Chapter.md) — the *Reactor Log* quests shown when NeroQuests is installed
 - `/neropower gallery` — creative showcase of every block (op only)
 
 ## See also
