@@ -23,7 +23,7 @@ dependencies {
     // Sentry error-reporting SDK (telemetry/NeroPowerTelemetry, Stage 9). Compile-only here for IDE
     // parity; each loader node puts it on the real classpath and embeds it (include / jarJar).
     // Privacy: opt-out config + neropower-only filter + no PII (PRIVACY.md). Dependency-free artifact.
-    compileOnly 'io.sentry:sentry:8.45.0'
+    compileOnly 'io.sentry:sentry:8.60.0'
 
     // Neroland Core + NeroTech are NOT declared here, exactly as in NeroTech's common build: `common`
     // is not a Gradle project (settings.gradle only creates the nine Stonecutter loader nodes) — its

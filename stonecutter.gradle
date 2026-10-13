@@ -51,6 +51,7 @@ subprojects {
                 username = providers.gradleProperty('gpr.user').orElse(providers.environmentVariable('GITHUB_ACTOR')).getOrNull()
                 password = providers.gradleProperty('gpr.key').orElse(providers.environmentVariable('GITHUB_TOKEN')).getOrNull()
             }
+            content { includeGroup 'za.co.neroland.nerolandcore' }
         }
         // NeroTech from GitHub Packages — the machine framework NeroPower extends (nerotech-<loader>-<mc>).
         // Same credential handling as Core's repo above; mavenLocal() wins for a locally published NeroTech
@@ -62,6 +63,7 @@ subprojects {
                 username = providers.gradleProperty('gpr.user').orElse(providers.environmentVariable('GITHUB_ACTOR')).getOrNull()
                 password = providers.gradleProperty('gpr.key').orElse(providers.environmentVariable('GITHUB_TOKEN')).getOrNull()
             }
+            content { includeGroup 'za.co.neroland.nerotech' }
         }
         mavenCentral()
         maven { url 'https://maven.fabricmc.net/' }

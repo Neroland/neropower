@@ -72,7 +72,7 @@ sourceSets.main.resources.srcDir rootProject.ext.commonResources
 sourceSets.test.java.srcDir "${rootProject.projectDir}/common/src/test/java"
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.12.2')
+    testImplementation platform('org.junit:junit-bom:6.1.3')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
@@ -90,7 +90,7 @@ dependencies {
 
     // Sentry SDK (telemetry/NeroPowerTelemetry) embedded via NeoForge JarJar so players need no extra
     // download (JarJar dedupes with NeroTech's/Core's copy). Compile classpath AND the mod jar.
-    jarJar(implementation('io.sentry:sentry:8.45.0'))
+    jarJar(implementation('io.sentry:sentry:8.60.0'))
 
     // NeroTech — REQUIRED machine framework NeroPower is an add-on to (public api/ package, machine
     // base classes, thermal model). Same posture as Core: compile + dev-runtime, never bundled; loads
