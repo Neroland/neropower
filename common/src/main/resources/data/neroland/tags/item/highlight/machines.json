@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "neropower:battery_bank_controller",
+      "required": false
+    },
+    "neropower:battery_cell_basic",
+    "neropower:battery_cell_advanced",
+    "neropower:battery_cell_elite",
+    "neropower:beam_receiver",
+    "neropower:beam_relay",
+    "neropower:beam_transmitter",
+    "neropower:orbital_receiver",
+    "neropower:control_rod_assembly",
+    "neropower:fission_casing",
+    "neropower:fission_core",
+    "neropower:radioisotope_generator",
+    "neropower:stirling_generator"
+  ]
+}

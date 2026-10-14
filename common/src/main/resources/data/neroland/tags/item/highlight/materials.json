@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "neropower:control_rod",
+      "required": false
+    },
+    "neropower:fuel_rod",
+    "neropower:spent_fuel_rod",
+    "neropower:isotope_pellet",
+    "neropower:spent_isotope_pellet",
+    "neropower:reprocessed_pellet",
+    "neropower:uranium_pellet"
+  ]
+}
