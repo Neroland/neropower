@@ -93,7 +93,7 @@ public final class NeroPowerLinkModule implements LinkSnapshotProvider, LinkActi
     /** Display version reported in discovery (matches NeroPower's mod version). */
     // TODO: hand-maintained duplicate — bump this in step with `mod_version` in gradle.properties,
     // or the companion app reports a stale NeroPower version.
-    public static final String MOD_VERSION = "0.1.0-alpha.1";
+    public static final String MOD_VERSION = "0.2.1-beta.1";
 
     public static final String SECTION_BEAMS = "beams";
     public static final String SECTION_FISSION = "fission";

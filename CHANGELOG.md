@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1-beta.1] - 2026-10-17
+
+Item-highlight tags and a dependency refresh. Still **requires Neroland Core 1.15.0** and NeroTech
+0.6.0-beta.1. No id change, no config change.
+
+### Added
+
+- **Item-highlight tags.** NeroPower's machines (`neroland:highlight/machines` — battery bank
+  controller and cells, beam transmitter / receiver / relay, orbital receiver, fission casing / core,
+  control-rod assembly, RTG and Stirling generator) and materials (`neroland:highlight/materials` —
+  fuel, control and spent rods, uranium / isotope / reprocessed / spent pellets) now get Neroland Core's
+  coloured slot borders.
+
+### Fixed
+
+- The NeroLink discovery entry reported NeroPower as `0.1.0-alpha.1` (also in 0.2.0-alpha.1); it now
+  reports the real mod version.
+
+### Changed
+
+- Build and loader dependencies refreshed: NeoForge 26.1.2.116 / 26.2.0.90 / 26.3.0.76, Forge
+  64.1.4 / 65.1.4 / 66.0.11, JEI 29.47 / 30.42 / 31.12, Fabric API 0.162.0+26.3, Sentry 8.60.0,
+  Gradle 9.8.1, ModDevGradle 2.0.148, Fabric Loom 1.18.4. Neroland Core and NeroTech are now resolved
+  only from their own GitHub Packages repositories.
+
 ## [0.2.0-alpha.1] - 2026-10-11
 
 NeroQuests quest pack, milestone gates and the fuel-rod hook. **Requires Neroland Core 1.15.0** and
