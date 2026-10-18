@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "neropower:battery_cell_basic"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "neropower:blocks/battery_cell_basic"
+}
