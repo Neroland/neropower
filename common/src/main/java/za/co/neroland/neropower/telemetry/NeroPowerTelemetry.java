@@ -104,7 +104,7 @@ public final class NeroPowerTelemetry {
             options.setAttachServerName(false);        // hostname is identifying
             options.setEnableUncaughtExceptionHandler(true);
             options.setEnableAutoSessionTracking(false);
-            options.setBeforeSend((event, hint) -> filterAndScrub(event));
+            options.setBeforeSend((event, hint) -> ForeignMixinFailure.matches(event) ? null : filterAndScrub(event));
         });
         Sentry.configureScope(scope -> {
             scope.setTag("loader", platform.getPlatformName().toLowerCase(Locale.ROOT));
