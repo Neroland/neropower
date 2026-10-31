@@ -195,7 +195,11 @@ public final class NeroPowerLinkModule implements LinkSnapshotProvider, LinkActi
                     + LinkScope.PROXIMITY_BLOCKS + " blocks of you while you are online.");
             return out;
         }
+        //? if >=1.21.6 {
         ServerLevel level = player.level();
+        //?} else {
+        /*ServerLevel level = player.serverLevel();
+        *///?}
         BlockPos origin = player.blockPosition();
         out.addProperty("dim", level.dimension().identifier().toString());
         forEachNearbyBlockEntity(level, origin, be -> {

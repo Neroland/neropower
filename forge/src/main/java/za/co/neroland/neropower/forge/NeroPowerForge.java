@@ -3,7 +3,12 @@ package za.co.neroland.neropower.forge;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
+//? if >=1.21.6 {
 import net.minecraftforge.eventbus.api.bus.BusGroup;
+//?} else {
+/*import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
+*///?}
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
@@ -30,18 +35,37 @@ public final class NeroPowerForge {
 
     public NeroPowerForge(FMLJavaModLoadingContext context) {
         NeroPowerCommon.LOGGER.info("[NeroPower] Forge bootstrap");
+        //? if >=1.21.6 {
         BusGroup modBusGroup = context.getModBusGroup();
+        //?} else {
+        /*IEventBus modBusGroup = context.getModEventBus();
+        *///?}
         // Shared init builds the DeferredRegisters via the RegistrationProvider seam and registers
         // the machine types with NeroTech; attach the registers to NeroPower's mod bus group.
         NeroPowerCommon.init();
         ForgeRegistrationFactory.registerAll(modBusGroup);
         // Scorch zones (fission failure aftermath) expire and hurt on the server tick.
-        TickEvent.ServerTickEvent.Post.BUS.addListener(event -> ScorchTicker.tick(event.server()));
         // Quest hook delivery (pending hook gates on login) rides the same tick.
+        //? if >=1.21.9 {
+        TickEvent.ServerTickEvent.Post.BUS.addListener(event -> ScorchTicker.tick(event.server()));
         TickEvent.ServerTickEvent.Post.BUS.addListener(event -> QuestHooks.tick(event.server()));
+        //?}
+        //? if >=1.21.6 && <1.21.9 {
+        /*TickEvent.ServerTickEvent.Post.BUS.addListener(event -> ScorchTicker.tick(event.getServer()));
+        TickEvent.ServerTickEvent.Post.BUS.addListener(event -> QuestHooks.tick(event.getServer()));
+        *///?}
+        //? if <1.21.6 {
+        /*MinecraftForge.EVENT_BUS.addListener((TickEvent.ServerTickEvent.Post event) -> ScorchTicker.tick(event.getServer()));
+        MinecraftForge.EVENT_BUS.addListener((TickEvent.ServerTickEvent.Post event) -> QuestHooks.tick(event.getServer()));
+        *///?}
         // Creative-only debug commands (/neropower gallery); shared brigadier tree in common.
+        //? if >=1.21.6 {
         RegisterCommandsEvent.BUS.addListener(event ->
                 NeroPowerCommands.register(event.getDispatcher()));
+        //?} else {
+        /*MinecraftForge.EVENT_BUS.addListener((RegisterCommandsEvent event) ->
+                NeroPowerCommands.register(event.getDispatcher()));
+        *///?}
         if (FMLEnvironment.dist == Dist.CLIENT) {
             ForgeClientSetup.init(modBusGroup);
         }

@@ -1,7 +1,6 @@
 package za.co.neroland.neropower.fission;
 
 import java.util.List;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import com.mojang.serialization.Codec;
@@ -19,6 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 
+import za.co.neroland.nerolandcore.registry.BlockEntityTypeCompat;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 
 import za.co.neroland.neropower.NeroPowerCommon;
@@ -114,7 +114,7 @@ public final class FissionContent {
 
     public static final RegistryEntry<BlockEntityType<FissionCoreBlockEntity>> FISSION_CORE_TYPE =
             ModBlockEntities.BLOCK_ENTITIES.register("fission_core",
-                    key -> new BlockEntityType<>(FissionCoreBlockEntity::new, Set.of(FISSION_CORE.get())));
+                    key -> BlockEntityTypeCompat.create(FissionCoreBlockEntity::new, FISSION_CORE.get()));
 
     public static final RegistryEntry<MenuType<FissionCoreMenu>> FISSION_CORE_MENU =
             ModMenuTypes.MENUS.register("fission_core",

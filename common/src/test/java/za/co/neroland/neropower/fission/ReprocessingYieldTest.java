@@ -117,7 +117,11 @@ class ReprocessingYieldTest {
         String path = RECIPES + recipe + ".json";
         try (InputStream in = ReprocessingYieldTest.class.getClassLoader().getResourceAsStream(path)) {
             assertNotNull(in, path + " is not on the test classpath");
-            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            String json = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            // The 1.21.1 build rewrites short-form ingredients ("id" / "#tag") into {"item": ..} /
+            // {"tag": ..} objects; fold them back so the checks read one format on every version.
+            return json.replaceAll("\\{\\s*\"item\"\\s*:\\s*(\"[^\"]+\")\\s*}", "$1")
+                    .replaceAll("\\{\\s*\"tag\"\\s*:\\s*\"([^\"]+)\"\\s*}", "\"#$1\"");
         }
     }
 }

@@ -39,11 +39,19 @@ public final class VanillaProtection implements ProtectionCheck {
         MinecraftServer server = level.getServer();
         // Only a dedicated server has a spawn-protection radius (server.properties); the integrated
         // server never protects spawn, exactly as vanilla's own spawn-protection check behaves.
+        //? if >=1.21.9 {
         int radius = server instanceof DedicatedServer dedicated ? dedicated.getProperties().spawnProtection.get() : 0;
+        //?} else {
+        /*int radius = server instanceof DedicatedServer dedicated ? dedicated.getProperties().spawnProtection : 0;
+        *///?}
         if (radius <= 0) {
             return false;
         }
+        //? if >=1.21.9 {
         BlockPos spawn = level.getRespawnData().pos();
+        //?} else {
+        /*BlockPos spawn = level.getSharedSpawnPos();
+        *///?}
         int dx = Math.abs(pos.getX() - spawn.getX());
         int dz = Math.abs(pos.getZ() - spawn.getZ());
         return Math.max(dx, dz) <= radius;

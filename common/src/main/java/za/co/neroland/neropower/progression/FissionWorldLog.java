@@ -14,6 +14,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
+import za.co.neroland.nerolandcore.data.SavedDataCompat;
 import za.co.neroland.nerolandcore.data.SavedDataRecovery;
 import za.co.neroland.nerolandcore.event.ThresholdEvents;
 
@@ -39,7 +40,7 @@ public final class FissionWorldLog extends SavedData {
             Identifier.fromNamespaceAndPath(NeroPowerCommon.MOD_ID, "fission_output");
 
     public static final SavedDataType<FissionWorldLog> TYPE =
-            new SavedDataType<>(ID, FissionWorldLog::new, codec(), null);
+            SavedDataCompat.type(ID, FissionWorldLog::new, codec());
 
     private final Set<String> burned = new TreeSet<>();
 

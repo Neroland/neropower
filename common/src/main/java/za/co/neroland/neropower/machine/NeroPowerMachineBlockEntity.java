@@ -129,18 +129,32 @@ public abstract class NeroPowerMachineBlockEntity extends NeroTechMachineBlockEn
 
     // --- persistence (NeroTech's super handles the rest) --------------------------
 
+    //? if >=1.21.6 {
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
+    //?} else {
+    /*@Override
+    protected void saveAdditional(net.minecraft.nbt.CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        ValueOutput output = ValueOutput.of(tag, registries);
+    *///?}
         if (this.failure != null) {
             output.putInt("FailureStage", this.failure.saveStage());
             output.putInt("FailureTicks", this.failure.saveTicksInStage());
         }
     }
 
+    //? if >=1.21.6 {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+    //?} else {
+    /*@Override
+    protected void loadAdditional(net.minecraft.nbt.CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        ValueInput input = ValueInput.of(tag, registries);
+    *///?}
         int stage = input.getIntOr("FailureStage", 0);
         int ticks = input.getIntOr("FailureTicks", 0);
         if (stage != 0 || ticks != 0 || this.failure != null) {

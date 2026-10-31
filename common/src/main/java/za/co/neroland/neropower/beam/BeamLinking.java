@@ -139,7 +139,11 @@ public final class BeamLinking {
 
     /** Gamemaster (permission level 2) check, through the same predicate Core's commands gate on. */
     private static boolean isGamemaster(ServerPlayer player) {
+        //? if >=1.21.6 {
         return Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(player.createCommandSourceStack());
+        //?} else {
+        /*return player.createCommandSourceStack().hasPermission(Commands.LEVEL_GAMEMASTERS);
+        *///?}
     }
 
     /** Actionbar feedback — transient, so linking in bulk does not flood the chat. */

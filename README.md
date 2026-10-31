@@ -24,8 +24,9 @@ design record.
 
 ## Requirements
 
-- **Neroland Core** 1.15.0+ and **NeroTech** 0.6.0-beta.1+ (both required; version floors are in `gradle.properties`).
-- **Minecraft:** 26.1.2, 26.2 and 26.3 · **Loaders:** NeoForge, MinecraftForge/Forge, Fabric (the "9 cells")
+- **Neroland Core** 1.17.0+ and **NeroTech** 0.7.0-beta.1+ (both required; version floors are in `gradle.properties`).
+- **Minecraft:** 1.21.1, 1.21.4, 1.21.5, 1.21.8 (also 1.21.7), 1.21.10 (also 1.21.9), 1.21.11, 26.1.2, 26.2 and 26.3
+  · **Loaders:** NeoForge, MinecraftForge/Forge, Fabric (27 cells) · **Java:** 21 for 1.21.x, 25 for 26.x
 - **Java:** 25 · Mod id: `neropower` · package `za.co.neroland.neropower`
 
 ## Layout
@@ -44,7 +45,8 @@ The build is the repo root, with a flattened cross-loader structure driven by St
 ./gradlew :fabric:26.2:build          # one cell
 ./gradlew :neoforge:26.1.2:build :neoforge:26.2:build :neoforge:26.3:build \
           :forge:26.1.2:build :forge:26.2:build :forge:26.3:build \
-          :fabric:26.1.2:build :fabric:26.2:build :fabric:26.3:build   # all nine
+          :fabric:26.1.2:build :fabric:26.2:build :fabric:26.3:build   # the 26.x cells
+# 1.21.x cells: :<loader>:1.21.1:build ... :<loader>:1.21.11:build (see mc_versions in gradle.properties)
 ```
 
 See [`AGENTS.md`](AGENTS.md) / [`CLAUDE.md`](CLAUDE.md) for agent and contributor context, and

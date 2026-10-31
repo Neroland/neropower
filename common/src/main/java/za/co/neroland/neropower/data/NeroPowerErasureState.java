@@ -17,6 +17,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
+import za.co.neroland.nerolandcore.data.SavedDataCompat;
 import za.co.neroland.nerolandcore.data.SavedDataRecovery;
 
 import za.co.neroland.neropower.NeroPowerCommon;
@@ -50,7 +51,7 @@ public final class NeroPowerErasureState extends SavedData {
     public static final Identifier ID = Identifier.fromNamespaceAndPath(NeroPowerCommon.MOD_ID, "erasure_state");
 
     public static final SavedDataType<NeroPowerErasureState> TYPE =
-            new SavedDataType<>(ID, NeroPowerErasureState::new, codec(), null);
+            SavedDataCompat.type(ID, NeroPowerErasureState::new, codec());
 
     /** Erased players whose link owners still have to be cleared → epoch day of the request. */
     private final Map<UUID, Long> pending = new HashMap<>();

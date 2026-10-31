@@ -358,7 +358,11 @@ public class BeamTransmitterBlockEntity extends BeamEndpointBlockEntity {
         AABB box = new AABB(Math.min(ax, bx), Math.min(ay, by), Math.min(az, bz),
                 Math.max(ax, bx), Math.max(ay, by), Math.max(az, bz)).inflate(0.5);
         for (LivingEntity entity : serverLevel.getEntitiesOfClass(LivingEntity.class, box, LivingEntity::isAlive)) {
+            //? if >=1.21.2 {
             entity.hurtServer(serverLevel, serverLevel.damageSources().magic(), (float) damage);
+            //?} else {
+            /*entity.hurt(serverLevel.damageSources().magic(), (float) damage);
+            *///?}
         }
     }
 
@@ -382,17 +386,31 @@ public class BeamTransmitterBlockEntity extends BeamEndpointBlockEntity {
         return tag;
     }
 
+    //? if >=1.21.6 {
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
+    //?} else {
+    /*@Override
+    protected void saveAdditional(net.minecraft.nbt.CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        ValueOutput output = ValueOutput.of(tag, registries);
+    *///?}
         BeamTarget.save(output, this.target);
         output.putLong(LINK_OWNER_MOST, this.linkOwner == null ? 0L : this.linkOwner.getMostSignificantBits());
         output.putLong(LINK_OWNER_LEAST, this.linkOwner == null ? 0L : this.linkOwner.getLeastSignificantBits());
     }
 
+    //? if >=1.21.6 {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+    //?} else {
+    /*@Override
+    protected void loadAdditional(net.minecraft.nbt.CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        ValueInput input = ValueInput.of(tag, registries);
+    *///?}
         this.target = BeamTarget.load(input);
         long most = input.getLongOr(LINK_OWNER_MOST, 0L);
         long least = input.getLongOr(LINK_OWNER_LEAST, 0L);

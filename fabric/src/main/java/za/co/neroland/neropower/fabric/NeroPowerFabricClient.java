@@ -37,11 +37,19 @@ public final class NeroPowerFabricClient implements ClientModInitializer {
 
         // Machine BERs through the shared cross-loader seam (NeroTech / Nerospace pattern).
         ClientBlockEntityRenderers.registerAll(new ClientBlockEntityRenderers.Sink() {
+            //? if >=1.21.9 {
             @Override
             public <T extends BlockEntity, S extends BlockEntityRenderState> void register(
                     BlockEntityType<? extends T> type, BlockEntityRendererProvider<T, S> provider) {
                 BlockEntityRendererRegistry.register(type, provider);
             }
+            //?} else {
+            /*@Override
+            public <T extends BlockEntity> void register(
+                    BlockEntityType<? extends T> type, BlockEntityRendererProvider<T> provider) {
+                BlockEntityRendererRegistry.register(type, provider);
+            }
+            *///?}
         });
     }
 }

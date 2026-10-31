@@ -2,7 +2,6 @@ package za.co.neroland.neropower.beam;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import net.minecraft.world.flag.FeatureFlags;
@@ -13,6 +12,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
+import za.co.neroland.nerolandcore.registry.BlockEntityTypeCompat;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 
 import za.co.neroland.neropower.registry.ModBlockEntities;
@@ -60,16 +60,16 @@ public final class BeamContent {
 
     public static final RegistryEntry<BlockEntityType<BeamTransmitterBlockEntity>> BEAM_TRANSMITTER_BE =
             ModBlockEntities.BLOCK_ENTITIES.register("beam_transmitter",
-                    key -> new BlockEntityType<>(BeamTransmitterBlockEntity::new, Set.of(BEAM_TRANSMITTER.get())));
+                    key -> BlockEntityTypeCompat.create(BeamTransmitterBlockEntity::new, BEAM_TRANSMITTER.get()));
     public static final RegistryEntry<BlockEntityType<BeamReceiverBlockEntity>> BEAM_RECEIVER_BE =
             ModBlockEntities.BLOCK_ENTITIES.register("beam_receiver",
-                    key -> new BlockEntityType<>(BeamReceiverBlockEntity::new, Set.of(BEAM_RECEIVER.get())));
+                    key -> BlockEntityTypeCompat.create(BeamReceiverBlockEntity::new, BEAM_RECEIVER.get()));
     public static final RegistryEntry<BlockEntityType<BeamRelayBlockEntity>> BEAM_RELAY_BE =
             ModBlockEntities.BLOCK_ENTITIES.register("beam_relay",
-                    key -> new BlockEntityType<>(BeamRelayBlockEntity::new, Set.of(BEAM_RELAY.get())));
+                    key -> BlockEntityTypeCompat.create(BeamRelayBlockEntity::new, BEAM_RELAY.get()));
     public static final RegistryEntry<BlockEntityType<OrbitalReceiverBlockEntity>> ORBITAL_RECEIVER_BE =
             ModBlockEntities.BLOCK_ENTITIES.register("orbital_receiver",
-                    key -> new BlockEntityType<>(OrbitalReceiverBlockEntity::new, Set.of(ORBITAL_RECEIVER.get())));
+                    key -> BlockEntityTypeCompat.create(OrbitalReceiverBlockEntity::new, ORBITAL_RECEIVER.get()));
 
     // --- menu --------------------------------------------------------------------------------------
 

@@ -14,6 +14,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
+import za.co.neroland.nerolandcore.data.SavedDataCompat;
 import za.co.neroland.nerolandcore.data.SavedDataRecovery;
 
 import za.co.neroland.neropower.NeroPowerCommon;
@@ -33,7 +34,7 @@ public final class ScorchZones extends SavedData {
     public static final Identifier ID = Identifier.fromNamespaceAndPath(NeroPowerCommon.MOD_ID, "scorch_zones");
 
     public static final SavedDataType<ScorchZones> TYPE =
-            new SavedDataType<>(ID, ScorchZones::new, codec(), null);
+            SavedDataCompat.type(ID, ScorchZones::new, codec());
 
     /**
      * One scorch zone: a cube of half-edge {@code radius} around {@code center} in {@code dimension},

@@ -1,7 +1,6 @@
 package za.co.neroland.neropower.environmental;
 
 import java.util.List;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import net.minecraft.world.flag.FeatureFlags;
@@ -11,6 +10,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
+import za.co.neroland.nerolandcore.registry.BlockEntityTypeCompat;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 
 import za.co.neroland.neropower.registry.ModBlockEntities;
@@ -57,10 +57,10 @@ public final class EnvironmentalContent {
     // --- block entities ----------------------------------------------------------------------------
     public static final RegistryEntry<BlockEntityType<RadioisotopeGeneratorBlockEntity>> RTG_TYPE =
             ModBlockEntities.BLOCK_ENTITIES.register("radioisotope_generator",
-                    key -> new BlockEntityType<>(RadioisotopeGeneratorBlockEntity::new, Set.of(RTG_BLOCK.get())));
+                    key -> BlockEntityTypeCompat.create(RadioisotopeGeneratorBlockEntity::new, RTG_BLOCK.get()));
     public static final RegistryEntry<BlockEntityType<StirlingGeneratorBlockEntity>> STIRLING_TYPE =
             ModBlockEntities.BLOCK_ENTITIES.register("stirling_generator",
-                    key -> new BlockEntityType<>(StirlingGeneratorBlockEntity::new, Set.of(STIRLING_BLOCK.get())));
+                    key -> BlockEntityTypeCompat.create(StirlingGeneratorBlockEntity::new, STIRLING_BLOCK.get()));
 
     // --- menus ---------------------------------------------------------------------------------------
     public static final RegistryEntry<MenuType<RtgMenu>> RTG_MENU =

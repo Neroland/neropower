@@ -1,7 +1,6 @@
 package za.co.neroland.neropower.storage;
 
 import java.util.List;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import net.minecraft.world.flag.FeatureFlags;
@@ -12,6 +11,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
+import za.co.neroland.nerolandcore.registry.BlockEntityTypeCompat;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 
 import za.co.neroland.neropower.registry.ModBlockEntities;
@@ -64,12 +64,10 @@ public final class StorageContent {
     // --- block entities (one cell type serves all three tiers; the BE reads its tier from the block) ---
     public static final RegistryEntry<BlockEntityType<BatteryCellBlockEntity>> BATTERY_CELL =
             ModBlockEntities.BLOCK_ENTITIES.register("battery_cell",
-                    key -> new BlockEntityType<>(BatteryCellBlockEntity::new, Set.of(
-                            BATTERY_CELL_BASIC.get(), BATTERY_CELL_ADVANCED.get(), BATTERY_CELL_ELITE.get())));
+                    key -> BlockEntityTypeCompat.create(BatteryCellBlockEntity::new, BATTERY_CELL_BASIC.get(), BATTERY_CELL_ADVANCED.get(), BATTERY_CELL_ELITE.get()));
     public static final RegistryEntry<BlockEntityType<BankControllerBlockEntity>> BATTERY_BANK_CONTROLLER =
             ModBlockEntities.BLOCK_ENTITIES.register("battery_bank_controller",
-                    key -> new BlockEntityType<>(BankControllerBlockEntity::new,
-                            Set.of(BATTERY_BANK_CONTROLLER_BLOCK.get())));
+                    key -> BlockEntityTypeCompat.create(BankControllerBlockEntity::new, BATTERY_BANK_CONTROLLER_BLOCK.get()));
 
     // --- menus -----------------------------------------------------------------------------------------
     public static final RegistryEntry<MenuType<BatteryCellMenu>> BATTERY_CELL_MENU =

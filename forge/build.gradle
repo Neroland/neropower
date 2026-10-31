@@ -10,6 +10,9 @@ plugins {
 
 // MC version comes from the Stonecutter node (e.g. :forge:26.1.2), not a global property.
 def mc = stonecutter.current.version
+// Minecraft range: 1.21.x cells are bounded to their API line (gradle.properties); 26.x keep [mc,).
+def mcCeiling = project.findProperty("mc_ceiling_${mc}")
+def mcFloor = project.findProperty("mc_floor_${mc}") ?: mc
 def forgeVersion = project.findProperty("forge_version_${mc}")
 def jeiVersion = project.findProperty("jei_version_${mc}")
 def emiFile = project.findProperty("emi_file_neoforge_${mc}")
@@ -124,7 +127,10 @@ repositories {
 
 dependencies {
     implementation minecraft.dependency("net.minecraftforge:forge:${forgeVersion}")
-    annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.6'
+    // EventBus 7's compile-time validator; Forge before 1.21.6 ships EventBus 6, which it cannot validate.
+    if (stonecutter.eval(mc, '>=1.21.6')) {
+        annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.6'
+    }
 
     // Neroland Core — REQUIRED shared foundation (machine/energy framework, config, link, data
     // erasure). Compile + dev-runtime classpath; NOT jar-in-jar — Core ships as its own mod and loads
@@ -164,7 +170,7 @@ def generateModMetadata = tasks.register('generateModMetadata', ProcessResources
         mod_authors               : rootProject.mod_authors,
         mod_license               : rootProject.mod_license,
         forge_loader_version_range: "[${forgeMajor},)",
-        minecraft_version_range   : "[${mc},)",
+        minecraft_version_range   : mcCeiling ? "[${mcFloor},${mcCeiling})" : "[${mc},)",
         // Floor the required Core / NeroTech versions at what we compile against so Forge refuses to
         // load against a dependency too old to have the APIs referenced, instead of crashing at
         // registration. Never hardcode these ranges (PLAN-0.1.0.md ground rules).
@@ -208,7 +214,7 @@ tasks.register('ecjCheck', JavaExec) {
                 .join(File.pathSeparator)
         def srcDirs = sourceSets.main.java.srcDirs.findAll { it.exists() }.collect { it.absolutePath }
         args = [
-                '--release', '25',
+                '--release', "${project.javaRelease}",
                 '-proc:none',
                 '-d', 'none',
                 '-properties', rootProject.file('tools/ecj.prefs').absolutePath,

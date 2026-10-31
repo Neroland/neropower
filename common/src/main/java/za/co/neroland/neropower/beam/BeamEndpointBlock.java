@@ -37,15 +37,25 @@ public abstract class BeamEndpointBlock extends NeroPowerMachineBlock {
         super(properties);
     }
 
+    //? if >=1.21.2 {
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hit) {
+    //?} else {
+    /*@Override
+    protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level,
+            BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    *///?}
         if (stack.getItem() instanceof ConfiguratorItem && !copyPasteMode(stack)) {
             if (level instanceof ServerLevel serverLevel && player instanceof ServerPlayer serverPlayer
                     && level.getBlockEntity(pos) instanceof BeamEndpointBlockEntity endpoint) {
                 BeamLinking.handle(serverLevel, serverPlayer, pos, endpoint);
             }
+            //? if >=1.21.2 {
             return InteractionResult.SUCCESS;
+            //?} else {
+            /*return net.minecraft.world.ItemInteractionResult.SUCCESS;
+            *///?}
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hit);
     }

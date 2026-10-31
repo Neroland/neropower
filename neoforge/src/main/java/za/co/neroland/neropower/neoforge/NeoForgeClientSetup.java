@@ -34,11 +34,19 @@ public final class NeoForgeClientSetup {
     /** Machine BERs through the shared cross-loader seam (NeroTech / Nerospace pattern). */
     private static void onRegisterEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         ClientBlockEntityRenderers.registerAll(new ClientBlockEntityRenderers.Sink() {
+            //? if >=1.21.9 {
             @Override
             public <T extends BlockEntity, S extends BlockEntityRenderState> void register(
                     BlockEntityType<? extends T> type, BlockEntityRendererProvider<T, S> provider) {
                 event.registerBlockEntityRenderer(type, provider);
             }
+            //?} else {
+            /*@Override
+            public <T extends BlockEntity> void register(
+                    BlockEntityType<? extends T> type, BlockEntityRendererProvider<T> provider) {
+                event.registerBlockEntityRenderer(type, provider);
+            }
+            *///?}
         });
     }
 

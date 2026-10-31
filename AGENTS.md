@@ -13,12 +13,13 @@
   `docs/DESIGN.md`. Work stage by stage; a stage is done only when all nine cells build green.
 - Mod id: **`neropower`** (matches the registry namespace + every loader manifest). Package root:
   `za.co.neroland.neropower`. Author: **Neroland**.
-- Version: **0.2.0-alpha.1** (pre-release; first release will be `0.2.0-beta.1`).
+- Version: **0.3.0-beta.1**.
 - Dependencies: **Neroland Core** (`nerolandcore_version`, floor `[${nerolandcoreVersion},2.0)`) and
   **NeroTech** (`nerotech_version`, floor `[${nerotechVersion},1.0)`). Both are real `implementation`
   dependencies resolved from GitHub Packages / mavenLocal — never reflection.
-- Targets **MC 26.1.2, 26.2 AND 26.3** on **NeoForge, MinecraftForge/Forge, and Fabric** → the **"9 cells"**.
-  **Java 25.** Mappings = official Mojang names (26.x ships de-obfuscated; no Parchment).
+- Targets **MC 1.21.1, 1.21.4, 1.21.5, 1.21.8, 1.21.10, 1.21.11, 26.1.2, 26.2 AND 26.3** on **NeoForge,
+  MinecraftForge/Forge, and Fabric** → **27 cells** (the source is written for 26.x; older lines use `//?` blocks and the
+  `legacyRenames` list in `stonecutter.gradle`). **Java 25** for 26.x, **Java 21** for 1.21.x. Mappings = official Mojang names (26.x ships de-obfuscated; no Parchment).
 
 ## Working rules
 

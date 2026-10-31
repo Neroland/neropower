@@ -42,7 +42,11 @@ public final class NeroPowerNeoForge {
         // Creative-only debug commands (/neropower gallery); shared brigadier tree in common.
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) ->
                 NeroPowerCommands.register(event.getDispatcher()));
+        //? if >=1.21.9 {
         if (FMLEnvironment.getDist() == Dist.CLIENT) {
+        //?} else {
+        /*if (FMLEnvironment.dist == Dist.CLIENT) {
+        *///?}
             NeoForgeClientSetup.init(modEventBus);
         }
     }

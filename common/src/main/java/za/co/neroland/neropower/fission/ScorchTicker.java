@@ -66,7 +66,11 @@ public final class ScorchTicker {
                     zone.center().getX() - r, zone.center().getY() - r - VERTICAL_PAD, zone.center().getZ() - r,
                     zone.center().getX() + r + 1, zone.center().getY() + r + VERTICAL_PAD + 1, zone.center().getZ() + r + 1);
             for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, box, LivingEntity::isAlive)) {
+                //? if >=1.21.2 {
                 entity.hurtServer(level, level.damageSources().magic(), DAMAGE);
+                //?} else {
+                /*entity.hurt(level.damageSources().magic(), DAMAGE);
+                *///?}
             }
         }
     }

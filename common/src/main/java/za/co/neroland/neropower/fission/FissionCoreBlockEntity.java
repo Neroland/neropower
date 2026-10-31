@@ -473,9 +473,16 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity {
 
     // --- persistence ----------------------------------------------------------------
 
+    //? if >=1.21.6 {
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
+    //?} else {
+    /*@Override
+    protected void saveAdditional(net.minecraft.nbt.CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        ValueOutput output = ValueOutput.of(tag, registries);
+    *///?}
         output.putInt("ShellSize", this.shellSize);
         output.putInt("RodCount", this.rodCount);
         output.putLong("BurnupAcc", this.burnupAccumulator);
@@ -484,9 +491,16 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity {
         output.putInt("ScramTicks", this.scramTicksLeft);
     }
 
+    //? if >=1.21.6 {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+    //?} else {
+    /*@Override
+    protected void loadAdditional(net.minecraft.nbt.CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        ValueInput input = ValueInput.of(tag, registries);
+    *///?}
         this.shellSize = input.getIntOr("ShellSize", 0);
         this.rodCount = input.getIntOr("RodCount", 0);
         this.burnupAccumulator = Math.max(0L, input.getLongOr("BurnupAcc", 0L));
