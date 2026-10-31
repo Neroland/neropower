@@ -10,7 +10,7 @@
 
 **Run it, cool it, risk it — power depth for NeroTech, where every reactor is a system you have to operate.**
 
-NeroPower is an **optional add-on to [NeroTech](https://modrinth.com/mod/nerotech)**. NeroTech supplies the machine framework and its everyday generators; NeroPower adds the deep end of the power arc on top: a fission reactor with a real fuel cycle, a staged failure model that never fails silently, tiered pooled battery banks, authenticated line-of-sight beamed power, and generators whose output is a function of their state rather than a flat number. Nothing in NeroTech moves or changes id — a NeroTech world without NeroPower keeps working, and adding NeroPower later just adds blocks.
+NeroPower is an **optional add-on to [NeroTech](https://nerolandmc.net/mods/nerotech/)**. NeroTech supplies the machine framework and its everyday generators; NeroPower adds the deep end of the power arc on top: a fission reactor with a real fuel cycle, a staged failure model that never fails silently, tiered pooled battery banks, authenticated line-of-sight beamed power, and generators whose output is a function of their state rather than a flat number. Nothing in NeroTech moves or changes id — a NeroTech world without NeroPower keeps working, and adding NeroPower later just adds blocks.
 
 Built on **Neroland Core**, so it speaks the ecosystem's one Nero Energy type, shares NeroTech's GUI, side configuration, presets and thermal model, and takes its config from Core's shared framework.
 
@@ -40,7 +40,7 @@ NeroPower stores exactly one thing about players: the **UUID of the player who l
 
 ## Requirements & compatibility
 
-- **Requires [Neroland Core](https://modrinth.com/mod/nerolandcore) and [NeroTech](https://modrinth.com/mod/nerotech)** — install both alongside NeroPower (they load first).
+- **Requires [Neroland Core](https://nerolandmc.net/mods/neroland-core/) and [NeroTech](https://nerolandmc.net/mods/nerotech/)** — install both alongside NeroPower (they load first).
 - **Modpacks are allowed and encouraged** — any platform, no need to ask. Use the official files and credit *NeroPower by Neroland* with links to this page and the [GitHub repository](https://github.com/Neroland/neropower). Full terms: [LICENSE](https://github.com/Neroland/neropower/blob/main/LICENSE).
 
 ## Links

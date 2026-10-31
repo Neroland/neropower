@@ -1,5 +1,7 @@
 # Project context for AI coding agents — neropower
 
+> Modrinth is temporarily being removed from the upload and is no longer being referenced. Avoid making references to modrinth.
+
 > This and `AGENTS.md` are kept identical; update both together.
 
 ## The mod
@@ -13,7 +15,7 @@
   `docs/DESIGN.md`. Work stage by stage; a stage is done only when all nine cells build green.
 - Mod id: **`neropower`** (matches the registry namespace + every loader manifest). Package root:
   `za.co.neroland.neropower`. Author: **Neroland**.
-- Version: **0.3.0-beta.1**.
+- Version: **0.3.1-beta.1**.
 - Dependencies: **Neroland Core** (`nerolandcore_version`, floor `[${nerolandcoreVersion},2.0)`) and
   **NeroTech** (`nerotech_version`, floor `[${nerotechVersion},1.0)`). Both are real `implementation`
   dependencies resolved from GitHub Packages / mavenLocal — never reflection.

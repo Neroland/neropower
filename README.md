@@ -24,7 +24,7 @@ design record.
 
 ## Requirements
 
-- **Neroland Core** 1.17.0+ and **NeroTech** 0.7.0-beta.1+ (both required; version floors are in `gradle.properties`).
+- **Neroland Core** 1.17.0+ and **NeroTech** 0.7.1-beta.1+ (both required; version floors are in `gradle.properties`).
 - **Minecraft:** 1.21.1, 1.21.4, 1.21.5, 1.21.8 (also 1.21.7), 1.21.10 (also 1.21.9), 1.21.11, 26.1.2, 26.2 and 26.3
   · **Loaders:** NeoForge, MinecraftForge/Forge, Fabric (27 cells) · **Java:** 21 for 1.21.x, 25 for 26.x
 - **Java:** 25 · Mod id: `neropower` · package `za.co.neroland.neropower`

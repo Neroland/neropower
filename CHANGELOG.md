@@ -7,9 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1-beta.1] - 2026-10-31
+
+### Changed
+
+- Release uploads now target CurseForge and GitHub Releases only.
+- Removed automatic project description and gallery uploads.
+- Renamed the website overview source to `art/description.md` and refreshed public documentation links.
+
 ## [0.3.0-beta.1] - 2026-10-30
 
-Minecraft 1.21.x support. Requires **Neroland Core 1.17.0** and **NeroTech 0.7.0-beta.1**.
+Minecraft 1.21.x support. Requires **Neroland Core 1.17.0** and **NeroTech 0.7.1-beta.1**.
 
 ### Added
 
@@ -21,7 +29,7 @@ Minecraft 1.21.x support. Requires **Neroland Core 1.17.0** and **NeroTech 0.7.0
 ### Changed
 
 - Now requires Neroland Core 1.17.0 or later.
-- Now requires NeroTech 0.7.0-beta.1 or later (the first NeroTech release with 1.21.x builds).
+- Now requires NeroTech 0.7.1-beta.1 or later (the first NeroTech release with 1.21.x builds).
 
 ### Fixed
 
@@ -254,7 +262,7 @@ Fabric on Minecraft 26.1.2, 26.2 and 26.3.
 - Every energy block-entity type registers with NeroTech's `MachineTypeRegistry` so NeroTech's
   loader glue attaches energy / item capabilities on all three loaders.
 - Dependabot now targets `main` (the old `dev` branch does not exist).
-- Docs rewritten for the add-on status; the Modrinth and CurseForge descriptions describe the
+- Docs rewritten for the add-on status; the store descriptions describe the
   add-on and its privacy posture.
 
 ### Removed
