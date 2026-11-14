@@ -365,6 +365,51 @@ subprojects {
             }
         }
     }
+    // Advancement tab backgrounds: from 1.21.5 display.background is a texture asset id
+    // ("minecraft:gui/advancements/backgrounds/stone") that the client expands to textures/<path>.png. Before
+    // 1.21.5 it is the full texture path. The source is written for 26.x; rewrite it for the older nodes at
+    // build time (same files, overlaid last so they win). A full path on 1.21.5+ renders a missing-texture tab.
+    if (isNode) {
+        afterEvaluate { node ->
+            def sc = node.extensions.findByName('stonecutter')
+            if (sc == null || !sc.eval(sc.current.version, '<1.21.5')) {
+                return
+            }
+            def base = new File(rootProject.ext.commonResources).canonicalFile
+            def outDir = node.file('build/generated/legacy-advancements')
+            def legacyAdvancements = node.tasks.register('legacyAdvancements') {
+                group = 'stonecutter'
+                description = 'Rewrites advancement background asset ids to the pre-1.21.5 full texture path.'
+                inputs.dir(base)
+                outputs.dir(outDir)
+                doLast {
+                    node.delete(outDir)
+                    def slurper = new groovy.json.JsonSlurper()
+                    base.eachFileRecurse(groovy.io.FileType.FILES) { f ->
+                        def rel = base.toPath().relativize(f.toPath()).toString().replace('\\', '/')
+                        if (!(rel ==~ /data\/[^\/]+\/advancement\/.+\.json/)) {
+                            return
+                        }
+                        def json = slurper.parse(f)
+                        def bg = json.display instanceof Map ? json.display.background : null
+                        if (!(bg instanceof String) || bg.endsWith('.png')) {
+                            return
+                        }
+                        def ns = bg.contains(':') ? bg.substring(0, bg.indexOf(':')) : 'minecraft'
+                        def path = bg.contains(':') ? bg.substring(bg.indexOf(':') + 1) : bg
+                        json.display.background = "${ns}:textures/${path}.png".toString()
+                        def dst = new File(outDir, rel)
+                        dst.parentFile.mkdirs()
+                        dst.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(json)), 'UTF-8')
+                    }
+                }
+            }
+            node.sourceSets.main.resources.srcDir(node.files(outDir).builtBy(legacyAdvancements))
+            node.tasks.named('processResources') {
+                duplicatesStrategy = DuplicatesStrategy.INCLUDE
+            }
+        }
+    }
     if (isNode) {
         // Compute the unique name HERE (project = the Gradle project); inside
         // `eclipse.project {}` `project` rebinds to the Eclipse model, which has no `parent`.
