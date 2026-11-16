@@ -93,7 +93,7 @@ dependencies {
 
     // Sentry SDK (telemetry/NeroPowerTelemetry) embedded via NeoForge JarJar so players need no extra
     // download (JarJar dedupes with NeroTech's/Core's copy). Compile classpath AND the mod jar.
-    jarJar(implementation('io.sentry:sentry:8.60.0'))
+    jarJar(implementation('io.sentry:sentry:8.64.0'))
 
     // NeroTech — REQUIRED machine framework NeroPower is an add-on to (public api/ package, machine
     // base classes, thermal model). Same posture as Core: compile + dev-runtime, never bundled; loads
