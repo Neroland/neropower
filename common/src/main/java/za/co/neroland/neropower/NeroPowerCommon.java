@@ -73,6 +73,7 @@ public final class NeroPowerCommon {
         // machine type it enumerates is registered first.
         NeroPowerDataErasure.register();
         NeroPowerLinkModule.register();
+        za.co.neroland.neropower.map.NeroPowerMapLayers.register(); // Core map layers (NeroMaps); additive, swallows failure
         // Quest-pack hook gates (Core progression events only; no quest-mod dependency). The loaders
         // feed QuestHooks.tick from the server tick for offline-to-online delivery.
         QuestHooks.init();

@@ -156,5 +156,12 @@
   "quest.neropower.reactor_log.power_bank.desc": "Grow a battery bank until its pooled capacity reaches the server's milestone. A reserve that outlasts the night.",
   "quest.neropower.reactor_log.world_first_fission.title": "World First: Fission",
   "quest.neropower.reactor_log.world_first_fission.desc": "Somewhere in this world a fission reactor has burned fuel for the first time. A shared entry in the reactor log.",
-  "message.neropower.fuel_rod_refill": "A fresh Fuel Rod has been added to your inventory."
+  "message.neropower.fuel_rod_refill": "A fresh Fuel Rod has been added to your inventory.",
+  "map.layer.neropower.power": "Power",
+  "map.layer.neropower.power_nearby": "Power nearby",
+  "map.layer.neropower.scorch_zones": "Scorch zones",
+  "map.marker.neropower.reactor": "Fission reactor",
+  "map.marker.neropower.beam": "Beam endpoint",
+  "map.detail.neropower.yours": "Yours",
+  "map.area.neropower.scorch_zone": "Scorched ground"
 }

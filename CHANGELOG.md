@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2-beta.1] - 2026-11-16
+
+### Added
+
+- Map layers for Neroland Core's map API (drawn by NeroMaps and the companion app): your own reactors and beam endpoints loaded within 128 blocks of you, unowned ones within 64 blocks, and live scorch zones within 128 blocks. Another player's machines never show, and no layer names a player.
+
+### Changed
+
+- The Fabric metadata now caps the Neroland Core dependency below 2.0.0, matching Forge and NeoForge.
+
+### Dependencies
+
+- Updated Neroland Core from 1.17.6 to 1.19.0 (map layer API).
+
 ## [0.3.1-beta.1] - 2026-10-31
 
 ### Changed

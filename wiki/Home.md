@@ -20,6 +20,7 @@ upgrades and thermal model; the pages below cover only what NeroPower adds on to
 - [Configuration](Configuration.md) — every `neropower.properties` key
 - [Privacy](Privacy.md) — what the mod stores about players and how to erase it
 - [Quest Chapter](Quest-Chapter.md) — the *Reactor Log* quests shown when NeroQuests is installed
+- Maps — with a Neroland map installed, your own reactors and beam endpoints loaded within 128 blocks of you, unowned ones within 64 blocks and live scorch zones within 128 blocks appear as map layers; other players' machines never do
 - `/neropower gallery` — creative showcase of every block (op only)
 
 ## See also
