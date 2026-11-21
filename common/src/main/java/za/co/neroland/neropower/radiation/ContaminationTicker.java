@@ -14,13 +14,14 @@ public final class ContaminationTicker {
     }
 
     public static void tick(MinecraftServer server) {
-        if (!RadiationConfig.enabled(server.isDedicatedServer())) {
-            return;
+        if (RadiationConfig.enabled(server.isDedicatedServer())) {
+            int permille = RadiationConfig.decayPermillePerMinute();
+            int budget = RadiationConfig.decayBudgetPerTick();
+            for (ServerLevel level : server.getAllLevels()) {
+                ContaminationState.get(level).decayTick(level.getGameTime(), permille, budget);
+            }
         }
-        int permille = RadiationConfig.decayPermillePerMinute();
-        int budget = RadiationConfig.decayBudgetPerTick();
-        for (ServerLevel level : server.getAllLevels()) {
-            ContaminationState.get(level).decayTick(level.getGameTime(), permille, budget);
-        }
+        // Geiger readings (also while off, so the HUD can say so), dosimeters, effects, sources.
+        RadiationTicker.tick(server);
     }
 }

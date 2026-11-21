@@ -37,6 +37,27 @@ public final class BeamConfig {
             "beamOrbitalHopLossPermille", 300, 0, 1_000, true, "fixed loss (permille) of a cross-dimension "
             + "orbital hop, in place of distance loss (300 = 70% delivered)");
 
+    // --- 0.4.0: Beam Splitter and Phased Array Emitter (decision 008 annex) ----------------------
+    private static final ConfigValue<Integer> SPLITTER_MAX_LINKS = NeroPowerConfig.schema().intRange(
+            "beamSplitterMaxLinks", 4, 1, 8, true, "outgoing links a Beam Splitter may hold; each gets a share "
+            + "(permille) of what arrives after the lens, and the shares never add up to more than 100%");
+    private static final ConfigValue<String> SPLITTER_LENS_LOSS = NeroPowerConfig.schema().string(
+            "beamSplitterLensLoss", SplitMath.DEFAULT_LENS_LOSS, true, "Beam Splitter loss (permille of what "
+            + "arrives) by the focus lens in its slot, as lens=permille pairs (quartz, glacite, ember, void); "
+            + "with no lens the splitter accepts no beam");
+    private static final ConfigValue<Integer> PHASED_RANGE = NeroPowerConfig.schema().intRange(
+            "phasedArrayRange", 384, 8, 1_024, true, "maximum straight-line distance (blocks) from a Phased "
+            + "Array Emitter to each of its receivers");
+    private static final ConfigValue<Integer> PHASED_LOSS = NeroPowerConfig.schema().intRange(
+            "phasedArrayLossPermillePerBlock", 1, 0, 100, true, "Phased Array Emitter loss per block of "
+            + "distance (permille), compounded like beamLossPermillePerBlock");
+    private static final ConfigValue<Integer> PHASED_TRANSFER = NeroPowerConfig.schema().intRange(
+            "phasedArrayTransferPerPass", 8_000, 1, 1_000_000, true, "NE a Phased Array Emitter sends per pass "
+            + "(before loss) to the one receiver it serves that pass");
+    private static final ConfigValue<Integer> PHASED_MAX_TARGETS = NeroPowerConfig.schema().intRange(
+            "phasedArrayMaxTargets", 4, 1, 8, true, "receivers a Phased Array Emitter may serve, one per pass "
+            + "in list order (round-robin)");
+
     private BeamConfig() {
     }
 
@@ -82,5 +103,35 @@ public final class BeamConfig {
     /** Fixed orbital-hop loss in permille (0..1000, default 300). */
     public static int beamOrbitalHopLossPermille() {
         return ORBITAL_HOP_LOSS_PERMILLE.get();
+    }
+
+    /** Outgoing links per Beam Splitter (1..8, default 4). */
+    public static int beamSplitterMaxLinks() {
+        return SPLITTER_MAX_LINKS.get();
+    }
+
+    /** Lens loss permille by {@link SplitMath.Lens#ordinal()} (index 0, no lens, reads 1000). */
+    public static int[] beamSplitterLensLoss() {
+        return SplitMath.parseLensLoss(SPLITTER_LENS_LOSS.get());
+    }
+
+    /** Phased Array range in blocks (8..1024, default 384). */
+    public static int phasedArrayRange() {
+        return PHASED_RANGE.get();
+    }
+
+    /** Phased Array loss per block in permille (0..100, default 1). */
+    public static int phasedArrayLossPermillePerBlock() {
+        return PHASED_LOSS.get();
+    }
+
+    /** NE the Phased Array sends per pass before loss (default 8000). */
+    public static int phasedArrayTransferPerPass() {
+        return PHASED_TRANSFER.get();
+    }
+
+    /** Receivers per Phased Array (1..8, default 4). */
+    public static int phasedArrayMaxTargets() {
+        return PHASED_MAX_TARGETS.get();
     }
 }
