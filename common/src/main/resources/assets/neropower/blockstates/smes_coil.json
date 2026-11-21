@@ -1,0 +1,26 @@
+{
+  "variants": {
+    "shape=straight_x": {
+      "model": "neropower:block/smes_coil"
+    },
+    "shape=straight_z": {
+      "model": "neropower:block/smes_coil",
+      "y": 90
+    },
+    "shape=corner_ne": {
+      "model": "neropower:block/smes_coil_corner"
+    },
+    "shape=corner_se": {
+      "model": "neropower:block/smes_coil_corner",
+      "y": 90
+    },
+    "shape=corner_sw": {
+      "model": "neropower:block/smes_coil_corner",
+      "y": 180
+    },
+    "shape=corner_nw": {
+      "model": "neropower:block/smes_coil_corner",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "neropower:block/smes_controller",
+  "textures": {
+    "front": "neropower:block/smes_controller_front_alarm"
+  }
+}

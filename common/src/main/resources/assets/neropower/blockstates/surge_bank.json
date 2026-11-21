@@ -1,0 +1,109 @@
+{
+  "variants": {
+    "cans=0,facing=north": {
+      "model": "neropower:block/surge_bank"
+    },
+    "cans=0,facing=east": {
+      "model": "neropower:block/surge_bank",
+      "y": 90
+    },
+    "cans=0,facing=south": {
+      "model": "neropower:block/surge_bank",
+      "y": 180
+    },
+    "cans=0,facing=west": {
+      "model": "neropower:block/surge_bank",
+      "y": 270
+    },
+    "cans=1,facing=north": {
+      "model": "neropower:block/surge_bank_cans1"
+    },
+    "cans=1,facing=east": {
+      "model": "neropower:block/surge_bank_cans1",
+      "y": 90
+    },
+    "cans=1,facing=south": {
+      "model": "neropower:block/surge_bank_cans1",
+      "y": 180
+    },
+    "cans=1,facing=west": {
+      "model": "neropower:block/surge_bank_cans1",
+      "y": 270
+    },
+    "cans=2,facing=north": {
+      "model": "neropower:block/surge_bank_cans2"
+    },
+    "cans=2,facing=east": {
+      "model": "neropower:block/surge_bank_cans2",
+      "y": 90
+    },
+    "cans=2,facing=south": {
+      "model": "neropower:block/surge_bank_cans2",
+      "y": 180
+    },
+    "cans=2,facing=west": {
+      "model": "neropower:block/surge_bank_cans2",
+      "y": 270
+    },
+    "cans=3,facing=north": {
+      "model": "neropower:block/surge_bank_cans3"
+    },
+    "cans=3,facing=east": {
+      "model": "neropower:block/surge_bank_cans3",
+      "y": 90
+    },
+    "cans=3,facing=south": {
+      "model": "neropower:block/surge_bank_cans3",
+      "y": 180
+    },
+    "cans=3,facing=west": {
+      "model": "neropower:block/surge_bank_cans3",
+      "y": 270
+    },
+    "cans=4,facing=north": {
+      "model": "neropower:block/surge_bank_cans4"
+    },
+    "cans=4,facing=east": {
+      "model": "neropower:block/surge_bank_cans4",
+      "y": 90
+    },
+    "cans=4,facing=south": {
+      "model": "neropower:block/surge_bank_cans4",
+      "y": 180
+    },
+    "cans=4,facing=west": {
+      "model": "neropower:block/surge_bank_cans4",
+      "y": 270
+    },
+    "cans=5,facing=north": {
+      "model": "neropower:block/surge_bank_cans5"
+    },
+    "cans=5,facing=east": {
+      "model": "neropower:block/surge_bank_cans5",
+      "y": 90
+    },
+    "cans=5,facing=south": {
+      "model": "neropower:block/surge_bank_cans5",
+      "y": 180
+    },
+    "cans=5,facing=west": {
+      "model": "neropower:block/surge_bank_cans5",
+      "y": 270
+    },
+    "cans=6,facing=north": {
+      "model": "neropower:block/surge_bank_cans6"
+    },
+    "cans=6,facing=east": {
+      "model": "neropower:block/surge_bank_cans6",
+      "y": 90
+    },
+    "cans=6,facing=south": {
+      "model": "neropower:block/surge_bank_cans6",
+      "y": 180
+    },
+    "cans=6,facing=west": {
+      "model": "neropower:block/surge_bank_cans6",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "neropower:block/surge_bank",
+  "textures": {
+    "front": "neropower:block/surge_bank_front_3"
+  }
+}

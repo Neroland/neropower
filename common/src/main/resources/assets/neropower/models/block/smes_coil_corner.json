@@ -1,0 +1,177 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "neropower:block/smes_coil_cradle",
+    "coil": "neropower:block/smes_coil",
+    "cradle": "neropower:block/smes_coil_cradle"
+  },
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        3,
+        14
+      ],
+      "faces": {
+        "down": {
+          "texture": "#cradle",
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#cradle"
+        },
+        "north": {
+          "texture": "#cradle",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#cradle"
+        },
+        "west": {
+          "texture": "#cradle"
+        },
+        "east": {
+          "texture": "#cradle",
+          "cullface": "east"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        3,
+        2
+      ],
+      "to": [
+        13,
+        8,
+        4
+      ],
+      "faces": {
+        "down": {
+          "texture": "#cradle"
+        },
+        "up": {
+          "texture": "#cradle"
+        },
+        "north": {
+          "texture": "#cradle"
+        },
+        "south": {
+          "texture": "#cradle"
+        },
+        "west": {
+          "texture": "#cradle"
+        },
+        "east": {
+          "texture": "#cradle"
+        }
+      }
+    },
+    {
+      "from": [
+        12,
+        3,
+        3
+      ],
+      "to": [
+        14,
+        8,
+        13
+      ],
+      "faces": {
+        "down": {
+          "texture": "#cradle"
+        },
+        "up": {
+          "texture": "#cradle"
+        },
+        "north": {
+          "texture": "#cradle"
+        },
+        "south": {
+          "texture": "#cradle"
+        },
+        "west": {
+          "texture": "#cradle"
+        },
+        "east": {
+          "texture": "#cradle"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        5,
+        0
+      ],
+      "to": [
+        12,
+        13,
+        12
+      ],
+      "faces": {
+        "down": {
+          "texture": "#coil",
+          "rotation": 90
+        },
+        "up": {
+          "texture": "#coil",
+          "rotation": 90
+        },
+        "north": {
+          "texture": "#coil",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#coil"
+        },
+        "west": {
+          "texture": "#coil"
+        },
+        "east": {
+          "texture": "#coil"
+        }
+      }
+    },
+    {
+      "from": [
+        12,
+        5,
+        4
+      ],
+      "to": [
+        16,
+        13,
+        12
+      ],
+      "faces": {
+        "down": {
+          "texture": "#coil"
+        },
+        "up": {
+          "texture": "#coil"
+        },
+        "north": {
+          "texture": "#coil"
+        },
+        "south": {
+          "texture": "#coil"
+        },
+        "west": {
+          "texture": "#coil"
+        },
+        "east": {
+          "texture": "#coil",
+          "cullface": "east"
+        }
+      }
+    }
+  ]
+}
