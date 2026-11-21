@@ -1,0 +1,20 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "neropower:item/geiger_counter_0"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "neropower:geiger_frame": 0.5
+      },
+      "model": "neropower:item/geiger_counter_1"
+    },
+    {
+      "predicate": {
+        "neropower:geiger_frame": 1.0
+      },
+      "model": "neropower:item/geiger_counter_2"
+    }
+  ]
+}

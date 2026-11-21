@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "neropower:block/shielding_block",
+    "particle": "neropower:block/shielding_block"
+  }
+}

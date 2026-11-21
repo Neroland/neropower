@@ -62,6 +62,6 @@ public final class LoadBankMath {
         if (heat <= 0 || throttleThreshold <= 0) {
             return 0;
         }
-        return (int) Math.max(0L, Math.min(4L, (long) heat * 4L / throttleThreshold));
+        return (int) Math.max(0L, Math.min(4L, heat * 4L / throttleThreshold));
     }
 }

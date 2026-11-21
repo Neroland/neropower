@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "neropower:item/dosimeter_badge_0"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "neropower:dosimeter_step": 0.25
+      },
+      "model": "neropower:item/dosimeter_badge_1"
+    },
+    {
+      "predicate": {
+        "neropower:dosimeter_step": 0.5
+      },
+      "model": "neropower:item/dosimeter_badge_2"
+    },
+    {
+      "predicate": {
+        "neropower:dosimeter_step": 0.75
+      },
+      "model": "neropower:item/dosimeter_badge_3"
+    },
+    {
+      "predicate": {
+        "neropower:dosimeter_step": 1.0
+      },
+      "model": "neropower:item/dosimeter_badge_4"
+    }
+  ]
+}

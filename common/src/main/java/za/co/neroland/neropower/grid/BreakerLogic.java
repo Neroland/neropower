@@ -26,12 +26,12 @@ public final class BreakerLogic {
 
     /** The most it passes in one tick while closed: 125 % of the limit. */
     public static long passCap(int limit) {
-        return (long) clampLimit(limit) * 5L / 4L;
+        return clampLimit(limit) * 5L / 4L;
     }
 
     /** How much it offers downstream to learn the demand: twice the limit. */
     public static long probe(int limit) {
-        return (long) clampLimit(limit) * 2L;
+        return clampLimit(limit) * 2L;
     }
 
     /** What passes this tick: min(demand, available, 125 % of the limit); nothing while tripped. */

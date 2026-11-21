@@ -99,7 +99,10 @@ public final class BeamShot {
             return Result.of(visited.contains(to) ? BeamStatus.LOOP : BeamStatus.IDLE, distance, lossPermille);
         }
         hurtEntitiesInBeam(level, from, to);
-        long offer = source == null ? 0L : source.extract(Math.max(0L, budget), true);
+        if (source == null) {
+            return Result.of(BeamStatus.IDLE, distance, lossPermille);
+        }
+        long offer = source.extract(Math.max(0L, budget), true);
         long deliverable = BeamMath.delivered(offer, factor);
         if (deliverable <= 0L) {
             return Result.of(BeamStatus.IDLE, distance, lossPermille);
