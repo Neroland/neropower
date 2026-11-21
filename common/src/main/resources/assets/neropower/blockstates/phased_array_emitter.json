@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "neropower:block/phased_array_emitter"
+    },
+    "facing=east": {
+      "model": "neropower:block/phased_array_emitter",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "neropower:block/phased_array_emitter",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "neropower:block/phased_array_emitter",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "neropower:block/power_monitor"
+    },
+    "facing=east": {
+      "model": "neropower:block/power_monitor",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "neropower:block/power_monitor",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "neropower:block/power_monitor",
+      "y": 270
+    }
+  }
+}

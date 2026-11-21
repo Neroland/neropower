@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "alarm=false,tripped=false,facing=north": {
+      "model": "neropower:block/circuit_breaker"
+    },
+    "alarm=false,tripped=false,facing=east": {
+      "model": "neropower:block/circuit_breaker",
+      "y": 90
+    },
+    "alarm=false,tripped=false,facing=south": {
+      "model": "neropower:block/circuit_breaker",
+      "y": 180
+    },
+    "alarm=false,tripped=false,facing=west": {
+      "model": "neropower:block/circuit_breaker",
+      "y": 270
+    },
+    "alarm=false,tripped=true,facing=north": {
+      "model": "neropower:block/circuit_breaker_tripped"
+    },
+    "alarm=false,tripped=true,facing=east": {
+      "model": "neropower:block/circuit_breaker_tripped",
+      "y": 90
+    },
+    "alarm=false,tripped=true,facing=south": {
+      "model": "neropower:block/circuit_breaker_tripped",
+      "y": 180
+    },
+    "alarm=false,tripped=true,facing=west": {
+      "model": "neropower:block/circuit_breaker_tripped",
+      "y": 270
+    },
+    "alarm=true,tripped=false,facing=north": {
+      "model": "neropower:block/circuit_breaker"
+    },
+    "alarm=true,tripped=false,facing=east": {
+      "model": "neropower:block/circuit_breaker",
+      "y": 90
+    },
+    "alarm=true,tripped=false,facing=south": {
+      "model": "neropower:block/circuit_breaker",
+      "y": 180
+    },
+    "alarm=true,tripped=false,facing=west": {
+      "model": "neropower:block/circuit_breaker",
+      "y": 270
+    },
+    "alarm=true,tripped=true,facing=north": {
+      "model": "neropower:block/circuit_breaker_tripped"
+    },
+    "alarm=true,tripped=true,facing=east": {
+      "model": "neropower:block/circuit_breaker_tripped",
+      "y": 90
+    },
+    "alarm=true,tripped=true,facing=south": {
+      "model": "neropower:block/circuit_breaker_tripped",
+      "y": 180
+    },
+    "alarm=true,tripped=true,facing=west": {
+      "model": "neropower:block/circuit_breaker_tripped",
+      "y": 270
+    }
+  }
+}

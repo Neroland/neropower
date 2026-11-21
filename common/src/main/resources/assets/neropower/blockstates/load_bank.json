@@ -1,0 +1,79 @@
+{
+  "variants": {
+    "heat=0,facing=north": {
+      "model": "neropower:block/load_bank"
+    },
+    "heat=0,facing=east": {
+      "model": "neropower:block/load_bank",
+      "y": 90
+    },
+    "heat=0,facing=south": {
+      "model": "neropower:block/load_bank",
+      "y": 180
+    },
+    "heat=0,facing=west": {
+      "model": "neropower:block/load_bank",
+      "y": 270
+    },
+    "heat=1,facing=north": {
+      "model": "neropower:block/load_bank_heat1"
+    },
+    "heat=1,facing=east": {
+      "model": "neropower:block/load_bank_heat1",
+      "y": 90
+    },
+    "heat=1,facing=south": {
+      "model": "neropower:block/load_bank_heat1",
+      "y": 180
+    },
+    "heat=1,facing=west": {
+      "model": "neropower:block/load_bank_heat1",
+      "y": 270
+    },
+    "heat=2,facing=north": {
+      "model": "neropower:block/load_bank_heat2"
+    },
+    "heat=2,facing=east": {
+      "model": "neropower:block/load_bank_heat2",
+      "y": 90
+    },
+    "heat=2,facing=south": {
+      "model": "neropower:block/load_bank_heat2",
+      "y": 180
+    },
+    "heat=2,facing=west": {
+      "model": "neropower:block/load_bank_heat2",
+      "y": 270
+    },
+    "heat=3,facing=north": {
+      "model": "neropower:block/load_bank_heat3"
+    },
+    "heat=3,facing=east": {
+      "model": "neropower:block/load_bank_heat3",
+      "y": 90
+    },
+    "heat=3,facing=south": {
+      "model": "neropower:block/load_bank_heat3",
+      "y": 180
+    },
+    "heat=3,facing=west": {
+      "model": "neropower:block/load_bank_heat3",
+      "y": 270
+    },
+    "heat=4,facing=north": {
+      "model": "neropower:block/load_bank_heat4"
+    },
+    "heat=4,facing=east": {
+      "model": "neropower:block/load_bank_heat4",
+      "y": 90
+    },
+    "heat=4,facing=south": {
+      "model": "neropower:block/load_bank_heat4",
+      "y": 180
+    },
+    "heat=4,facing=west": {
+      "model": "neropower:block/load_bank_heat4",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "neropower:block/load_bank",
+  "textures": {
+    "grid": "neropower:block/load_bank_grid_1"
+  }
+}
