@@ -55,6 +55,11 @@ public final class NeroPowerCommon {
         BeamConfig.init();
         EnvironmentalConfig.init();
         za.co.neroland.neropower.radiation.RadiationConfig.init();
+        // 0.4.0 feature configs (keys on the same schema; must class-load before the load below).
+        za.co.neroland.neropower.turbine.TurbineConfig.init();
+        za.co.neroland.neropower.backend.BackEndConfig.init();
+        za.co.neroland.neropower.generation.GenerationConfig.init();
+        za.co.neroland.neropower.grid.GridConfig.init();
         NeroPowerConfig.load();
         // Opt-out, anonymous crash reporting (Sentry, EU ingest). Right after the config load so the
         // telemetryEnabled opt-out is honoured before Sentry is ever initialised; see PRIVACY.md.
@@ -67,6 +72,18 @@ public final class NeroPowerCommon {
         StorageContent.init();
         BeamContent.init();
         EnvironmentalContent.init();
+        // 0.4.0 content holders (each package's own registrations) plus the shared sound, particle and
+        // tool holders. All before registerMachineTypes(), which reads their machine-type lists.
+        za.co.neroland.neropower.registry.ModSounds.init();
+        za.co.neroland.neropower.registry.ModParticles.init();
+        za.co.neroland.neropower.registry.content.FissionContent.init();
+        za.co.neroland.neropower.registry.content.TurbineContent.init();
+        za.co.neroland.neropower.registry.content.BackEndContent.init();
+        za.co.neroland.neropower.registry.content.GenerationContent.init();
+        za.co.neroland.neropower.registry.content.StorageContent.init();
+        za.co.neroland.neropower.registry.content.GridContent.init();
+        za.co.neroland.neropower.registry.content.RadiationContent.init();
+        za.co.neroland.neropower.registry.content.ToolContent.init();
         // Add-on seam: every NeroPower machine on NeroTech's capability surfaces. Must happen here,
         // in mod construction, so it precedes the loaders' capability events (class note).
         ModBlockEntities.registerMachineTypes();

@@ -447,15 +447,19 @@ def power_monitor_screen():
 # ---------------------------------------------------------------- beam effects
 
 def beam_sheath():
-    """Renderer sprite: the soft outer sheath of a beam, white (tinted in code), two texels in five
-    lit so it reads as a 40 % veil without a translucent pass. Tiles along y."""
+    """Renderer sprite: the soft outer sheath of a beam, white (tinted in code). Two columns in five
+    are lit, so it reads as a 40 % veil without a translucent pass, and the columns run the length
+    of the tile, so one quad can stretch it along a whole beam. The outer columns are broken."""
     img = Image.new("RGBA", (S, S), CLEAR)
     px = img.load()
-    for y in range(S):
-        for x in range(4, 28):
-            edge = min(x - 4, 27 - x)
-            if (x * 2 + y) % 5 in (0, 2) and (edge > 3 or (x + y) % 2 == 0):
-                px[x, y] = (255, 255, 255, 255) if edge > 5 else (200, 200, 200, 255)
+    for x in range(4, 28):
+        if x % 5 not in (0, 2):
+            continue
+        edge = min(x - 4, 27 - x)
+        for y in range(S):
+            if edge <= 3 and (y // 4) % 2:
+                continue
+            px[x, y] = (255, 255, 255, 255) if edge > 5 else (200, 200, 200, 255)
     save(img, "block", "beam_sheath")
 
 
@@ -566,9 +570,10 @@ def scram_key():
             if 21 <= y <= 24 and 7 <= x <= 10:
                 continue
             stripe = ((x + y) // 3) % 2 == 0
-            put(x, y, R_ALARM if stripe else HAZ_K)
-    for i in range(12):
-        px[3 + i, 17] = _mix(R_ALARM, TRIP_W, 0.35) if ((3 + i + 17) // 3) % 2 == 0 else HAZ_K
+            put(x, y, R_ALARM if stripe else ALLOY[1])
+    for i in range(12):                                      # lit top edge, shaded foot
+        px[3 + i, 17] = _mix(R_ALARM, TRIP_W, 0.35) if ((3 + i + 17) // 3) % 2 == 0 else ALLOY[3]
+        px[3 + i, 28] = _mix(R_ALARM, A_DARK, 0.45) if ((3 + i + 28) // 3) % 2 == 0 else ALLOY[0]
     for i in range(0, 14):                                   # blade, four texels thick, up to the right
         x, y = 14 + i, 17 - i
         for k, col in enumerate((A_LIGHT, SILVER[0], SILVER[1], A_DARK)):

@@ -72,6 +72,11 @@ public final class NeroPowerConfig {
             + "only — never names, UUIDs, IPs, coordinates or world data; file paths are scrubbed of your "
             + "account name (POPIA/GDPR-compliant, see PRIVACY.md). Set false to opt out (takes effect on restart)");
 
+    // --- client display (CLIENT-LOCAL, not server-synced) ---------------------------------
+    private static final ConfigValue<String> GEIGER_HUD_CORNER = SCHEMA.string("geigerHudCorner",
+            "bottom_left", false, "Screen corner for the Geiger Counter readout while one is held: bottom_left, "
+            + "top_left, top_right or bottom_right (client display only)");
+
     private NeroPowerConfig() {
     }
 
@@ -142,6 +147,11 @@ public final class NeroPowerConfig {
 
     public static int unstablePenaltyPermille() {
         return UNSTABLE_PENALTY.get();
+    }
+
+    /** Client-local: the corner the Geiger HUD plate is drawn in ({@code client.hud.GeigerHud.Corner} names). */
+    public static String geigerHudCorner() {
+        return GEIGER_HUD_CORNER.get();
     }
 
     /**

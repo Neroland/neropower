@@ -41,8 +41,45 @@ public final class ModItems {
         out.addAll(FissionContent.creativeItems());
         out.addAll(StorageContent.creativeItems());
         out.addAll(BeamContent.creativeItems());
+        out.addAll(za.co.neroland.neropower.registry.content.GridContent.creativeItems()); // beam family, after orbital_receiver
         out.addAll(EnvironmentalContent.creativeItems());
+        add040(out);
         return out;
+    }
+
+    /** NeroPower 0.4.0 content, appended in the decision-001 family order. */
+    private static void add040(List<RegistryEntry<? extends ItemLike>> out) {
+        // Fission
+        out.add(za.co.neroland.neropower.registry.content.FissionContent.GRAPHITE_MODERATOR_ITEM);
+        out.add(za.co.neroland.neropower.registry.content.FissionContent.MODERATOR_TANK_ITEM);
+        out.add(za.co.neroland.neropower.registry.content.FissionContent.BREEDER_BLANKET_ITEM);
+        out.add(za.co.neroland.neropower.registry.content.FissionContent.EUROPIUM_CONTROL_ROD_ASSEMBLY_ITEM);
+        out.add(za.co.neroland.neropower.registry.content.FissionContent.REACTOR_STEAM_PORT_ITEM);
+        out.add(za.co.neroland.neropower.registry.content.FissionContent.REACTOR_CONTROL_COMPUTER_ITEM);
+        // Steam, Back end, Generation, Storage, Grid, Radiation
+        out.addAll(za.co.neroland.neropower.registry.content.TurbineContent.creativeItems());
+        out.addAll(za.co.neroland.neropower.registry.content.BackEndContent.creativeBlocks());
+        out.addAll(za.co.neroland.neropower.registry.content.GenerationContent.creativeBlocks());
+        out.addAll(za.co.neroland.neropower.registry.content.StorageContent.creativeItems());
+        out.addAll(za.co.neroland.neropower.registry.content.GridContent.gridCreativeItems());
+        out.addAll(za.co.neroland.neropower.registry.content.RadiationContent.creativeBlocks());
+        // fuel and waste items
+        out.add(za.co.neroland.neropower.registry.content.FissionContent.EUROPIUM_CONTROL_ROD);
+        out.add(za.co.neroland.neropower.registry.content.FissionContent.PALLURITE_DUST);
+        out.add(za.co.neroland.neropower.registry.content.FissionContent.PALLURITE_PELLET);
+        out.add(za.co.neroland.neropower.registry.content.FissionContent.KINDLED_PELLET);
+        out.add(za.co.neroland.neropower.registry.content.FissionContent.BRAIDED_FUEL_ROD);
+        out.add(za.co.neroland.neropower.registry.content.FissionContent.HOT_SPENT_FUEL_ROD);
+        out.addAll(za.co.neroland.neropower.registry.content.BackEndContent.creativeItems());
+        // cells and blades
+        out.addAll(za.co.neroland.neropower.registry.content.StorageContent.powerCellItems());
+        out.addAll(za.co.neroland.neropower.registry.content.TurbineContent.creativeVaneSets());
+        // modules
+        out.addAll(za.co.neroland.neropower.registry.content.TurbineContent.creativeModules());
+        out.add(za.co.neroland.neropower.registry.content.FissionContent.FUEL_ECONOMIZER);
+        // tools
+        out.addAll(za.co.neroland.neropower.registry.content.RadiationContent.creativeItems());
+        out.addAll(za.co.neroland.neropower.registry.content.ToolContent.creativeItems());
     }
 
     private static RegistryEntry<Item> item(String name) {

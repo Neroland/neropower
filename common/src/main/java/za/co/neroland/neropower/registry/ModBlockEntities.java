@@ -44,6 +44,11 @@ public final class ModBlockEntities {
         out.addAll(StorageContent.energyTypes());
         out.addAll(BeamContent.energyTypes());
         out.addAll(EnvironmentalContent.energyTypes());
+        out.addAll(za.co.neroland.neropower.registry.content.TurbineContent.energyTypes());
+        out.addAll(za.co.neroland.neropower.registry.content.BackEndContent.energyTypes());
+        out.addAll(za.co.neroland.neropower.registry.content.GenerationContent.energyTypes());
+        out.addAll(za.co.neroland.neropower.registry.content.StorageContent.energyTypes());
+        out.addAll(za.co.neroland.neropower.registry.content.GridContent.energyTypes());
         return List.copyOf(out);
     }
 
@@ -57,7 +62,31 @@ public final class ModBlockEntities {
         out.addAll(StorageContent.itemTypes());
         out.addAll(BeamContent.itemTypes());
         out.addAll(EnvironmentalContent.itemTypes());
+        out.addAll(za.co.neroland.neropower.registry.content.BackEndContent.itemTypes());
+        out.addAll(za.co.neroland.neropower.registry.content.GenerationContent.itemTypes());
+        out.addAll(za.co.neroland.neropower.registry.content.StorageContent.itemTypes());
+        out.addAll(za.co.neroland.neropower.registry.content.GridContent.itemTypes());
         return List.copyOf(out);
+    }
+
+    /**
+     * Every NeroPower machine with a fluid surface (Core's fluid capability plus the loaders' standard
+     * fluid views, which NeroTech's loader wiring reads from {@link MachineTypeRegistry}): the reactor
+     * steam port, the turbine steam ports and condenser, the Storage Ring's cryo tank, the fuel cell's
+     * water outlet.
+     */
+    public static List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> fluidMachineTypes() {
+        List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> out = new ArrayList<>();
+        out.addAll(za.co.neroland.neropower.registry.content.FissionContent.fluidTypes());
+        out.addAll(za.co.neroland.neropower.registry.content.TurbineContent.fluidTypes());
+        out.addAll(za.co.neroland.neropower.registry.content.StorageContent.fluidTypes());
+        out.addAll(za.co.neroland.neropower.registry.content.GenerationContent.fluidTypes());
+        return List.copyOf(out);
+    }
+
+    /** Every NeroPower machine on Core's gas surface: the fuel cell's hydrogen and oxygen inlets. */
+    public static List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> gasMachineTypes() {
+        return List.copyOf(za.co.neroland.neropower.registry.content.GenerationContent.gasTypes());
     }
 
     /**
@@ -71,6 +100,8 @@ public final class ModBlockEntities {
         registered = true;
         energyMachineTypes().forEach(MachineTypeRegistry::registerEnergy);
         itemMachineTypes().forEach(MachineTypeRegistry::registerItem);
+        fluidMachineTypes().forEach(MachineTypeRegistry::registerFluid);
+        gasMachineTypes().forEach(MachineTypeRegistry::registerGas);
     }
 
     private ModBlockEntities() {
