@@ -1,0 +1,53 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "nerospace:oxygen_suit_t2_helmet",
+      "required": false
+    },
+    {
+      "id": "nerospace:oxygen_suit_t2_chestplate",
+      "required": false
+    },
+    {
+      "id": "nerospace:oxygen_suit_t2_leggings",
+      "required": false
+    },
+    {
+      "id": "nerospace:oxygen_suit_t2_boots",
+      "required": false
+    },
+    {
+      "id": "nerospace:oxygen_suit_heat_helmet",
+      "required": false
+    },
+    {
+      "id": "nerospace:oxygen_suit_heat_chestplate",
+      "required": false
+    },
+    {
+      "id": "nerospace:oxygen_suit_heat_leggings",
+      "required": false
+    },
+    {
+      "id": "nerospace:oxygen_suit_heat_boots",
+      "required": false
+    },
+    {
+      "id": "nerospace:oxygen_suit_cold_helmet",
+      "required": false
+    },
+    {
+      "id": "nerospace:oxygen_suit_cold_chestplate",
+      "required": false
+    },
+    {
+      "id": "nerospace:oxygen_suit_cold_leggings",
+      "required": false
+    },
+    {
+      "id": "nerospace:oxygen_suit_cold_boots",
+      "required": false
+    }
+  ]
+}

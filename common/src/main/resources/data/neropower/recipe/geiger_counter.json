@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "P": "#c:plates/cindersteel",
+    "L": "#nerotech:processors/logic",
+    "R": "minecraft:redstone",
+    "T": "minecraft:tinted_glass"
+  },
+  "pattern": [
+    "PTP",
+    "RLR",
+    "PPP"
+  ],
+  "result": {
+    "id": "neropower:geiger_counter"
+  }
+}

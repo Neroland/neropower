@@ -50,6 +50,12 @@ public abstract class BeamEndpointBlockEntity extends NeroPowerMachineBlockEntit
         super(type, pos, state, 0, energyCapacity, maxTransfer);
     }
 
+    /** Explicit-buffer variant with machine slots (the Beam Splitter's lens slot). */
+    protected BeamEndpointBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int machineSlots,
+            int energyCapacity, int maxTransfer) {
+        super(type, pos, state, machineSlots, energyCapacity, maxTransfer);
+    }
+
     // --- beam surface ------------------------------------------------------------------------------
 
     /** Whether a transmitter may aim at this block (receivers and relays: yes; transmitters: no). */

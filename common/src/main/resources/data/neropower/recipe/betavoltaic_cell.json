@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "Q": "minecraft:quartz",
+    "G": "minecraft:glass_pane",
+    "B": "nerotech:circuit_board",
+    "S": "minecraft:smooth_stone_slab"
+  },
+  "pattern": [
+    "QGQ",
+    "IBI",
+    "SSS"
+  ],
+  "result": {
+    "id": "neropower:betavoltaic_cell"
+  }
+}

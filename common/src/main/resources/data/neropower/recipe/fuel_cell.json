@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "C": "minecraft:copper_ingot",
+    "G": "minecraft:glass_pane",
+    "B": "nerotech:circuit_board",
+    "F": "nerotech:machine_frame"
+  },
+  "pattern": [
+    "CGC",
+    "IFI",
+    "CBC"
+  ],
+  "result": {
+    "id": "neropower:fuel_cell"
+  }
+}

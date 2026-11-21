@@ -1,0 +1,25 @@
+{
+  "type": "nerotech:reacting",
+  "items": [
+    {
+      "ingredient": "minecraft:clay_ball",
+      "count": 2
+    },
+    {
+      "ingredient": "minecraft:bone_meal",
+      "count": 1
+    }
+  ],
+  "fluid_in": {
+    "id": "#c:sulfuric_acid",
+    "amount": 100
+  },
+  "results": [
+    {
+      "item": "neropower:decontaminant",
+      "count": 4
+    }
+  ],
+  "energy": 40,
+  "time": 200
+}

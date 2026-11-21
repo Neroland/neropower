@@ -53,10 +53,21 @@ public final class RadiationTicker {
     /** Per-dimension cursor of the round-robin effect pass (a chunk key; world data). */
     private static final Map<ResourceKey<Level>, Long> EFFECT_CURSOR = new ConcurrentHashMap<>();
 
+    /** Set once the radiation content is registered ({@code RadiationContent.init()}); off until then. */
+    private static volatile boolean active;
+
     private RadiationTicker() {
     }
 
+    /** Called from {@code RadiationContent.init()}: the items and components this tick uses now exist. */
+    public static void activate() {
+        active = true;
+    }
+
     public static void tick(MinecraftServer server) {
+        if (!active) {
+            return;
+        }
         boolean on = RadiationConfig.enabled(server.isDedicatedServer());
         int t = server.getTickCount();
         if (t % RadiationMath.GEIGER_INTERVAL == 0) {

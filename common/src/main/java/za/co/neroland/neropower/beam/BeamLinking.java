@@ -58,6 +58,12 @@ public final class BeamLinking {
             complete(level, player, pending.get(), pos, endpoint);
             return;
         }
+        if (endpoint instanceof MultiBeamSource) {
+            // Splitter / phased array: always a new pending source; links are removed in its screen.
+            session.begin(actor, dimension, pos.getX(), pos.getY(), pos.getZ(), now);
+            tell(player, "neropower.beam.link.stored");
+            return;
+        }
         if (endpoint instanceof BeamTransmitterBlockEntity source) {
             if (source.linked() && pending.isEmpty()) {
                 if (!mayRewire(player, source)) {
@@ -87,6 +93,11 @@ public final class BeamLinking {
         ServerLevel sourceLevel = sameDimension ? level : level.getServer().getLevel(
                 ResourceKey.create(Registries.DIMENSION, Identifier.parse(pending.dimension())));
         BlockPos sourcePos = new BlockPos(pending.x(), pending.y(), pending.z());
+        if (sourceLevel != null && sourceLevel.hasChunkAt(sourcePos)
+                && sourceLevel.getBlockEntity(sourcePos) instanceof MultiBeamSource multi) {
+            completeMulti(level, player, sourceLevel, sourcePos, multi, targetPos, target, sameDimension);
+            return;
+        }
         BeamTransmitterBlockEntity source = sourceLevel != null && sourceLevel.hasChunkAt(sourcePos)
                 && sourceLevel.getBlockEntity(sourcePos) instanceof BeamTransmitterBlockEntity transmitter
                 ? transmitter : null;
@@ -125,6 +136,47 @@ public final class BeamLinking {
         session.clear(actor);
         tell(player, "neropower.beam.link.linked");
         // Milestone record for the linking player (a read-only quest signal; gates nothing).
+        MilestoneGates.record(player, MilestoneGates.BEAM_LINKED);
+    }
+
+    /**
+     * Second click for a {@link MultiBeamSource} (Beam Splitter, Phased Array Emitter): same dimension only,
+     * protection at both ends, within the source's range, room for another link. <b>No owner is recorded</b>
+     * (decision 008 annex): the check here is the only authorisation.
+     */
+    private static void completeMulti(ServerLevel level, ServerPlayer player, ServerLevel sourceLevel,
+            BlockPos sourcePos, MultiBeamSource source, BlockPos targetPos, BeamEndpointBlockEntity target,
+            boolean sameDimension) {
+        BeamLinkSession session = BeamLinkSession.INSTANCE;
+        UUID actor = player.getUUID();
+        boolean mayInteractSource = Protection.get().mayInteract(player, sourceLevel, sourcePos);
+        boolean mayInteractTarget = Protection.get().mayInteract(player, level, targetPos);
+        BeamLinkRules.Decision decision = BeamLinkRules.decide(true, target.acceptsBeam(), mayInteractSource,
+                mayInteractTarget, sameDimension, false, target.orbital(), SpaceTags.isSpace(level));
+        if (decision == BeamLinkRules.Decision.CROSS_DIMENSION) {
+            tell(player, "neropower.beam.link.cross_dimension");
+            return;
+        }
+        if (decision == BeamLinkRules.Decision.SOURCE_GONE) {
+            session.clear(actor);
+            tell(player, "neropower.beam.link.source_gone");
+            return;
+        }
+        if (decision == BeamLinkRules.Decision.DENIED) {
+            tell(player, "neropower.beam.link_denied");
+            return;
+        }
+        if (!BeamMath.withinRange(sourcePos.getX(), sourcePos.getY(), sourcePos.getZ(),
+                targetPos.getX(), targetPos.getY(), targetPos.getZ(), source.linkRange())) {
+            tell(player, "neropower.beam.link.too_far", source.linkRange());
+            return;
+        }
+        if (!source.addLink(BeamTarget.of(targetPos, BeamTarget.dimensionId(level)))) {
+            tell(player, "neropower.beam.link.full");
+            return;
+        }
+        session.clear(actor);
+        tell(player, "neropower.beam.link.linked");
         MilestoneGates.record(player, MilestoneGates.BEAM_LINKED);
     }
 

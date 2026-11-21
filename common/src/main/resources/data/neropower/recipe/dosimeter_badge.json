@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "#c:plates/cindersteel",
+    "minecraft:paper",
+    "minecraft:glowstone_dust",
+    "minecraft:string"
+  ],
+  "result": {
+    "id": "neropower:dosimeter_badge"
+  }
+}

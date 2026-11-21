@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "nerotech:oxygen",
+    { "id": "nerospace:oxygen", "required": false }
+  ]
+}

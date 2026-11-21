@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "D": "minecraft:polished_deepslate",
+    "P": "#c:plates/cindersteel",
+    "I": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    "DPD",
+    "PIP",
+    "DPD"
+  ],
+  "result": {
+    "id": "neropower:shielding_block",
+    "count": 8
+  }
+}
