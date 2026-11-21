@@ -131,7 +131,7 @@ def gen_spent_fuel_pool():
             px[14, i] = EDGE
             px[17, i] = A_DARK
     rib(px, 5, 15, 12, 16, 3)                                       # family mark: rib rows
-    tell(px, 21, 15)
+    tell(px, 15, 1)                                                 # on the rim (the bail hides none of it)
     for (bx, by) in ((1, 1), (29, 1), (1, 29), (29, 29)):
         _bolt(px, bx, by)
     save(img, "block", name)
@@ -152,12 +152,12 @@ def gen_spent_fuel_pool():
         px[i, S - 1] = px[S - 1, i] = (110, 112, 118, 255)
     for i in range(1, S - 1):
         px[i, S - 2] = px[S - 2, i] = (140, 142, 148, 255)
-    frame(px, 8, 8, 23, 23, (120, 122, 128, 255))                   # knob seat
-    rect(px, 11, 11, 20, 20, (240, 240, 242, 255))
-    for i in range(11, 21):
-        px[i, 20] = (150, 152, 158, 255)
-        px[20, i] = (150, 152, 158, 255)
-    rect(px, 14, 14, 17, 17, (96, 98, 104, 255))                    # lifting eye (square, not a ring)
+    rect(px, 5, 13, 26, 18, (240, 240, 242, 255))                   # lifting bar across the cap
+    for i in range(5, 27):
+        px[i, 12] = (250, 250, 252, 255)
+        px[i, 19] = (120, 122, 128, 255)
+    for (a, b) in ((7, 9), (22, 24)):                               # two grapple notches
+        rect(px, a, 14, b, 17, (96, 98, 104, 255))
     save(img, "block", name)
 
 
@@ -225,7 +225,6 @@ def gen_vitrifier():
         px[26 - k, 5 + k] = DIM
         px[5 + k, 26 - k] = DIM
         px[26 - k, 26 - k] = DIM
-    frame(px, 10, 13, 21, 18, DIM)
     rect(px, 11, 14, 20, 17, SOCKET_SHADOW)                         # pour slot (a slit, not a hole)
     rib(px, 1, 10, 2, 21, 3, vertical=False)                        # family mark on the rim
     for (bx, by) in ((1, 1), (29, 1), (1, 29), (29, 29)):
@@ -804,7 +803,7 @@ PULSE = [
 ]
 
 # The tints the renderers apply (kept here so the contact sheet shows what the game shows).
-ROD_TINTS = {4: (255, 226, 160), 3: (255, 160, 40), 2: (204, 112, 18), 1: (112, 110, 106)}
+ROD_TINTS = {4: (255, 226, 160), 3: (255, 160, 40), 2: (204, 112, 18), 1: (74, 74, 72)}
 LOG_HOT = (255, 160, 40)
 LOG_COLD = (58, 74, 84)
 

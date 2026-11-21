@@ -16,12 +16,12 @@ public final class LoadBankMath {
 
     /**
      * NE burned per heat unit made: {@code max(loadBankNePerHeat, 2 × stirlingNePerHeatUnit × (1000 + 2 ×
-     * bonus) / 1000)}, rounded up, never below 1.
+     * bonus) / 1000 + 1)}, so a Stirling returns strictly under half; never below 1.
      */
     public static int nePerHeat(int loadBankNePerHeat, int stirlingNePerHeatUnit, int stirlingColdFaceBonusPermille) {
         long bonus = Math.max(0, stirlingColdFaceBonusPermille);
         long stirling = Math.max(1, stirlingNePerHeatUnit);
-        long floor = (2L * stirling * (PERMILLE + 2L * bonus) + PERMILLE - 1) / PERMILLE;
+        long floor = 2L * stirling * (PERMILLE + 2L * bonus) / PERMILLE + 1L; // strictly above half
         long divisor = Math.max(Math.max(1, loadBankNePerHeat), floor);
         return (int) Math.min(Integer.MAX_VALUE, divisor);
     }

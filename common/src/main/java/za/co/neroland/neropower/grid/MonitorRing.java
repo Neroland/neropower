@@ -92,6 +92,38 @@ public final class MonitorRing {
         }
     }
 
+    /** The sync form as text (base-36 ints joined by commas): the same on every MC line's tag API. */
+    public static String encode(int[] data) {
+        StringBuilder out = new StringBuilder(data.length * 4);
+        for (int i = 0; i < data.length; i++) {
+            if (i > 0) {
+                out.append(',');
+            }
+            out.append(Integer.toString(data[i], 36));
+        }
+        return out.toString();
+    }
+
+    /** Parse {@link #encode}; malformed text reads as empty. */
+    public static int[] decode(String text) {
+        if (text == null || text.isEmpty()) {
+            return new int[0];
+        }
+        String[] parts = text.split(",");
+        if (parts.length > 1 + 3 * SIZE) {
+            return new int[0];
+        }
+        int[] out = new int[parts.length];
+        try {
+            for (int i = 0; i < parts.length; i++) {
+                out[i] = Integer.parseInt(parts[i], 36);
+            }
+        } catch (NumberFormatException e) {
+            return new int[0];
+        }
+        return out;
+    }
+
     /** In / out NE per tick from a stored change over {@code ticks}: {@code [in, out]}. */
     public static long[] flowFromDelta(long before, long after, int ticks) {
         int t = Math.max(1, ticks);

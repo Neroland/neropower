@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "I": "minecraft:iron_ingot", "L": "#nerotech:processors/logic", "R": "minecraft:redstone", "F": "nerotech:machine_frame", "C": "minecraft:copper_ingot" },
+  "pattern": [ "ILI", "RFR", "ICI" ],
+  "result": { "id": "neropower:circuit_breaker" } }

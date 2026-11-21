@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "G": "minecraft:glass", "R": "neropower:beam_relay", "I": "minecraft:iron_ingot", "C": "#nerotech:components/capacitors" },
+  "pattern": [ " G ", "IRI", "ICI" ],
+  "result": { "id": "neropower:beam_splitter" } }

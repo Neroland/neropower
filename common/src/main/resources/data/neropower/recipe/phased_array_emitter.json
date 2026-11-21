@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "W": "#c:wires/superconductor", "L": "#nerotech:focus_lenses", "Q": "#nerotech:processors/quantum", "T": "neropower:beam_transmitter", "F": "nerotech:machine_frame" },
+  "pattern": [ "WLW", "QTQ", "WFW" ],
+  "result": { "id": "neropower:phased_array_emitter" } }

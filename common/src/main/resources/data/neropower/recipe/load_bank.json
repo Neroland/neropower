@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "B": "minecraft:iron_bars", "H": "#nerotech:components/heat_sinks", "F": "nerotech:machine_frame", "C": "minecraft:copper_ingot" },
+  "pattern": [ "BBB", "HFH", "CCC" ],
+  "result": { "id": "neropower:load_bank" } }
