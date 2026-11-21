@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "neropower:spent_fuel_pool"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "neropower:blocks/spent_fuel_pool"
+}

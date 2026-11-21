@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": "#c:plates/cindersteel",
+    "G": "minecraft:gold_ingot",
+    "L": "#nerotech:processors/logic"
+  },
+  "pattern": [
+    " P ",
+    "GLG",
+    " P "
+  ],
+  "result": {
+    "id": "neropower:fuel_economizer"
+  }
+}

@@ -127,14 +127,16 @@ class FailureControllerTest {
     }
 
     @Test
-    void overloadDisabledBacksAPersistedFailureOffToUnstable() {
+    void overloadDisabledKeepsAPersistedFailureAtUnstable() {
+        // 0.4.0: a saved FAILURE loads as UNSTABLE (see FailurePersistenceTest), so with overload off
+        // the ladder simply stays pinned there and nothing fires.
         FailureController c = new FailureController(LADDER);
         c.load(FailureStage.FAILURE.code(), 5);
-        assertEquals(FailureStage.FAILURE, c.stage());
+        assertEquals(FailureStage.UNSTABLE, c.stage());
         List<String> transitions = record(c);
         assertEquals(FailureStage.UNSTABLE, c.tick(CAPACITY, CAPACITY, false));
-        assertEquals(List.of("FAILURE>UNSTABLE"), transitions);
-        assertTrue(c.justEntered());
+        assertTrue(transitions.isEmpty());
+        assertFalse(c.justEntered());
     }
 
     @Test

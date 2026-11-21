@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "S": "neropower:turbine_shroud",
+    "C": "nerotech:circuit_board",
+    "F": "nerotech:machine_frame",
+    "O": "nerotech:nero_coil"
+  },
+  "pattern": [
+    "SCS",
+    "OFO",
+    "SCS"
+  ],
+  "result": {
+    "id": "neropower:turbine_helm"
+  }
+}

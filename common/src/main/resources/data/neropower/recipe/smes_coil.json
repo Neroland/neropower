@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "P": "#c:plates/cindersteel", "K": "#nerotech:coils/tier3", "W": "#c:wires/superconductor" },
+  "pattern": [ "PWP", "WKW", "PWP" ],
+  "result": { "id": "neropower:smes_coil", "count": 2 } }

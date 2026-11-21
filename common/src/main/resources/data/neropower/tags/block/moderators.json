@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "neropower:graphite_moderator",
+    "neropower:moderator_tank"
+  ]
+}

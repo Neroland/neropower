@@ -9,6 +9,9 @@ import net.minecraft.world.inventory.SimpleContainerData;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 import za.co.neroland.nerotech.menu.MachineMenu;
 
+import za.co.neroland.neropower.menu.GaugeTail;
+import za.co.neroland.neropower.menu.GaugeTailMenu;
+
 /**
  * Battery Bank Controller menu: no machine slots — upgrade block + player inventory, plus the
  * controller's {@value BankControllerBlockEntity#EXTRA_DATA} synced ints after the seven shared
@@ -16,7 +19,10 @@ import za.co.neroland.nerotech.menu.MachineMenu;
  * read by {@code storage.client.BankControllerScreen}. The shared energy gauge (index 0) already
  * shows the pool's fill, since the controller's energy surface is the pool.
  */
-public class BankControllerMenu extends MachineMenu {
+public class BankControllerMenu extends MachineMenu implements GaugeTailMenu {
+
+    /** Gauge tooltip tail (energy, heat, the pool's effective I/O limit (NE/t)), after NeroTech's shared data. */
+    private final GaugeTail gaugeTail;
 
     private static final int MACHINE_SLOTS = 0;
 
@@ -31,6 +37,9 @@ public class BankControllerMenu extends MachineMenu {
 
     public BankControllerMenu(int id, Inventory playerInventory, Container container, ContainerData data) {
         super(StorageContent.BATTERY_BANK_CONTROLLER_MENU.get(), id, container, data, MACHINE_SLOTS);
+        this.gaugeTail = GaugeTail.storage(container,
+                be -> be instanceof BankControllerBlockEntity bank ? bank.pool().effectiveIo() : 0L);
+        this.addDataSlots(this.gaugeTail);
         addUpgradeAndPlayerSlots(playerInventory);
     }
 
@@ -61,5 +70,10 @@ public class BankControllerMenu extends MachineMenu {
 
     private static long join(int hi, int lo) {
         return ((long) hi << 32) | (lo & 0xFFFF_FFFFL);
+    }
+
+    @Override
+    public GaugeTail gaugeTail() {
+        return this.gaugeTail;
     }
 }

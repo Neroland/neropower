@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "R": "neropower:europium_control_rod",
+    "I": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    "RIR"
+  ],
+  "result": {
+    "id": "neropower:europium_control_rod_assembly"
+  }
+}

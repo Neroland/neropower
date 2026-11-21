@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": "#c:plates/cindersteel",
+    "L": "#nerotech:processors/logic",
+    "R": "minecraft:comparator",
+    "C": "neropower:fission_casing"
+  },
+  "pattern": [
+    "PLP",
+    "RCR",
+    "PLP"
+  ],
+  "result": {
+    "id": "neropower:reactor_control_computer"
+  }
+}

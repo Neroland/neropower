@@ -1,0 +1,11 @@
+{
+  "type": "nerotech:reacting",
+  "items": [
+    { "ingredient": "#c:plates/titanium", "count": 2 },
+    { "ingredient": "#nerotech:components/capacitors", "count": 1 }
+  ],
+  "fluid_in": { "id": "#c:sulfuric_acid", "amount": 250 },
+  "results": [ { "item": "neropower:power_cell_basic", "count": 1 } ],
+  "energy": 40,
+  "time": 200
+}

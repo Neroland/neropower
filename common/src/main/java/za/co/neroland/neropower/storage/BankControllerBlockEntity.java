@@ -124,8 +124,8 @@ public class BankControllerBlockEntity extends NeroPowerMachineBlockEntity {
 
     /** A member broken since the last scan (its BE is removed) must leave the pool before it is used. */
     private boolean anyMemberGone() {
-        for (BatteryCellBlockEntity cell : this.pool.members()) {
-            if (cell.isRemoved()) {
+        for (PoolMember member : this.pool.members()) {
+            if (member.isRemoved()) {
                 return true;
             }
         }
@@ -133,11 +133,14 @@ public class BankControllerBlockEntity extends NeroPowerMachineBlockEntity {
     }
 
     private void rescan(Level level, BlockPos pos) {
-        List<BatteryCellBlockEntity> cells = BankNetwork.scan(level, pos, StorageConfig.bankScanRadius());
+        List<PoolMember> cells = BankNetwork.scan(level, pos, StorageConfig.bankScanRadius());
         this.pool.setMembers(cells);
         Set<BlockPos> positions = new HashSet<>(cells.size() * 2);
-        for (BatteryCellBlockEntity cell : cells) {
+        for (PoolMember cell : cells) {
             positions.add(cell.getBlockPos().immutable());
+            if (cell instanceof SurgeBankBlockEntity surge) {
+                surge.notePooled(level.getGameTime(), cells.size());
+            }
         }
         this.memberPositions = positions;
         // Milestone record for the controller's owner once the pooled capacity reaches the configured

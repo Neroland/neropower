@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "F": "nerotech:machine_frame"
+  },
+  "pattern": [
+    "III",
+    "IF ",
+    "III"
+  ],
+  "result": {
+    "id": "neropower:turbine_stator",
+    "count": 4
+  }
+}

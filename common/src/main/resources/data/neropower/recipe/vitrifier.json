@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "I": "#c:ingots/cindersteel", "G": "minecraft:glass", "C": "nerotech:nero_coil", "F": "nerotech:machine_frame", "B": "nerotech:circuit_board" },
+  "pattern": [ "IGI", "CFC", "IBI" ],
+  "result": { "id": "neropower:vitrifier" } }

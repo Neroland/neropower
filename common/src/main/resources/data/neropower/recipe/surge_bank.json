@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "C": "#nerotech:components/capacitors", "I": "minecraft:iron_ingot", "F": "nerotech:machine_frame", "R": "minecraft:redstone" },
+  "pattern": [ "ICI", "CFC", "IRI" ],
+  "result": { "id": "neropower:surge_bank" } }

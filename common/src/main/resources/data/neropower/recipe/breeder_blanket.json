@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": "neropower:pallurite_pellet",
+    "I": "minecraft:iron_ingot",
+    "G": "neropower:graphite_moderator"
+  },
+  "pattern": [
+    "PIP",
+    "IGI",
+    "PIP"
+  ],
+  "result": {
+    "id": "neropower:breeder_blanket"
+  }
+}

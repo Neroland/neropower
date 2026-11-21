@@ -35,6 +35,9 @@ public final class ForgeClientSetup {
     public static void init(BusGroup modBusGroup) {
         FMLClientSetupEvent.getBus(modBusGroup).addListener(ForgeClientSetup::onClientSetup);
         EntityRenderersEvent.RegisterRenderers.BUS.addListener(ForgeClientSetup::onRegisterEntityRenderers);
+        //? if >=26.1 {
+        net.minecraftforge.client.event.ModelEvent.BakeFluidModels.BUS.addListener(ForgeClientSetup::onBakeFluidModels);
+        //?}
     }
     //?}
     //? if >=1.21.6 && <1.21.9 {
@@ -68,6 +71,26 @@ public final class ForgeClientSetup {
             *///?}
         });
     }
+
+    /**
+     * From 26.1 Forge takes a fluid's sprites from a baked fluid model, registered once per fluid
+     * (NeroPower's fluids are never placed, so each has one model). Older lines use the types'
+     * {@code initializeClient} extensions.
+     */
+    //? if >=26.1 {
+    private static void onBakeFluidModels(net.minecraftforge.client.event.ModelEvent.BakeFluidModels event) {
+        for (za.co.neroland.neropower.fluid.FluidSpec spec : za.co.neroland.neropower.fluid.FluidSpec.values()) {
+            net.minecraft.client.resources.model.sprite.Material still = new net.minecraft.client.resources.model.sprite.Material(
+                    net.minecraft.resources.Identifier.fromNamespaceAndPath(za.co.neroland.neropower.NeroPowerCommon.MOD_ID, spec.stillTexture()));
+            net.minecraft.client.resources.model.sprite.Material flow = new net.minecraft.client.resources.model.sprite.Material(
+                    net.minecraft.resources.Identifier.fromNamespaceAndPath(za.co.neroland.neropower.NeroPowerCommon.MOD_ID, spec.flowTexture()));
+            net.minecraft.client.renderer.block.FluidModel model = new net.minecraft.client.renderer.block.FluidModel.Unbaked(
+                    still, flow, still, net.minecraft.client.color.block.BlockTintSources.constant(spec.tint()))
+                    .bake(event.materials(), () -> za.co.neroland.neropower.NeroPowerCommon.MOD_ID + ":" + spec.id());
+            event.register(za.co.neroland.neropower.fluid.NeroPowerFluids.get(spec), model);
+        }
+    }
+    //?}
 
     private static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(ForgeClientSetup::registerScreens);

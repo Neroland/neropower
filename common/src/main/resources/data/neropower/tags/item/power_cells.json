@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "neropower:power_cell_basic",
+    "neropower:power_cell_advanced",
+    "neropower:power_cell_elite"
+  ]
+}

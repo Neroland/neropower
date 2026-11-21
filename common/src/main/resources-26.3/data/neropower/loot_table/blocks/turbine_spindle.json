@@ -1,0 +1,90 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "neropower:turbine_spindle"
+        }
+      ],
+      "rolls": 1
+    },
+    {
+      "condition": {
+        "type": "minecraft:all_of",
+        "terms": [
+          {
+            "type": "minecraft:survives_explosion"
+          },
+          {
+            "type": "minecraft:block_state_property",
+            "block": "neropower:turbine_spindle",
+            "properties": {
+              "vanes": "steel"
+            }
+          }
+        ]
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "neropower:steel_vane_set"
+        }
+      ],
+      "rolls": 1
+    },
+    {
+      "condition": {
+        "type": "minecraft:all_of",
+        "terms": [
+          {
+            "type": "minecraft:survives_explosion"
+          },
+          {
+            "type": "minecraft:block_state_property",
+            "block": "neropower:turbine_spindle",
+            "properties": {
+              "vanes": "cindersteel"
+            }
+          }
+        ]
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "neropower:cindersteel_vane_set"
+        }
+      ],
+      "rolls": 1
+    },
+    {
+      "condition": {
+        "type": "minecraft:all_of",
+        "terms": [
+          {
+            "type": "minecraft:survives_explosion"
+          },
+          {
+            "type": "minecraft:block_state_property",
+            "block": "neropower:turbine_spindle",
+            "properties": {
+              "vanes": "superconducting"
+            }
+          }
+        ]
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "neropower:superconducting_vane_set"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "neropower:blocks/turbine_spindle"
+}

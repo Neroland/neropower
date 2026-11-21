@@ -5,11 +5,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 import za.co.neroland.nerolandcore.energy.EnergyBuffer;
+import za.co.neroland.nerolandcore.energy.NeroEnergyStorage;
 import za.co.neroland.nerolandcore.sideconfig.Channel;
 import za.co.neroland.nerolandcore.sideconfig.SideConfig;
 import za.co.neroland.nerolandcore.sideconfig.SidePreset;
@@ -31,13 +33,16 @@ import za.co.neroland.neropower.machine.NeroPowerMachineBlockEntity;
  *
  * <p>The tier is read from the block state's block (one block-entity type serves all three cells);
  * the {@link BatteryCellBlock#CHARGE} property follows the stored charge in 0..4 buckets.
+ *
+ * <p>0.4.0: one {@link ChargeSlot} (container slot 0, appended; older saves load with it empty) tops
+ * up a portable power cell from the cell's own buffer at the tier's I/O.
  */
-public class BatteryCellBlockEntity extends NeroPowerMachineBlockEntity {
+public class BatteryCellBlockEntity extends NeroPowerMachineBlockEntity implements PoolMember {
 
     private final BatteryTier tier;
 
     public BatteryCellBlockEntity(BlockPos pos, BlockState state) {
-        super(StorageContent.BATTERY_CELL.get(), pos, state, 0,
+        super(StorageContent.BATTERY_CELL.get(), pos, state, 1,
                 tierOf(state).capacity(), tierOf(state).maxIo());
         this.tier = tierOf(state);
         setupSideConfig(SideConfig.builder()
@@ -62,6 +67,31 @@ public class BatteryCellBlockEntity extends NeroPowerMachineBlockEntity {
     }
 
     @Override
+    public NeroEnergyStorage poolBuffer() {
+        return energyBuffer();
+    }
+
+    @Override
+    public long poolIo() {
+        return this.tier.maxIo();
+    }
+
+    @Override
+    public boolean fastTier() {
+        return false;
+    }
+
+    @Override
+    public boolean canPlaceMachineItem(int slot, ItemStack stack) {
+        return slot == ChargeSlot.SLOT && ChargeSlot.accepts(stack);
+    }
+
+    @Override
+    public boolean canTakeMachineItem(int slot) {
+        return slot == ChargeSlot.SLOT && ChargeSlot.canTake(getItem(slot));
+    }
+
+    @Override
     protected void tickMachine(Level level, BlockPos pos, BlockState state) {
         // A buffer does no work: no heat, no pollution, no progress bar. "Active" means holding a
         // charge; the block-state bucket drives the model overlay.
@@ -74,6 +104,9 @@ public class BatteryCellBlockEntity extends NeroPowerMachineBlockEntity {
         int level4 = PoolMath.chargeLevel(amount, getEnergy().getCapacity());
         if (state.hasProperty(BatteryCellBlock.CHARGE) && state.getValue(BatteryCellBlock.CHARGE) != level4) {
             level.setBlock(pos, state.setValue(BatteryCellBlock.CHARGE, level4), Block.UPDATE_CLIENTS);
+        }
+        if (ChargeSlot.charge(getItem(ChargeSlot.SLOT), energyBuffer(), this.tier.maxIo()) > 0) {
+            setChanged();
         }
         StorageEnergy.pushToNeighbours(level, pos, energyBuffer(), this.tier.maxIo(), sideConfig(), null, -1);
     }

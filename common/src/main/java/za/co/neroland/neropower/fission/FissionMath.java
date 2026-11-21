@@ -30,8 +30,8 @@ public final class FissionMath {
     /** The control-rod factor never drops below this, however many assemblies are fitted. */
     public static final double CONTROL_ROD_FLOOR = 0.15D;
 
-    /** Rod slots the core exposes (a 5³ shell uses all of them, a 3³ shell two). */
-    public static final int ROD_SLOTS = 4;
+    /** Rod slots the core exposes (a 7³ shell uses all six, a 5³ shell four, a 3³ shell two). */
+    public static final int ROD_SLOTS = 6;
 
     /** Default {@code fissionPoisonRodThresholdPermille}: poison builds only above a 90% control-rod factor. */
     public static final int DEFAULT_POISON_ROD_THRESHOLD = 900;
@@ -194,6 +194,59 @@ public final class FissionMath {
         return Math.max(CONTROL_ROD_FLOOR, factor);
     }
 
+    /**
+     * The combined reactivity reduction of everything inside the shell that absorbs neutrons:
+     * {@code max(0.15, 1 - (rods x rodPermille + europiumRods x europiumPermille + blankets x
+     * blanketPermille) / 1000)}. Assemblies of both tiers together are capped at the interior volume;
+     * negative counts or permilles read as 0. With no europium rods and no blankets this is exactly
+     * {@link #controlRodFactor}.
+     */
+    public static double reactivityFactor(int rods, int europiumRods, int blankets, int interiorVolume,
+            int rodPermille, int europiumPermille, int blanketPermille) {
+        int volume = Math.max(0, interiorVolume);
+        int plain = Math.max(0, Math.min(rods, volume));
+        int europium = Math.max(0, Math.min(europiumRods, volume - plain));
+        int blanket = Math.max(0, blankets);
+        double reduction = (plain * (double) Math.max(0, rodPermille)
+                + europium * (double) Math.max(0, europiumPermille)
+                + blanket * (double) Math.max(0, blanketPermille)) / PERMILLE;
+        return Math.max(CONTROL_ROD_FLOOR, 1.0D - reduction);
+    }
+
+    /**
+     * Output and heat bonus (permille) from the moderators' fuel-channel score:
+     * {@code min(cap, score x perContact)}, never negative.
+     */
+    public static int moderatorBonusPermille(int score, int perContactPermille, int capPermille) {
+        long bonus = (long) Math.max(0, score) * Math.max(0, perContactPermille);
+        return (int) Math.max(0L, Math.min(Math.max(0, capPermille), bonus));
+    }
+
+    /** A permille applied to a value, as a factor ({@code 1000 -> 1.0}). */
+    public static double permilleFactor(int permille) {
+        return Math.max(0, permille) / (double) PERMILLE;
+    }
+
+    /**
+     * Steam (mB) the core raises this tick from {@code heat} in steam mode: {@code heat x steamPerHeat},
+     * scaled by the output multipliers (economizer, failure ladder) as permille. Never negative.
+     */
+    public static long steamFromHeat(int heat, int steamPerHeat, int outputPermille) {
+        if (heat <= 0 || steamPerHeat <= 0 || outputPermille <= 0) {
+            return 0L;
+        }
+        return Math.round((double) heat * steamPerHeat * outputPermille / PERMILLE);
+    }
+
+    /**
+     * The breeder's progress step per running tick, in milli-ticks: {@code min(blankets, max) x
+     * outputFactorPermille}. A pellet is bred each {@code ticksPerPellet x 1000} milli-ticks.
+     */
+    public static int breedStep(int blankets, int maxBlankets, int outputFactorPermille) {
+        int counted = Math.max(0, Math.min(blankets, Math.max(0, maxBlankets)));
+        return (int) Math.min(Integer.MAX_VALUE, (long) counted * Math.max(0, outputFactorPermille));
+    }
+
     // --- shell geometry ------------------------------------------------------------
 
     /** Interior (non-shell) blocks of a cubic shell of edge {@code shellSize}; 0 below 3. */
@@ -207,7 +260,7 @@ public final class FissionMath {
 
     /**
      * Rod slots a shell can use: {@code shellSize - 1}, clamped to {@code 0..ROD_SLOTS} — 2 for a
-     * 3³ shell, all 4 for a 5³ one, none while unformed (size 0).
+     * 3³ shell, 4 for a 5³ one, all 6 for a 7³ one, none while unformed (size 0).
      */
     public static int usableRodSlots(int shellSize) {
         if (shellSize < 3) {

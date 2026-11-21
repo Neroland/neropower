@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "S": "#c:ingots/cindersteel",
+    "V": "neropower:steel_vane_set"
+  },
+  "pattern": [
+    "S S",
+    " V ",
+    "S S"
+  ],
+  "result": {
+    "id": "neropower:cindersteel_vane_set"
+  }
+}

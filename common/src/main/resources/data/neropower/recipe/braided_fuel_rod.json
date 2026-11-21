@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "K": "neropower:kindled_pellet",
+    "R": "neropower:reprocessed_pellet",
+    "S": "#c:rods/cindersteel"
+  },
+  "pattern": [
+    " K ",
+    "SRS",
+    " K "
+  ],
+  "result": {
+    "id": "neropower:braided_fuel_rod"
+  }
+}

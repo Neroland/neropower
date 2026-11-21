@@ -1,0 +1,11 @@
+{
+  "type": "nerotech:reacting",
+  "items": [
+    { "ingredient": "neropower:power_cell_advanced", "count": 1 },
+    { "ingredient": "#c:wires/superconductor", "count": 2 }
+  ],
+  "fluid_in": { "id": "#c:sulfuric_acid", "amount": 250 },
+  "results": [ { "item": "neropower:power_cell_elite", "count": 1 } ],
+  "energy": 80,
+  "time": 400
+}

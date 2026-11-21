@@ -7,6 +7,9 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.neropower.data.SaveAdapters;
+import za.co.neroland.neropower.data.SaveKeys;
+
 /**
  * Where a transmitter or relay beams to: a block position plus the dimension id it was linked in,
  * so a stored target can never silently match a different block at the same coordinates in another
@@ -39,6 +42,11 @@ public record BeamTarget(BlockPos pos, String dimension) {
 
     /** Write {@code target} (or its absence) under {@code Target*} keys. */
     public static void save(ValueOutput output, @Nullable BeamTarget target) {
+        write(SaveAdapters.writer(output), target);
+    }
+
+    /** Write a link target (0.3.x keys: {@code Linked}, {@code TargetX/Y/Z}, {@code TargetDim}). */
+    public static void write(SaveKeys.Writer output, @Nullable BeamTarget target) {
         output.putBoolean("Linked", target != null);
         if (target != null) {
             output.putInt("TargetX", target.pos.getX());
@@ -51,10 +59,16 @@ public record BeamTarget(BlockPos pos, String dimension) {
     /** Read back what {@link #save} wrote; {@code null} when unlinked. */
     @Nullable
     public static BeamTarget load(ValueInput input) {
-        if (!input.getBooleanOr("Linked", false)) {
+        return read(SaveAdapters.reader(input));
+    }
+
+    /** Read a link target, or null when unlinked. */
+    @Nullable
+    public static BeamTarget read(SaveKeys.Reader input) {
+        if (!input.getBoolean("Linked", false)) {
             return null;
         }
-        return new BeamTarget(new BlockPos(input.getIntOr("TargetX", 0), input.getIntOr("TargetY", 0),
-                input.getIntOr("TargetZ", 0)), input.getStringOr("TargetDim", ""));
+        return new BeamTarget(new BlockPos(input.getInt("TargetX", 0), input.getInt("TargetY", 0),
+                input.getInt("TargetZ", 0)), input.getString("TargetDim", ""));
     }
 }

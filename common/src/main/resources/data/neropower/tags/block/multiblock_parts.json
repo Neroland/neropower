@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "neropower:fission_casing",
+    "neropower:control_rod_assembly"
+  ]
+}

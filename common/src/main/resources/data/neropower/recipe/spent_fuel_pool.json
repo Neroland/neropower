@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "P": "#c:plates/cindersteel", "B": "minecraft:iron_bars", "F": "nerotech:machine_frame", "H": "#nerotech:components/heat_sinks" },
+  "pattern": [ "PBP", "BFB", "PHP" ],
+  "result": { "id": "neropower:spent_fuel_pool" } }

@@ -54,11 +54,13 @@ public final class NeroPowerCommon {
         StorageConfig.init();
         BeamConfig.init();
         EnvironmentalConfig.init();
+        za.co.neroland.neropower.radiation.RadiationConfig.init();
         NeroPowerConfig.load();
         // Opt-out, anonymous crash reporting (Sentry, EU ingest). Right after the config load so the
         // telemetryEnabled opt-out is honoured before Sentry is ever initialised; see PRIVACY.md.
         NeroPowerTelemetry.init();
         ModRegistries.init();
+        za.co.neroland.neropower.fluid.NeroPowerFluids.init(); // steam, exhaust steam, heavy water (non-placeable)
         // Feature content (blocks, items, block entities, menus) — each package owns its own
         // registrations; the shared registries only aggregate.
         FissionContent.init();

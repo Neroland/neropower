@@ -9,12 +9,18 @@ import net.minecraft.world.inventory.SimpleContainerData;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 import za.co.neroland.nerotech.menu.MachineMenu;
 
+import za.co.neroland.neropower.menu.GaugeTail;
+import za.co.neroland.neropower.menu.GaugeTailMenu;
+
 /**
  * The one menu every beam endpoint shares: no machine slots — upgrade column + player inventory —
  * plus the five synced beam ints after the seven shared ones (see
  * {@link BeamEndpointBlockEntity}), read by {@code beam.client.BeamScreen}.
  */
-public class BeamMenu extends MachineMenu {
+public class BeamMenu extends MachineMenu implements GaugeTailMenu {
+
+    /** Gauge tooltip tail (energy, heat, NE moved in the last pass), after NeroTech's shared data. */
+    private final GaugeTail gaugeTail;
 
     private static final int MACHINE_SLOTS = 0;
 
@@ -29,6 +35,9 @@ public class BeamMenu extends MachineMenu {
 
     public BeamMenu(int id, Inventory playerInventory, Container container, ContainerData data) {
         super(BeamContent.BEAM_MENU.get(), id, container, data, MACHINE_SLOTS);
+        this.gaugeTail = GaugeTail.of(container,
+                be -> be instanceof BeamEndpointBlockEntity beam ? beam.lastPass : 0L);
+        this.addDataSlots(this.gaugeTail);
         addUpgradeAndPlayerSlots(playerInventory);
     }
 
@@ -55,5 +64,10 @@ public class BeamMenu extends MachineMenu {
     /** The endpoint's current {@link BeamStatus}. */
     public BeamStatus status() {
         return BeamStatus.byOrdinal(extraValue(4));
+    }
+
+    @Override
+    public GaugeTail gaugeTail() {
+        return this.gaugeTail;
     }
 }

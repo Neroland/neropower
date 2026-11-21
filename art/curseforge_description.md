@@ -49,7 +49,6 @@ NeroPower stores exactly one thing about players: the **UUID of the player who l
 - 💬 **[Discord](https://discord.gg/ArPXvYUzJG)** — chat, help, and sneak peeks.
 - 🐞 **[Issues](https://github.com/Neroland/neropower/issues)** — bug reports and feature requests.
 - 🗒️ **[Changelog](https://github.com/Neroland/neropower/blob/main/CHANGELOG.md)**
-- 🟢 **[Also on Modrinth](https://modrinth.com/mod/neropower)**
 
 ---
 

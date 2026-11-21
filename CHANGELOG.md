@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Hovering a gauge now shows what it is, how much, and the rate.
+- Three new fluids for pipes and tanks: Steam, Exhaust Steam and Heavy Water (tagged `c:steam`, `neropower:exhaust_steam` and `c:heavy_water`). They cannot be placed in the world and have no bucket. Their textures are placeholders for now.
+- `/neropower budget start [ticks]` and `/neropower budget` (operators): how many milliseconds per tick NeroPower's machines take, per machine type and in total, over a sampling window (10 seconds by default). Nothing is measured while no window is open.
+- Chunk contamination storage for the coming radiation system, behind the new `radiationMode` setting (`auto` by default: on in singleplayer and LAN, off on dedicated servers). It records only a level per chunk, decays over time and is capped per dimension (`radiationDecayPermillePerMinute`, `radiationMaxChunksPerDimension`, `radiationDecayBudgetPerTick`). No player data.
+
+### Changed
+
+- Requires NeroTech 0.8.0 or newer with Neroland Core 1.20.0 or newer. The Fabric manifest now also caps NeroTech below 1.0, as the NeoForge and Forge manifests already did.
+- Each gauge tooltip now appears exactly once: NeroTech's machine screen shows the energy, heat and progress tooltips, and NeroPower adds only its own readouts. Storage screens read stored energy and capacity past one billion NE correctly.
+- The reactor shell is now checked only when something changes (a casing or rod assembly placed or removed anywhere in the shell, the core's neighbours, loading, opening the screen) instead of every two seconds. Reactors, banks and beam links from 0.3.x load unchanged.
+- A machine saved mid-failure now loads one step back (unstable instead of failing), so a world never runs a failure on its first tick after loading.
+- NeroPower no longer reads NeroTech's internal block registry: the Stirling Generator's cold face and the gallery find NeroTech's blocks by id, and the storage push guard uses the `neropower:energy_storages` block tag (NeroTech's Battery Bank is an optional entry).
+
+### Dependencies
+
+- Updated Neroland Core from 1.19.0 to 1.20.0.
+
+## [0.3.2] - 2026-11-21
+
+### Changed
+
+- Transitioning to stable versions: the alpha/beta label is dropped from the version number, so this release is **0.3.2** (previously 0.3.2-beta.1). Nothing else changes with the version label.
+
 ## [0.3.2-beta.1] - 2026-11-16
 
 ### Added

@@ -44,6 +44,9 @@ public final class ScorchTicker {
         // server, so the NeroLink module can resolve the requesting player when the companion bridge
         // queries it (NeroTech does the same from PollutionManager.tick). Cheap volatile write.
         NeroPowerLinkModule.rememberServer(server);
+        // Chunk contamination decay rides the same per-loader tick (budgeted, off when radiation is off).
+        za.co.neroland.neropower.radiation.ContaminationTicker.tick(server);
+        za.co.neroland.neropower.command.BudgetProbe.serverTick(); // closes a /neropower budget window
         if (server.getTickCount() % INTERVAL != 0) {
             return;
         }

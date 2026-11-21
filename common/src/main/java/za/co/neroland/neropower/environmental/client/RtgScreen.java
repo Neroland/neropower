@@ -1,19 +1,23 @@
 package za.co.neroland.neropower.environmental.client;
 
+import java.util.List;
+
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
-import za.co.neroland.nerotech.client.MachineScreen;
-
+import za.co.neroland.neropower.client.GaugeMath;
+import za.co.neroland.neropower.client.GaugeTooltips;
+import za.co.neroland.neropower.client.PowerMachineScreen;
+import za.co.neroland.neropower.environmental.EnvironmentalConfig;
 import za.co.neroland.neropower.environmental.RtgMenu;
 
 /**
- * The Radioisotope Generator screen: NeroTech's shared {@link MachineScreen} hull plus a two-line decay
- * readout under the pellet slots — current output as a percentage of the fresh rate, and days elapsed /
- * days until the pellet is spent. Both come straight from the menu's synced ints.
+ * The Radioisotope Generator screen: the shared hull plus a two-line decay readout under the pellet
+ * slots: current output as a percentage of the fresh rate, and days elapsed / days until the pellet is
+ * spent. Both come straight from the menu's synced ints; hovering them adds the time left.
  */
-public class RtgScreen extends MachineScreen<RtgMenu> {
+public class RtgScreen extends PowerMachineScreen<RtgMenu> {
 
     /** Healthy (green) / fading (amber) / no pellet (subtle grey). */
     private static final int HEALTHY = 0xFF3CB043;
@@ -24,15 +28,14 @@ public class RtgScreen extends MachineScreen<RtgMenu> {
     private static final int TEXT_X = 40;
     private static final int TEXT_Y = 50;
     private static final int LINE_STRIDE = 9;
+    private static final int TEXT_W = 96;
 
     public RtgScreen(RtgMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
 
     @Override
-    public void extractContents(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick) {
-        super.extractContents(extractor, mouseX, mouseY, partialTick);
-
+    protected void extractReadout(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick) {
         int x = this.leftPos + TEXT_X;
         int y = this.topPos + TEXT_Y;
         int permille = this.menu.outputPermille();
@@ -45,5 +48,22 @@ public class RtgScreen extends MachineScreen<RtgMenu> {
                 x, y, color, false);
         extractor.text(this.font, Component.translatable("gui.neropower.rtg.days",
                 this.menu.elapsedDays(), this.menu.remainingDays()), x, y + LINE_STRIDE, SUBTLE, false);
+    }
+
+    @Override
+    protected void readoutTooltip(List<Component> lines, int mx, int my) {
+        if (!overLines(mx, my, TEXT_X, TEXT_Y, LINE_STRIDE, 0, 1, TEXT_W)) {
+            return;
+        }
+        int permille = this.menu.outputPermille();
+        lines.add(GaugeTooltips.tr("rtg"));
+        if (permille <= 0) {
+            lines.add(GaugeTooltips.tr("rtg.no_pellet"));
+            return;
+        }
+        lines.add(GaugeTooltips.tr("rtg.output", GaugeTooltips.percentOf(permille)));
+        lines.add(GaugeTooltips.tr("rtg.days", this.menu.elapsedDays(), this.menu.remainingDays()));
+        lines.add(GaugeTooltips.tr("rtg.time_left",
+                GaugeMath.duration((long) this.menu.remainingDays() * EnvironmentalConfig.TICKS_PER_DAY)));
     }
 }

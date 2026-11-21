@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "T": "#c:plates/titanium",
+    "I": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    "T T",
+    " I ",
+    "T T"
+  ],
+  "result": {
+    "id": "neropower:steel_vane_set"
+  }
+}

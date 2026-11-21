@@ -43,6 +43,8 @@ public final class NeroPowerForge {
         // Shared init builds the DeferredRegisters via the RegistrationProvider seam and registers
         // the machine types with NeroTech; attach the registers to NeroPower's mod bus group.
         NeroPowerCommon.init();
+        // The FluidTypes behind NeroPower's fluids: a Forge-only registry, created before the flush.
+        ForgeFluidTypes.init();
         ForgeRegistrationFactory.registerAll(modBusGroup);
         // Scorch zones (fission failure aftermath) expire and hurt on the server tick.
         // Quest hook delivery (pending hook gates on login) rides the same tick.

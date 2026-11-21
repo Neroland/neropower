@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "minecraft:coal",
+    "I": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    "CCC",
+    "CIC",
+    "CCC"
+  ],
+  "result": {
+    "id": "neropower:graphite_moderator",
+    "count": 2
+  }
+}

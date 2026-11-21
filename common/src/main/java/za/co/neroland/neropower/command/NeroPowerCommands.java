@@ -2,6 +2,7 @@ package za.co.neroland.neropower.command;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -27,7 +28,6 @@ import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.phys.AABB;
 
 import za.co.neroland.nerotech.machine.NeroTechMachineBlock;
-import za.co.neroland.nerotech.registry.ModBlocks;
 
 import za.co.neroland.neropower.NeroPowerCommon;
 import za.co.neroland.neropower.beam.BeamContent;
@@ -37,6 +37,7 @@ import za.co.neroland.neropower.environmental.EnvironmentalContent;
 import za.co.neroland.neropower.environmental.RadioisotopeGeneratorBlockEntity;
 import za.co.neroland.neropower.fission.FissionContent;
 import za.co.neroland.neropower.fission.FissionCoreBlockEntity;
+import za.co.neroland.neropower.registry.ForeignBlocks;
 import za.co.neroland.neropower.storage.StorageContent;
 
 /**
@@ -99,7 +100,41 @@ public final class NeroPowerCommands {
                                         () -> buildGallery(ctx.getSource())))
                                 .then(Commands.literal("clear")
                                         .executes(ctx -> runSafely(ctx.getSource(), "gallery clear",
-                                                () -> clearGallery(ctx.getSource()))))));
+                                                () -> clearGallery(ctx.getSource())))))
+                        // Operator tick-time probe (same gamemaster gate; works in survival too).
+                        .then(Commands.literal("budget")
+                                .executes(ctx -> budgetReport(ctx.getSource()))
+                                .then(Commands.literal("start")
+                                        .executes(ctx -> budgetStart(ctx.getSource(), BudgetProbe.DEFAULT_TICKS))
+                                        .then(Commands.argument("ticks",
+                                                        IntegerArgumentType.integer(1, BudgetProbe.MAX_TICKS))
+                                                .executes(ctx -> budgetStart(ctx.getSource(),
+                                                        IntegerArgumentType.getInteger(ctx, "ticks")))))));
+    }
+
+    /** Open a sampling window. */
+    private static int budgetStart(CommandSourceStack source, int ticks) {
+        BudgetProbe.start(ticks);
+        source.sendSuccess(() -> Component.translatable("command.neropower.budget.started", ticks), false);
+        return 1;
+    }
+
+    /** Show ms per tick per block-entity type and the total for the current or last window. */
+    private static int budgetReport(CommandSourceStack source) {
+        BudgetProbe.Report report = BudgetProbe.report();
+        if (report.ticks() == 0) {
+            source.sendSuccess(() -> Component.translatable("command.neropower.budget.none"), false);
+            return 0;
+        }
+        source.sendSuccess(() -> Component.translatable(report.running()
+                ? "command.neropower.budget.header_running" : "command.neropower.budget.header",
+                report.ticks(), String.format(java.util.Locale.ROOT, "%.3f", report.totalMsPerTick())), false);
+        for (BudgetProbe.Row row : report.rows()) {
+            source.sendSuccess(() -> Component.translatable("command.neropower.budget.row", row.type(),
+                    String.format(java.util.Locale.ROOT, "%.3f", row.msPerTick()),
+                    String.format(java.util.Locale.ROOT, "%.1f", row.callsPerTick())), false);
+        }
+        return report.rows().size();
     }
 
     private static int runSafely(CommandSourceStack source, String commandName, CommandBody body) {
@@ -162,7 +197,7 @@ public final class NeroPowerCommands {
         // Stirling draws that gradient and pays it back as NE.
         BlockPos stirlingPos = controllerPos.west();
         placeMachine(level, stirlingPos, EnvironmentalContent.STIRLING_BLOCK.get(), Direction.SOUTH);
-        level.setBlockAndUpdate(stirlingPos.below(), ModBlocks.RADIATOR.get().defaultBlockState());
+        placeForeign(level, stirlingPos.below(), ForeignBlocks.NEROTECH_RADIATOR, null);
         level.setBlockAndUpdate(stirlingPos.below(2), floor);
         spawnLabelStand(level, stirlingPos.above(2),
                 Component.literal("Stirling Generator — reactor heat in, NE out; Radiator cold face"));
@@ -170,8 +205,8 @@ public final class NeroPowerCommands {
         // Coolant tower on the controller: pump on top, Radiator above it (the pump's straight-line
         // scan counts it). Fed by the bank beneath it; it pulls heat off every machine it touches.
         BlockPos pumpPos = controllerPos.above();
-        level.setBlockAndUpdate(pumpPos, ModBlocks.COOLANT_PUMP.get().defaultBlockState());
-        level.setBlockAndUpdate(pumpPos.above(), ModBlocks.RADIATOR.get().defaultBlockState());
+        placeForeign(level, pumpPos, ForeignBlocks.NEROTECH_COOLANT_PUMP, null);
+        placeForeign(level, pumpPos.above(), ForeignBlocks.NEROTECH_RADIATOR, null);
         spawnLabelStand(level, pumpPos.above(3),
                 Component.literal("Coolant Pump + Radiator — draining the reactor cluster"));
 
@@ -185,7 +220,7 @@ public final class NeroPowerCommands {
         // RTG (WEST of the walkway): a pellet in, a NeroTech Battery Bank behind it taking the trickle.
         BlockPos rtgPos = new BlockPos(ox - 8, fy + 1, oz - 2);
         placeMachine(level, rtgPos, EnvironmentalContent.RTG_BLOCK.get(), Direction.EAST);
-        placeMachine(level, rtgPos.west(), ModBlocks.BATTERY_BANK.get(), Direction.EAST);
+        placeForeign(level, rtgPos.west(), ForeignBlocks.NEROTECH_BATTERY_BANK, Direction.EAST);
         if (level.getBlockEntity(rtgPos) instanceof RadioisotopeGeneratorBlockEntity rtg) {
             rtg.setItem(RadioisotopeGeneratorBlockEntity.INPUT_SLOT,
                     new ItemStack(EnvironmentalContent.ISOTOPE_PELLET.get()));
@@ -365,12 +400,12 @@ public final class NeroPowerCommands {
         placeMachine(level, receiverPos, BeamContent.BEAM_RECEIVER.get(), Direction.NORTH);
         BlockPos bankPos = receiverPos.south();
         plinth(level, floor, bankPos, fy);
-        placeMachine(level, bankPos, ModBlocks.BATTERY_BANK.get(), Direction.SOUTH);
+        placeForeign(level, bankPos, ForeignBlocks.NEROTECH_BATTERY_BANK, Direction.SOUTH);
         spawnLabelStand(level, receiverPos.above(2),
                 Component.literal("Beam Receiver — landing the beam in a NeroTech Battery Bank"));
 
         BlockPos terminalPos = new BlockPos(receiverPos.getX() + 2, fy + 1, receiverPos.getZ());
-        placeMachine(level, terminalPos, ModBlocks.ANALYTICS_TERMINAL.get(), Direction.WEST);
+        placeForeign(level, terminalPos, ForeignBlocks.NEROTECH_ANALYTICS_TERMINAL, Direction.WEST);
         spawnLabelStand(level, terminalPos.above(2),
                 Component.literal("Analytics Terminal — watching the beam land"));
 
@@ -403,6 +438,24 @@ public final class NeroPowerCommands {
     }
 
     /** Place a machine block with its {@code FACING} toward the given direction. */
+    /**
+     * Place another mod's block by registry id (NeroTech's gallery props), facing {@code facing} when it
+     * has NeroTech's facing property; skipped when that mod is absent, so the gallery never needs
+     * NeroTech's internal registry classes.
+     */
+    private static void placeForeign(ServerLevel level, BlockPos pos, net.minecraft.resources.Identifier id,
+            @org.jetbrains.annotations.Nullable Direction facing) {
+        Block block = ForeignBlocks.get(id);
+        if (block == null) {
+            return;
+        }
+        if (facing == null) {
+            level.setBlockAndUpdate(pos, block.defaultBlockState());
+        } else {
+            placeMachine(level, pos, block, facing);
+        }
+    }
+
     private static void placeMachine(ServerLevel level, BlockPos pos, Block block, Direction facing) {
         BlockState state = block.defaultBlockState();
         if (state.hasProperty(NeroTechMachineBlock.FACING)) {

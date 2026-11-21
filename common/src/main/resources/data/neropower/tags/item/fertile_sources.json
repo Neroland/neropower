@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "nerospace:void_crystal",
+      "required": false
+    },
+    {
+      "id": "nerospace:smoke_crystal",
+      "required": false
+    },
+    {
+      "id": "nerospace:crazed_crystal",
+      "required": false
+    },
+    {
+      "id": "nerospace:meteor_core",
+      "required": false
+    }
+  ]
+}

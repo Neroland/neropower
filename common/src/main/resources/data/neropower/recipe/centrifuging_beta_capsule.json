@@ -1,0 +1,21 @@
+{
+  "type": "nerotech:centrifuging",
+  "items": [
+    {
+      "ingredient": "neropower:fission_residue",
+      "count": 4
+    }
+  ],
+  "results": [
+    {
+      "item": "neropower:beta_capsule",
+      "count": 1
+    },
+    {
+      "item": "neropower:fission_residue",
+      "count": 2
+    }
+  ],
+  "energy": 100,
+  "time": 600
+}

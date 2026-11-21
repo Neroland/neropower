@@ -94,9 +94,9 @@ public final class StorageContent {
         return List.of(BATTERY_CELL::get, BATTERY_BANK_CONTROLLER::get);
     }
 
-    /** Storage blocks have no item slots: nothing on the item surface. */
+    /** The battery cells' charge slot (0.4.0, decision 008) on the item surface, so pipes can reach it. */
     public static List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> itemTypes() {
-        return List.of();
+        return List.of(BATTERY_CELL::get);
     }
 
     /** Creative-tab order: the three cells by tier, then the controller. */

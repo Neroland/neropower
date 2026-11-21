@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "#c:dusts/europium",
+    "#c:dusts/europium",
+    "neropower:control_rod"
+  ],
+  "result": {
+    "id": "neropower:europium_control_rod"
+  }
+}

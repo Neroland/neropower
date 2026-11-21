@@ -34,6 +34,8 @@ public final class NeroPowerNeoForge {
         // Shared init builds the DeferredRegisters via the RegistrationProvider seam and registers
         // the machine types with NeroTech; attach the registers to NeroPower's mod event bus.
         NeroPowerCommon.init();
+        // The FluidTypes behind NeroPower's fluids: a NeoForge-only registry, created before the flush.
+        NeoForgeFluidTypes.init();
         NeoForgeRegistrationFactory.registerAll(modEventBus);
         // Scorch zones (fission failure aftermath) expire and hurt on the server tick.
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> ScorchTicker.tick(event.getServer()));

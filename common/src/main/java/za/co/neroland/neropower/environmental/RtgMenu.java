@@ -9,12 +9,18 @@ import net.minecraft.world.inventory.SimpleContainerData;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 import za.co.neroland.nerotech.menu.MachineMenu;
 
+import za.co.neroland.neropower.menu.GaugeTail;
+import za.co.neroland.neropower.menu.GaugeTailMenu;
+
 /**
  * Radioisotope Generator menu: a pellet input slot and a spent-pellet output slot, the upgrade block
  * and the player inventory, plus three synced ints after the seven shared ones (output permille,
  * days elapsed, days until the pellet is spent) read by {@code client.RtgScreen}.
  */
-public class RtgMenu extends MachineMenu {
+public class RtgMenu extends MachineMenu implements GaugeTailMenu {
+
+    /** Gauge tooltip tail (energy, heat), after NeroTech's shared data. */
+    private final GaugeTail gaugeTail;
 
     private static final int MACHINE_SLOTS = 2;
 
@@ -29,6 +35,8 @@ public class RtgMenu extends MachineMenu {
 
     public RtgMenu(int id, Inventory playerInventory, Container container, ContainerData data) {
         super(EnvironmentalContent.RTG_MENU.get(), id, container, data, MACHINE_SLOTS);
+        this.gaugeTail = GaugeTail.of(container);
+        this.addDataSlots(this.gaugeTail);
         this.addSlot(new PredicateSlot(container, RadioisotopeGeneratorBlockEntity.INPUT_SLOT, 62, 33));
         this.addSlot(new OutputSlot(container, RadioisotopeGeneratorBlockEntity.OUTPUT_SLOT, 98, 33));
         addUpgradeAndPlayerSlots(playerInventory);
@@ -47,5 +55,10 @@ public class RtgMenu extends MachineMenu {
     /** Whole in-game days until the active pellet is spent. */
     public int remainingDays() {
         return extraValue(2);
+    }
+
+    @Override
+    public GaugeTail gaugeTail() {
+        return this.gaugeTail;
     }
 }

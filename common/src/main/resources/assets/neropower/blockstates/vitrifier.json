@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "neropower:block/vitrifier"
+    },
+    "facing=east": {
+      "model": "neropower:block/vitrifier",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "neropower:block/vitrifier",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "neropower:block/vitrifier",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "neropower:fission_residue",
+    "neropower:spent_beta_capsule",
+    "neropower:spent_isotope_pellet"
+  ]
+}

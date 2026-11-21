@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "W": "#c:wires/superconductor",
+    "V": "neropower:cindersteel_vane_set"
+  },
+  "pattern": [
+    "W W",
+    " V ",
+    "W W"
+  ],
+  "result": {
+    "id": "neropower:superconducting_vane_set"
+  }
+}

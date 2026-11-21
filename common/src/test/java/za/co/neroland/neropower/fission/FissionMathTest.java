@@ -109,7 +109,8 @@ class FissionMathTest {
         assertEquals(0, FissionMath.usableRodSlots(0));
         assertEquals(2, FissionMath.usableRodSlots(3));
         assertEquals(4, FissionMath.usableRodSlots(5));
-        assertEquals(4, FissionMath.usableRodSlots(7), "never more than the slot count");
+        assertEquals(6, FissionMath.usableRodSlots(7), "a 7-edge shell uses all six slots");
+        assertEquals(6, FissionMath.usableRodSlots(9), "never more than the slot count");
     }
 
     // --- output / heat -------------------------------------------------------------

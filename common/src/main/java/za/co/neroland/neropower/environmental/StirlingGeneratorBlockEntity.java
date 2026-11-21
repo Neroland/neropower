@@ -24,7 +24,7 @@ import za.co.neroland.nerotech.api.PowerMachine;
 import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.machine.MachineEnergy;
 import za.co.neroland.nerotech.machine.MachineStatus;
-import za.co.neroland.nerotech.registry.ModBlocks;
+import za.co.neroland.neropower.registry.ForeignBlocks;
 
 import za.co.neroland.neropower.config.NeroPowerConfig;
 import za.co.neroland.neropower.machine.NeroPowerMachineBlockEntity;
@@ -150,7 +150,7 @@ public class StirlingGeneratorBlockEntity extends NeroPowerMachineBlockEntity {
         if (ns == null) {
             return false;
         }
-        return ns.is(ModBlocks.RADIATOR.get())
+        return ForeignBlocks.is(ns, ForeignBlocks.NEROTECH_RADIATOR)
                 || ns.is(Blocks.WATER) || ns.is(Blocks.ICE) || ns.is(Blocks.PACKED_ICE)
                 || ns.is(Blocks.BLUE_ICE) || ns.is(Blocks.SNOW_BLOCK) || ns.is(Blocks.POWDER_SNOW);
     }

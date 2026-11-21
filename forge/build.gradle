@@ -173,7 +173,7 @@ def generateModMetadata = tasks.register('generateModMetadata', ProcessResources
         minecraft_version_range   : mcCeiling ? "[${mcFloor},${mcCeiling})" : "[${mc},)",
         // Floor the required Core / NeroTech versions at what we compile against so Forge refuses to
         // load against a dependency too old to have the APIs referenced, instead of crashing at
-        // registration. Never hardcode these ranges (PLAN-0.1.0.md ground rules).
+        // registration. Never hardcode these ranges.
         nerolandcore_version_range: "[${nerolandcoreVersion},2.0)",
         nerotech_version_range    : "[${nerotechVersion},1.0)",
     ]

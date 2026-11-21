@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "S": "#nerotech:components/servos", "I": "minecraft:iron_block", "F": "nerotech:machine_frame", "O": "nerotech:nero_coil" },
+  "pattern": [ "SIS", "OFO", "SIS" ],
+  "result": { "id": "neropower:momentum_wheel" } }

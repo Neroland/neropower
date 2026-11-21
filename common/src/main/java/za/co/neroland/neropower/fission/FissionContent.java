@@ -22,6 +22,7 @@ import za.co.neroland.nerolandcore.registry.BlockEntityTypeCompat;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 
 import za.co.neroland.neropower.NeroPowerCommon;
+import za.co.neroland.neropower.multiblock.MultiblockPartBlock;
 import za.co.neroland.neropower.registry.ModBlockEntities;
 import za.co.neroland.neropower.registry.ModBlocks;
 import za.co.neroland.neropower.registry.ModItems;
@@ -58,8 +59,10 @@ public final class FissionContent {
      * Structural shell plate for the fission multiblock — a plain full cube that, like NeroTech's
      * fusion casing, KEEPS full-cube occlusion so shell walls cull their neighbours normally.
      */
+    // Multiblock members (shared multiblock base): same ids and states as 0.3.x, now
+    // MultiblockPartBlock so placing or breaking one (by hand, blast or piston) marks the reactor dirty.
     public static final RegistryEntry<Block> FISSION_CASING =
-            ModBlocks.BLOCKS.register("fission_casing", key -> new Block(BlockBehaviour.Properties.of()
+            ModBlocks.BLOCKS.register("fission_casing", key -> new MultiblockPartBlock(BlockBehaviour.Properties.of()
                     .setId(key)
                     .mapColor(MapColor.METAL)
                     .strength(3.5F)
@@ -70,7 +73,7 @@ public final class FissionContent {
 
     /** The neutron-absorbing insert block; the core counts every one inside its shell. */
     public static final RegistryEntry<Block> CONTROL_ROD_ASSEMBLY =
-            ModBlocks.BLOCKS.register("control_rod_assembly", key -> new Block(BlockBehaviour.Properties.of()
+            ModBlocks.BLOCKS.register("control_rod_assembly", key -> new MultiblockPartBlock(BlockBehaviour.Properties.of()
                     .setId(key)
                     .mapColor(MapColor.COLOR_GRAY)
                     .strength(3.0F)

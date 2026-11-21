@@ -63,6 +63,55 @@ public final class FissionConfig {
             "fissionScorchRadius", 6, 1, 32, true,
             "half-edge (blocks) of the cubic scorch zone centred on the failed reactor");
 
+    // --- 0.4.0: moderators, europium rods, breeder, steam mode, braided rod, economizer -----------
+
+    private static final ConfigValue<Integer> MODERATOR_PER_CONTACT = NeroPowerConfig.schema().intRange(
+            "fissionModeratorPermillePerContact", 10, 0, 100, true,
+            "output AND heat bonus (permille) per moderator fuel-channel contact: each interior moderator "
+            + "counts its face-adjacent interior air blocks, weighted 1 (graphite) or 2 (moderator tank)");
+    private static final ConfigValue<Integer> MODERATOR_CAP = NeroPowerConfig.schema().intRange(
+            "fissionModeratorCapPermille", 400, 0, 1_000, true,
+            "largest output AND heat bonus (permille) moderators can give one reactor");
+    private static final ConfigValue<Integer> EUROPIUM_ROD_PERMILLE = NeroPowerConfig.schema().intRange(
+            "fissionEuropiumControlRodPermille", 250, 0, 1_000, true,
+            "output AND heat reduction (permille) per Europium Control Rod Assembly; shares the 15% floor");
+    private static final ConfigValue<Integer> BREEDER_TICKS_PER_PELLET = NeroPowerConfig.schema().intRange(
+            "breederTicksPerPellet", 36_000, 1_200, 1_000_000, true,
+            "running ticks one Breeder Blanket at 100% output factor needs to breed one Kindled Pellet");
+    private static final ConfigValue<Integer> BREEDER_MAX_BLANKETS = NeroPowerConfig.schema().intRange(
+            "breederMaxBlankets", 8, 1, 64, true,
+            "Breeder Blankets counted for the breeding rate (more still cost reactivity)");
+    private static final ConfigValue<Integer> BREEDER_COST_PERMILLE = NeroPowerConfig.schema().intRange(
+            "breederReactivityCostPermille", 50, 0, 500, true,
+            "output AND heat reduction (permille) per Breeder Blanket; shares the 15% floor");
+    private static final ConfigValue<Integer> STEAM_PER_HEAT = NeroPowerConfig.schema().intRange(
+            "fissionSteamPerHeat", 4, 1, 64, true,
+            "mB of steam per heat unit a core in steam mode raises (consuming the same mB of water)");
+    private static final ConfigValue<Integer> CRYO_HEAT_PER_MB = NeroPowerConfig.schema().intRange(
+            "fissionCryoHeatPerMb", 6, 1, 100, true,
+            "heat removed per mB of cryo coolant a Reactor Steam Port feeds the core (either mode)");
+    private static final ConfigValue<Integer> CRYO_SAFE_BAND = NeroPowerConfig.schema().intRange(
+            "fissionCryoSafeBandPermille", 150, 0, 300, true,
+            "how far (permille of heat capacity) WARNING and UNSTABLE move up while cryo coolant is fed");
+    private static final ConfigValue<Integer> PORT_TANK_MB = NeroPowerConfig.schema().intRange(
+            "reactorSteamPortTankMb", 16_000, 1_000, 256_000, true,
+            "capacity (mB) of each Reactor Steam Port tank, coolant and steam alike");
+    private static final ConfigValue<Integer> BRAIDED_OUTPUT = NeroPowerConfig.schema().intRange(
+            "fissionBraidedOutputPermille", 1_400, 100, 5_000, true,
+            "a Braided Fuel Rod's output AND heat, permille of a Fuel Rod at the same burn-up");
+    private static final ConfigValue<Integer> BRAIDED_BURNUP = NeroPowerConfig.schema().intRange(
+            "fissionBraidedBurnupPermille", 800, 100, 5_000, true,
+            "a Braided Fuel Rod's burn-up rate, permille of a Fuel Rod's (800 = lasts 1.25 times as long)");
+    private static final ConfigValue<Integer> BRAIDED_HEAVY_WATER = NeroPowerConfig.schema().intRange(
+            "fissionBraidedHeavyWaterContacts", 8, 0, 300, true,
+            "moderator-tank contact score (contacts x 2) a reactor needs before Braided Fuel Rods fission");
+    private static final ConfigValue<Integer> ECONOMIZER_BURNUP = NeroPowerConfig.schema().intRange(
+            "fissionEconomizerBurnupPermille", 750, 100, 1_000, true,
+            "burn-up rate (permille) of every rod while a Fuel Economizer is fitted");
+    private static final ConfigValue<Integer> ECONOMIZER_OUTPUT = NeroPowerConfig.schema().intRange(
+            "fissionEconomizerOutputPermille", 900, 100, 1_000, true,
+            "output (permille; steam in steam mode) while a Fuel Economizer is fitted");
+
     private FissionConfig() {
     }
 
@@ -120,5 +169,65 @@ public final class FissionConfig {
 
     public static int scorchRadius() {
         return SCORCH_RADIUS.get();
+    }
+
+    public static int moderatorPermillePerContact() {
+        return MODERATOR_PER_CONTACT.get();
+    }
+
+    public static int moderatorCapPermille() {
+        return MODERATOR_CAP.get();
+    }
+
+    public static int europiumControlRodPermille() {
+        return EUROPIUM_ROD_PERMILLE.get();
+    }
+
+    public static int breederTicksPerPellet() {
+        return BREEDER_TICKS_PER_PELLET.get();
+    }
+
+    public static int breederMaxBlankets() {
+        return BREEDER_MAX_BLANKETS.get();
+    }
+
+    public static int breederReactivityCostPermille() {
+        return BREEDER_COST_PERMILLE.get();
+    }
+
+    public static int steamPerHeat() {
+        return STEAM_PER_HEAT.get();
+    }
+
+    public static int cryoHeatPerMb() {
+        return CRYO_HEAT_PER_MB.get();
+    }
+
+    public static int cryoSafeBandPermille() {
+        return CRYO_SAFE_BAND.get();
+    }
+
+    public static int steamPortTankMb() {
+        return PORT_TANK_MB.get();
+    }
+
+    public static int braidedOutputPermille() {
+        return BRAIDED_OUTPUT.get();
+    }
+
+    public static int braidedBurnupPermille() {
+        return BRAIDED_BURNUP.get();
+    }
+
+    public static int braidedHeavyWaterContacts() {
+        return BRAIDED_HEAVY_WATER.get();
+    }
+
+    public static int economizerBurnupPermille() {
+        return ECONOMIZER_BURNUP.get();
+    }
+
+    public static int economizerOutputPermille() {
+        return ECONOMIZER_OUTPUT.get();
     }
 }

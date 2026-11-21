@@ -27,6 +27,33 @@ public final class PoolMath {
     }
 
     /**
+     * The fast tier's per-tick limit (Surge Banks): the members' summed I/O, capped by {@code cap}.
+     * Zero with no fast member or a non-positive cap.
+     */
+    public static long fastTierIo(long ioSum, int fastCount, long cap) {
+        if (fastCount <= 0 || ioSum <= 0 || cap <= 0) {
+            return 0L;
+        }
+        return Math.min(ioSum, cap);
+    }
+
+    /**
+     * A {@code 0..levels} fill bucket: 0 only when empty, {@code levels} only when full, and
+     * {@code 1..levels-1} in between (any charge shows at least one step). {@link #chargeLevel} is this
+     * with {@value #CHARGE_LEVELS} levels; the Surge Bank's {@code cans} use 6.
+     */
+    public static int bucket(long amount, long capacity, int levels) {
+        if (amount <= 0 || capacity <= 0 || levels <= 0) {
+            return 0;
+        }
+        if (amount >= capacity) {
+            return levels;
+        }
+        int level = (int) (amount * levels / capacity);
+        return Math.max(1, Math.min(levels - 1, level));
+    }
+
+    /**
      * Share {@code amount} across members, round-robin, honouring each member's {@code limits[i]}
      * (what it can still take / give this tick). Every pass hands each still-open member an equal
      * share of what is left (at least 1), starting at {@code cursor} so the remainder of an uneven

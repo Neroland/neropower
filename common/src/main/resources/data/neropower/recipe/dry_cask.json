@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "P": "#c:plates/cindersteel", "S": "minecraft:smooth_stone", "H": "#nerotech:components/heat_sinks", "C": "minecraft:chest" },
+  "pattern": [ "PSP", "SCS", "PHP" ],
+  "result": { "id": "neropower:dry_cask" } }

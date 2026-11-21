@@ -9,14 +9,21 @@ import net.minecraft.world.inventory.SimpleContainerData;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 import za.co.neroland.nerotech.menu.MachineMenu;
 
+import za.co.neroland.neropower.menu.GaugeTail;
+import za.co.neroland.neropower.menu.GaugeTailMenu;
+
 /**
  * Battery Cell menu: no machine slots — the shared energy gauge <i>is</i> the readout (stored NE as
  * a fraction of the tier's capacity), plus the upgrade block and player inventory. One menu type
  * serves all three tiers; the title carries the tier.
  */
-public class BatteryCellMenu extends MachineMenu {
+public class BatteryCellMenu extends MachineMenu implements GaugeTailMenu {
 
-    private static final int MACHINE_SLOTS = 0;
+    /** Gauge tooltip tail (energy, heat), after NeroTech's shared data. */
+    private final GaugeTail gaugeTail;
+
+    /** The charge slot (decision 008). */
+    private static final int MACHINE_SLOTS = 1;
 
     public BatteryCellMenu(int id, Inventory playerInventory) {
         this(id, playerInventory,
@@ -26,6 +33,14 @@ public class BatteryCellMenu extends MachineMenu {
 
     public BatteryCellMenu(int id, Inventory playerInventory, Container container, ContainerData data) {
         super(StorageContent.BATTERY_CELL_MENU.get(), id, container, data, MACHINE_SLOTS);
+        this.gaugeTail = GaugeTail.storage(container, be -> 0L);
+        this.addDataSlots(this.gaugeTail);
+        this.addSlot(new PredicateSlot(container, ChargeSlot.SLOT, 80, 35));
         addUpgradeAndPlayerSlots(playerInventory);
+    }
+
+    @Override
+    public GaugeTail gaugeTail() {
+        return this.gaugeTail;
     }
 }

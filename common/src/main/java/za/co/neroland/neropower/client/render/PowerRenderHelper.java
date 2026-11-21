@@ -4,10 +4,15 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
+
+import za.co.neroland.nerotech.config.NeroTechConfig;
 
 import za.co.neroland.neropower.NeroPowerCommon;
 
@@ -17,7 +22,8 @@ import za.co.neroland.neropower.NeroPowerCommon;
  * faces, simple boxes with a full sprite per face) so NeroPower's client never links against
  * NeroTech's client classes, plus the NeroPower "power" ramp: the same heat-readability lerp, but
  * deep ember → amber → hot orange → white-gold instead of NeroTech's cyan → amber → red, and a few
- * oriented-quad helpers the dish / beam / fin renderers need.
+ * oriented-quad helpers the dish / beam / fin renderers need. The 0.4.0 blocks add a shared status
+ * lamp and heat shimmer (see {@link Lamp}).
  *
  * <p>All geometry is submitted through {@code RenderTypes.entityCutout(texture)} via
  * {@code SubmitNodeCollector.submitCustomGeometry} (the 26.x submit API — never the old
@@ -278,5 +284,255 @@ public final class PowerRenderHelper {
                 .setOverlay(OverlayTexture.NO_OVERLAY)
                 .setLight(light)
                 .setNormal(pose, nx, ny, nz);
+    }
+
+    // ---- 0.4.0 shared kit: status lamp and heat shimmer ----------------------------------------
+    //
+    // A local take on the status-lamp idea NeroTech's machines use, written against NeroPower's own
+    // readout codes and amber palette, so no renderer here links against another mod's client classes.
+
+    /** Readout codes every 0.4.0 block entity syncs, in contract order. */
+    public static final int READOUT_REST = 0;
+    public static final int READOUT_WORK = 1;
+    public static final int READOUT_STALL = 2;
+    public static final int READOUT_HOT = 3;
+    public static final int READOUT_TRIP = 4;
+    public static final int READOUT_FAIL = 5;
+
+    /** Lamp colours, packed 0xRRGGBB: idle ember, working amber gliding to hot, and the three warnings. */
+    public static final int LAMP_EMBER_RGB = 0x401806;
+    public static final int LAMP_AMBER_RGB = 0xCC7012;
+    public static final int LAMP_HOT_RGB = 0xFFA028;
+    public static final int LAMP_OVERHEAT_RGB = 0xFF5438;
+    public static final int LAMP_TRIP_RGB = 0xF2F4F6;
+    public static final int LAMP_FAIL_RGB = 0xFF3824;
+
+    /** The arc-violet ramp (superconducting-tier fields only) and the contamination lime. */
+    public static final int ARC_DEEP_RGB = 0x1C1240;
+    public static final int ARC_RGB = 0x5B3FD6;
+    public static final int ARC_LIGHT_RGB = 0x9B7BFF;
+    public static final int ARC_GLOW_RGB = 0xE0D6FF;
+    public static final int RAD_LIME_RGB = 0xB6F23A;
+
+    /** Kit sprites painted by {@code tools/painters/kit.py} (white, tinted here). */
+    public static final Identifier LAMP_TEX = texture("status_lamp");
+    public static final Identifier LAMP_HALF_TEX = texture("status_lamp_half");
+    public static final Identifier SHIMMER_TEX = texture("heat_shimmer");
+
+    /** STALL double blink: on 4, off 4, on 4, off 28 (a 40-tick cycle). */
+    private static final int STALL_CYCLE = 40;
+    /** TRIP: on 30, off 10. FAIL: on 5, off 5 (2 Hz). HOT at its peak: on 4, off 4. */
+    private static final int TRIP_CYCLE = 40;
+    private static final int TRIP_ON = 30;
+    private static final int FAIL_CYCLE = 10;
+    private static final int FAIL_ON = 5;
+    /** WORK glide between amber and hot, in ticks per full swing. */
+    private static final float WORK_GLIDE_TICKS = 40.0F;
+    /** Lamp and shimmer time wraps here: a multiple of every cycle above, so nothing jumps at the wrap. */
+    private static final long TIME_WRAP = 2400L;
+    private static final float LAMP_GAP = 0.004F;
+    private static final float SHIMMER_HEIGHT = 0.5F;
+    private static final float SHIMMER_SPEED = 0.02F;
+
+    /**
+     * Where a model's lamp socket sits (block units, model authored facing north): the socket's x/y
+     * box and the z of the lamp quad, just in front of the socket's north face.
+     */
+    public record LampSocket(float x0, float y0, float x1, float y1, float z) {
+
+        /**
+         * The standard socket: model x 13-15, y 12-14, standing half a pixel proud of a front face at
+         * z 0. That is the upper left as the player faces the block.
+         */
+        public static final LampSocket STANDARD = model(13.0F, 12.0F, -0.5F, 15.0F, 14.0F, 0.0F);
+
+        /** From the {@code status_socket} element's {@code from} / {@code to} in the model JSON (pixels). */
+        public static LampSocket model(float fromX, float fromY, float fromZ, float toX, float toY, float toZ) {
+            return new LampSocket(Math.min(fromX, toX) / 16.0F, Math.min(fromY, toY) / 16.0F,
+                    Math.max(fromX, toX) / 16.0F, Math.max(fromY, toY) / 16.0F,
+                    Math.min(fromZ, toZ) / 16.0F - LAMP_GAP);
+        }
+    }
+
+    /** The lamp's share of a renderer's render state. Filled by {@link #lampExtract}. */
+    public static final class Lamp {
+        /** One of the {@code READOUT_*} codes. */
+        public int readout = READOUT_REST;
+        /** HOT only: the block is in its top heat bucket, so the lamp blinks rather than holds. */
+        public boolean peak;
+        /** Draw nothing at all (an unformed structure part, a block with no power to show a lamp). */
+        public boolean dark;
+        /** False with animations switched off: steady colours, no blink, parked poses. */
+        public boolean animate = true;
+        /** Game time (wrapped) plus partial tick; 0 while the level is not there yet. */
+        public float time;
+        long tick;
+    }
+
+    /**
+     * Copy a block entity's synced readout into {@code lamp}. Call from {@code extractRenderState}
+     * with the bucketed fields only: the readout code, and whether the heat bucket is the top one.
+     */
+    public static void lampExtract(Lamp lamp, int readout, boolean peak, Level level, float partialTick) {
+        lamp.readout = Mth.clamp(readout, READOUT_REST, READOUT_FAIL);
+        lamp.peak = peak;
+        lamp.animate = NeroTechConfig.renderAnimationsEnabled();
+        if (level == null) {
+            lamp.tick = 0L;
+            lamp.time = 0.0F;
+            return;
+        }
+        lamp.tick = level.getGameTime();
+        lamp.time = (lamp.tick % TIME_WRAP) + partialTick;
+    }
+
+    /**
+     * Speed factor for a block's signature motion: 1 working, a quarter when hot, 0 otherwise. A
+     * stalled block must HOLD its last pose ({@link #lampHolds}), a tripped or failing one coasts to
+     * rest, and only a resting one parks.
+     */
+    public static float lampMotionScale(Lamp lamp) {
+        if (!lamp.animate) {
+            return 0.0F;
+        }
+        return lamp.readout == READOUT_WORK ? 1.0F : lamp.readout == READOUT_HOT ? 0.25F : 0.0F;
+    }
+
+    /** True while stalled: freeze mid-stroke, never park. */
+    public static boolean lampHolds(Lamp lamp) {
+        return lamp.readout == READOUT_STALL;
+    }
+
+    /** Whether the lamp is lit this tick. Rhythm carries the state; colour only backs it up. */
+    public static boolean lampLit(Lamp lamp) {
+        if (lamp.dark) {
+            return false;
+        }
+        if (!lamp.animate) {
+            return true;
+        }
+        switch (lamp.readout) {
+            case READOUT_STALL: {
+                int phase = (int) (lamp.tick % STALL_CYCLE);
+                return phase < 4 || (phase >= 8 && phase < 12);
+            }
+            case READOUT_HOT:
+                return !lamp.peak || (lamp.tick & 7L) < 4L;
+            case READOUT_TRIP:
+                return lamp.tick % TRIP_CYCLE < TRIP_ON;
+            case READOUT_FAIL:
+                return lamp.tick % FAIL_CYCLE < FAIL_ON;
+            default:
+                return true;
+        }
+    }
+
+    /** The lamp colour for the current readout, packed 0xRRGGBB. */
+    public static int lampColor(Lamp lamp) {
+        switch (lamp.readout) {
+            case READOUT_WORK: {
+                if (!lamp.animate) {
+                    return LAMP_AMBER_RGB;
+                }
+                float swing = 0.5F - 0.5F * Mth.cos(lamp.time * ((float) Math.PI * 2.0F) / WORK_GLIDE_TICKS);
+                return lerpColor(swing, LAMP_AMBER_RGB, LAMP_HOT_RGB);
+            }
+            case READOUT_STALL:
+                return LAMP_AMBER_RGB;
+            case READOUT_HOT:
+                return LAMP_OVERHEAT_RGB;
+            case READOUT_TRIP:
+                return LAMP_TRIP_RGB;
+            case READOUT_FAIL:
+                return LAMP_FAIL_RGB;
+            default:
+                return LAMP_EMBER_RGB;
+        }
+    }
+
+    /** Linear blend of two packed colours ({@code t} clamped to 0..1). */
+    public static int lerpColor(float t, int from, int to) {
+        float f = Mth.clamp(t, 0.0F, 1.0F);
+        int r = (int) Mth.lerp(f, red(from), red(to));
+        int g = (int) Mth.lerp(f, green(from), green(to));
+        int b = (int) Mth.lerp(f, blue(from), blue(to));
+        return (r << 16) | (g << 8) | b;
+    }
+
+    /** Draw the lamp in the standard socket. Call inside {@link #rotateToFacing}. */
+    public static void lampSubmit(Lamp lamp, PoseStack poseStack, SubmitNodeCollector collector) {
+        lampSubmit(lamp, poseStack, collector, LampSocket.STANDARD);
+    }
+
+    /**
+     * Draw the lamp in {@code socket}: one full-bright quad facing model north. Call inside
+     * {@link #rotateToFacing}. With animations off a stalled block shows the half-lit sprite, so the
+     * state still reads without a blink.
+     */
+    public static void lampSubmit(Lamp lamp, PoseStack poseStack, SubmitNodeCollector collector,
+            LampSocket socket) {
+        if (!lampLit(lamp)) {
+            return;
+        }
+        int rgb = lampColor(lamp);
+        Identifier sprite = !lamp.animate && lamp.readout == READOUT_STALL ? LAMP_HALF_TEX : LAMP_TEX;
+        float x0 = socket.x0();
+        float y0 = socket.y0();
+        float x1 = socket.x1();
+        float y1 = socket.y1();
+        float z = socket.z();
+        collector.order(3).submitCustomGeometry(poseStack, RenderTypes.entityCutout(sprite),
+                (pose, c) -> face(c, pose, FULL_BRIGHT, rgb, 0, 0, -1,
+                        x0, y0, z, 1, 1, x0, y1, z, 1, 0, x1, y1, z, 0, 0, x1, y0, z, 0, 1));
+    }
+
+    /**
+     * Heat shimmer over a footprint on a top face (block units, from {@code yTop} up half a block):
+     * two crossed full-bright quads whose wave sprite rises. Draws only while hot with animations on,
+     * and stays inside the block above, so a one-block render-bounds pad covers it.
+     */
+    public static void shimmerSubmit(Lamp lamp, PoseStack poseStack, SubmitNodeCollector collector,
+            float x0, float z0, float x1, float z1, float yTop) {
+        if (lamp.readout != READOUT_HOT || !lamp.animate) {
+            return;
+        }
+        int rgb = lerpColor(0.5F, LAMP_OVERHEAT_RGB, 0xFFFFFF);
+        float scroll = lamp.time * SHIMMER_SPEED;
+        float v = scroll - Mth.floor(scroll);
+        float xm = (x0 + x1) / 2.0F;
+        float zm = (z0 + z1) / 2.0F;
+        collector.order(4).submitCustomGeometry(poseStack, RenderTypes.entityCutout(SHIMMER_TEX),
+                (pose, c) -> {
+                    scrolledSide(c, pose, rgb, 0, -1, x0, zm, x1, zm, yTop, yTop + SHIMMER_HEIGHT, v);
+                    scrolledSide(c, pose, rgb, -1, 0, xm, z0, xm, z1, yTop, yTop + SHIMMER_HEIGHT, v);
+                });
+    }
+
+    /** Shimmer over the usual 12 x 12 pixel footprint of a full-height block's top. */
+    public static void shimmerSubmit(Lamp lamp, PoseStack poseStack, SubmitNodeCollector collector, float yTop) {
+        shimmerSubmit(lamp, poseStack, collector, 2.0F / 16.0F, 2.0F / 16.0F, 14.0F / 16.0F, 14.0F / 16.0F, yTop);
+    }
+
+    /**
+     * One vertical full-bright quad from {@code (xa,za)} to {@code (xb,zb)} showing the whole sprite
+     * height starting {@code vStart} (0..1) down the texture. Where the window runs off the bottom of
+     * the sprite the quad is split in two, so the result never depends on the texture's wrap mode.
+     */
+    private static void scrolledSide(VertexConsumer c, PoseStack.Pose pose, int rgb, float nx, float nz,
+            float xa, float za, float xb, float zb, float yBottom, float yTop, float vStart) {
+        if (vStart <= 0.0F) {
+            side(c, pose, rgb, nx, nz, xa, za, xb, zb, yBottom, yTop, 0.0F, 1.0F);
+            return;
+        }
+        float yMid = yTop - (yTop - yBottom) * (1.0F - vStart);
+        side(c, pose, rgb, nx, nz, xa, za, xb, zb, yMid, yTop, vStart, 1.0F);
+        side(c, pose, rgb, nx, nz, xa, za, xb, zb, yBottom, yMid, 0.0F, vStart);
+    }
+
+    private static void side(VertexConsumer c, PoseStack.Pose pose, int rgb, float nx, float nz,
+            float xa, float za, float xb, float zb, float yBottom, float yTop, float vTop, float vBottom) {
+        face(c, pose, FULL_BRIGHT, rgb, nx, 0, nz,
+                xa, yBottom, za, 0, vBottom, xa, yTop, za, 0, vTop,
+                xb, yTop, zb, 1, vTop, xb, yBottom, zb, 1, vBottom);
     }
 }

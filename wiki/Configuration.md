@@ -99,6 +99,17 @@ See [RTG and Stirling](RTG-and-Stirling.md).
 | `stirlingDrawPermille` | `100` | 1–1000 | Share (permille) of the hot neighbour's gradient above ambient drawn per tick. |
 | `stirlingColdFaceBonusPermille` | `500` | 0–1000 | Output bonus while touching a cold sink (water, ice, snow or a NeroTech Radiator); without one the usable gradient is halved. Scaled by the local ambient when `planetEfficiencyEnabled` is on. |
 
+## Radiation
+
+Radiation is an optional world system. These keys control the chunk contamination store; it holds a level per chunk and nothing about players.
+
+| Key | Default | Range | What it does |
+| --- | --- | --- | --- |
+| `radiationMode` | `auto` | on / off / auto | Whether radiation is simulated. `auto` is on in singleplayer and LAN and off on a dedicated server. Off writes no contamination and keeps what exists frozen. |
+| `radiationDecayPermillePerMinute` | `5` | 0–1000 | Contamination each chunk loses per minute of game time, as permille of its level (at least 1 while above 0; 0 disables decay). |
+| `radiationMaxChunksPerDimension` | `4096` | 64–65536 | Most contaminated chunks kept per dimension; past it the lowest levels are dropped first. |
+| `radiationDecayBudgetPerTick` | `256` | 16–4096 | Contaminated chunks the decay pass visits per tick per dimension. |
+
 ## Privacy
 
 | Key | Default | Range | What it does |

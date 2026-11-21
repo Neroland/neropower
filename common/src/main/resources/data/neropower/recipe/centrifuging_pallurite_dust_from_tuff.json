@@ -1,0 +1,21 @@
+{
+  "type": "nerotech:centrifuging",
+  "items": [
+    {
+      "ingredient": "minecraft:tuff",
+      "count": 8
+    },
+    {
+      "ingredient": "minecraft:glowstone_dust",
+      "count": 4
+    }
+  ],
+  "results": [
+    {
+      "item": "neropower:pallurite_dust",
+      "count": 1
+    }
+  ],
+  "energy": 160,
+  "time": 400
+}

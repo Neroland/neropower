@@ -22,6 +22,8 @@ upgrades and thermal model; the pages below cover only what NeroPower adds on to
 - [Quest Chapter](Quest-Chapter.md) — the *Reactor Log* quests shown when NeroQuests is installed
 - Maps — with a Neroland map installed, your own reactors and beam endpoints loaded within 128 blocks of you, unowned ones within 64 blocks and live scorch zones within 128 blocks appear as map layers; other players' machines never do
 - `/neropower gallery` — creative showcase of every block (op only)
+- `/neropower budget start [ticks]`, then `/neropower budget` — milliseconds per tick NeroPower's machines take, per machine type and in total, over a sampling window (op only; nothing is measured while no window is open)
+- Fluids — Steam, Exhaust Steam and Heavy Water travel in pipes and tanks (tags `c:steam`, `neropower:exhaust_steam`, `c:heavy_water`); they cannot be placed in the world
 
 ## See also
 

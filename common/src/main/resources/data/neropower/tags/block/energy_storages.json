@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "neropower:battery_cell_basic",
+    "neropower:battery_cell_advanced",
+    "neropower:battery_cell_elite",
+    "neropower:battery_bank_controller",
+    {
+      "id": "nerotech:battery_bank",
+      "required": false
+    }
+  ]
+}

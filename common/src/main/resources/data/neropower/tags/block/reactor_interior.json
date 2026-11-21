@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "#neropower:control_rod_assemblies",
+    "#neropower:moderators",
+    "neropower:breeder_blanket"
+  ]
+}

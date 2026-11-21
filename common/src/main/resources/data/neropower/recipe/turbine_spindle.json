@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "R": "#c:rods/cindersteel",
+    "I": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    "IRI",
+    " R ",
+    "IRI"
+  ],
+  "result": {
+    "id": "neropower:turbine_spindle",
+    "count": 2
+  }
+}

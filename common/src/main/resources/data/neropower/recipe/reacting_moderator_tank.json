@@ -1,0 +1,25 @@
+{
+  "type": "nerotech:reacting",
+  "items": [
+    {
+      "ingredient": "#c:plates/cindersteel",
+      "count": 4
+    },
+    {
+      "ingredient": "neropower:graphite_moderator",
+      "count": 1
+    }
+  ],
+  "fluid_in": {
+    "id": "#c:heavy_water",
+    "amount": 1000
+  },
+  "results": [
+    {
+      "item": "neropower:moderator_tank",
+      "count": 1
+    }
+  ],
+  "energy": 60,
+  "time": 300
+}

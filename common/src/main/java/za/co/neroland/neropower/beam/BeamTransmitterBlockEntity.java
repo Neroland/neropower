@@ -34,6 +34,8 @@ import za.co.neroland.nerolandcore.worldgen.SpaceTags;
 
 import za.co.neroland.neropower.config.NeroPowerConfig;
 import za.co.neroland.neropower.data.NeroPowerErasureState;
+import za.co.neroland.neropower.data.SaveAdapters;
+import za.co.neroland.neropower.data.SaveKeys;
 
 /**
  * Beam Transmitter (Stage 6) — takes NE in on every face and beams it, line of sight, to one
@@ -369,8 +371,8 @@ public class BeamTransmitterBlockEntity extends BeamEndpointBlockEntity {
     // --- persistence: a block position + dimension id, and the linking player's UUID ---------------
 
     /** NBT keys holding the link owner's UUID halves — world save only, never in the client sync tag. */
-    static final String LINK_OWNER_MOST = "LinkOwnerMost";
-    static final String LINK_OWNER_LEAST = "LinkOwnerLeast";
+    static final String LINK_OWNER_MOST = SaveKeys.LINK_OWNER_MOST;
+    static final String LINK_OWNER_LEAST = SaveKeys.LINK_OWNER_LEAST;
 
     /**
      * The client sync tag: NeroTech's base returns the full {@code saveCustomOnly} (status, target,
@@ -397,8 +399,7 @@ public class BeamTransmitterBlockEntity extends BeamEndpointBlockEntity {
         ValueOutput output = ValueOutput.of(tag, registries);
     *///?}
         BeamTarget.save(output, this.target);
-        output.putLong(LINK_OWNER_MOST, this.linkOwner == null ? 0L : this.linkOwner.getMostSignificantBits());
-        output.putLong(LINK_OWNER_LEAST, this.linkOwner == null ? 0L : this.linkOwner.getLeastSignificantBits());
+        SaveKeys.writeLinkOwner(SaveAdapters.writer(output), this.linkOwner);
     }
 
     //? if >=1.21.6 {
@@ -412,9 +413,7 @@ public class BeamTransmitterBlockEntity extends BeamEndpointBlockEntity {
         ValueInput input = ValueInput.of(tag, registries);
     *///?}
         this.target = BeamTarget.load(input);
-        long most = input.getLongOr(LINK_OWNER_MOST, 0L);
-        long least = input.getLongOr(LINK_OWNER_LEAST, 0L);
-        this.linkOwner = (most == 0L && least == 0L) ? null : new UUID(most, least);
+        this.linkOwner = SaveKeys.readLinkOwner(SaveAdapters.reader(input));
         this.linkOwnerErasureEpoch = -1; // re-check against erasures that landed while unloaded
     }
 }

@@ -7,6 +7,12 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+//? if >=26.1 {
+import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
+//?} else {
+/*import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+*///?}
 
 import za.co.neroland.neropower.client.ClientBlockEntityRenderers;
 import za.co.neroland.neropower.fission.client.FissionCoreScreen;
@@ -29,7 +35,58 @@ public final class NeoForgeClientSetup {
     public static void init(IEventBus modEventBus) {
         modEventBus.addListener(NeoForgeClientSetup::onRegisterScreens);
         modEventBus.addListener(NeoForgeClientSetup::onRegisterEntityRenderers);
+        //? if >=26.1 {
+        modEventBus.addListener(NeoForgeClientSetup::onRegisterFluidModels);
+        //?} else {
+        /*modEventBus.addListener(NeoForgeClientSetup::onRegisterClientExtensions);
+        *///?}
     }
+
+    /**
+     * Sprites for NeroPower's fluids. They are never placed, so the sprites only show in tank and pipe
+     * GUIs, but an unregistered fluid would draw the missing texture there. One model per fluid.
+     */
+    //? if >=26.1 {
+    private static void onRegisterFluidModels(RegisterFluidModelsEvent event) {
+        for (za.co.neroland.neropower.fluid.FluidSpec spec : za.co.neroland.neropower.fluid.FluidSpec.values()) {
+            net.minecraft.client.resources.model.sprite.Material still = new net.minecraft.client.resources.model.sprite.Material(
+                    net.minecraft.resources.Identifier.fromNamespaceAndPath(za.co.neroland.neropower.NeroPowerCommon.MOD_ID, spec.stillTexture()));
+            net.minecraft.client.resources.model.sprite.Material flow = new net.minecraft.client.resources.model.sprite.Material(
+                    net.minecraft.resources.Identifier.fromNamespaceAndPath(za.co.neroland.neropower.NeroPowerCommon.MOD_ID, spec.flowTexture()));
+            event.register(new net.minecraft.client.renderer.block.FluidModel.Unbaked(still, flow, still,
+                            net.neoforged.neoforge.client.fluid.FluidTintSources.constant(spec.tint())),
+                    za.co.neroland.neropower.fluid.NeroPowerFluids.get(spec));
+        }
+    }
+    //?} else {
+    /*private static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
+        NeoForgeFluidTypes.all().forEach((spec, type) -> event.registerFluidType(extensions(spec), type.get()));
+    }
+
+    private static IClientFluidTypeExtensions extensions(za.co.neroland.neropower.fluid.FluidSpec spec) {
+        net.minecraft.resources.Identifier still = net.minecraft.resources.Identifier.fromNamespaceAndPath(
+                za.co.neroland.neropower.NeroPowerCommon.MOD_ID, spec.stillTexture());
+        net.minecraft.resources.Identifier flowing = net.minecraft.resources.Identifier.fromNamespaceAndPath(
+                za.co.neroland.neropower.NeroPowerCommon.MOD_ID, spec.flowTexture());
+        int tint = spec.tint();
+        return new IClientFluidTypeExtensions() {
+            @Override
+            public net.minecraft.resources.Identifier getStillTexture() {
+                return still;
+            }
+
+            @Override
+            public net.minecraft.resources.Identifier getFlowingTexture() {
+                return flowing;
+            }
+
+            @Override
+            public int getTintColor() {
+                return tint;
+            }
+        };
+    }
+    *///?}
 
     /** Machine BERs through the shared cross-loader seam (NeroTech / Nerospace pattern). */
     private static void onRegisterEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {

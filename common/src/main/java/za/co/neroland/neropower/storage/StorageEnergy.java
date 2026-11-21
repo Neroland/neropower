@@ -14,7 +14,7 @@ import za.co.neroland.nerolandcore.platform.EnergyLookup;
 import za.co.neroland.nerolandcore.sideconfig.Channel;
 import za.co.neroland.nerolandcore.sideconfig.SideConfigComponent;
 
-import za.co.neroland.nerotech.machine.BatteryBankBlockEntity;
+import za.co.neroland.neropower.registry.ModTags;
 
 /**
  * The storage tier's own neighbour push — NeroTech's {@code MachineEnergy.pushToNeighbours} with the
@@ -32,9 +32,13 @@ public final class StorageEnergy {
 
     /** Whether a block entity is one of the storage blocks the slosh guard protects. */
     public static boolean isStorage(@Nullable BlockEntity be) {
-        return be instanceof BatteryCellBlockEntity
+        return be instanceof PoolMember // battery cells and surge banks
                 || be instanceof BankControllerBlockEntity
-                || be instanceof BatteryBankBlockEntity;
+                || be instanceof MomentumWheelBlockEntity
+                || be instanceof SmesControllerBlockEntity
+                // Any other store (NeroTech's Battery Bank as an optional entry, later NeroPower stores)
+                // by block tag, so the guard needs no NeroTech internal class.
+                || (be != null && be.getBlockState().is(ModTags.ENERGY_STORAGES));
     }
 
     /**

@@ -146,10 +146,13 @@ public final class FailureController {
 
     /**
      * Restore from persisted ints. Silent — no listener call, no {@link #justEntered()}: a reload is
-     * not a transition. An unknown stage code reads as STABLE; a negative dwell as 0.
+     * not a transition. An unknown stage code reads as STABLE; a negative dwell as 0. A saved FAILURE
+     * loads as UNSTABLE, so a world never fires a failure action on its first tick after a reload; the
+     * machine re-climbs from its persisted heat if it is still overheating.
      */
     public void load(int stageCode, int ticksInStage) {
-        this.stage = FailureStage.byCode(stageCode);
+        FailureStage loaded = FailureStage.byCode(stageCode);
+        this.stage = loaded == FailureStage.FAILURE ? FailureStage.UNSTABLE : loaded;
         this.ticksInStage = Math.max(0, ticksInStage);
         this.justEntered = false;
     }

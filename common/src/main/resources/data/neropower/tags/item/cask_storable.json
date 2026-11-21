@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "neropower:spent_fuel_rod",
+    "neropower:fission_residue",
+    "neropower:vitrified_waste"
+  ]
+}

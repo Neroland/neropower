@@ -1,0 +1,17 @@
+{
+  "type": "nerotech:centrifuging",
+  "items": [
+    {
+      "ingredient": "#neropower:fertile_sources",
+      "count": 1
+    }
+  ],
+  "results": [
+    {
+      "item": "neropower:pallurite_dust",
+      "count": 2
+    }
+  ],
+  "energy": 80,
+  "time": 200
+}

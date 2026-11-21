@@ -9,12 +9,18 @@ import net.minecraft.world.inventory.SimpleContainerData;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 import za.co.neroland.nerotech.menu.MachineMenu;
 
+import za.co.neroland.neropower.menu.GaugeTail;
+import za.co.neroland.neropower.menu.GaugeTailMenu;
+
 /**
  * Stirling Generator menu: no machine slots — the upgrade block and the player inventory, plus three
  * synced ints after the seven shared ones (hot-neighbour gradient, heat drawn last tick, cold-face
  * flag) read by {@code client.StirlingScreen}.
  */
-public class StirlingMenu extends MachineMenu {
+public class StirlingMenu extends MachineMenu implements GaugeTailMenu {
+
+    /** Gauge tooltip tail (energy, heat), after NeroTech's shared data. */
+    private final GaugeTail gaugeTail;
 
     private static final int MACHINE_SLOTS = 0;
 
@@ -29,6 +35,8 @@ public class StirlingMenu extends MachineMenu {
 
     public StirlingMenu(int id, Inventory playerInventory, Container container, ContainerData data) {
         super(EnvironmentalContent.STIRLING_MENU.get(), id, container, data, MACHINE_SLOTS);
+        this.gaugeTail = GaugeTail.of(container);
+        this.addDataSlots(this.gaugeTail);
         addUpgradeAndPlayerSlots(playerInventory);
     }
 
@@ -45,5 +53,10 @@ public class StirlingMenu extends MachineMenu {
     /** Whether a cold sink (water / ice / snow / Radiator) touches the engine. */
     public boolean hasColdFace() {
         return extraValue(2) > 0;
+    }
+
+    @Override
+    public GaugeTail gaugeTail() {
+        return this.gaugeTail;
     }
 }

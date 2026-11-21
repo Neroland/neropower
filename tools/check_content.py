@@ -15,6 +15,16 @@ resources a player-facing block or item needs:
   ``item.neropower.<id>`` (as NeroTech's), so without it the creative tab and tooltips show the
   raw key even though ``block.neropower.<id>`` names the placed block;
 * every texture referenced by any model resolves to a PNG on disk;
+* every blockstate lists a model for every combination of its properties (and, for the 0.4.0
+  blocks, for exactly the properties and values the block declares);
+* the 0.4.0 machine blocks are multi-element models (3 to 24 elements) with a ``status_socket``
+  element and a ``particle`` texture;
+* every PNG under ``textures/`` is a square or a strip of square frames, a strip has a
+  ``.png.mcmeta`` and a ``.png.mcmeta`` has a strip, and no placeholder sprite is left;
+* every ``sounds.json`` event has its ``.ogg`` files and a subtitle lang key, every ``.ogg`` is
+  listed, and every recipe in ``tools/sounds`` has an event;
+* every fluid has its still and flowing sprites and its lang keys; every particle definition's
+  sprites exist;
 * every JSON file under the resource tree parses;
 * every lang key the Java code uses (``Component.translatable("...")`` and string literals
   starting with ``container.neropower.``, ``gui.neropower.``, ``command.neropower.`` or
@@ -24,13 +34,16 @@ resources a player-facing block or item needs:
 Prints a summary and exits non-zero when anything is missing. Run from anywhere:
 
     python3 tools/check_content.py
+    python3 tools/check_content.py --family steam     only the gaps that name that family's ids
 """
 
 from __future__ import annotations
 
+import itertools
 import json
 import os
 import re
+import struct
 import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
@@ -44,6 +57,73 @@ PICKAXE_TAG = os.path.join(RES, "data", "minecraft", "tags", "block", "mineable"
 
 # Items that are only ever produced as by-products of a machine (never crafted).
 ALLOW_NO_RECIPE = {"spent_fuel_rod", "spent_isotope_pellet"}
+
+# ---- 0.4.0 content: families, declared block states, machine blocks --------------------------
+FAMILIES = {
+    "fission": {"graphite_moderator", "moderator_tank", "breeder_blanket", "europium_control_rod_assembly",
+                "reactor_steam_port", "reactor_control_computer", "europium_control_rod",
+                "hot_spent_fuel_rod", "pallurite_dust", "pallurite_pellet", "kindled_pellet",
+                "braided_fuel_rod", "fuel_economizer"},
+    "steam": {"turbine_helm", "turbine_shroud", "turbine_spindle", "turbine_stator", "turbine_steam_port",
+              "condenser", "steel_vane_set", "cindersteel_vane_set", "superconducting_vane_set",
+              "governor_module"},
+    "backend": {"spent_fuel_pool", "vitrifier", "dry_cask", "fuel_cell", "betavoltaic_cell",
+                "fission_residue", "vitrified_waste", "beta_capsule", "spent_beta_capsule"},
+    "storage": {"surge_bank", "momentum_wheel", "smes_controller", "smes_coil", "power_cell_basic",
+                "power_cell_advanced", "power_cell_elite"},
+    "grid": {"beam_splitter", "phased_array_emitter", "circuit_breaker", "load_bank", "power_monitor",
+             "beam_alignment_scope", "scram_key"},
+    "radiation": {"shielding_block", "shielding_glass", "geiger_counter", "dosimeter_badge",
+                  "decontaminant"},
+    "fluids": {"steam", "exhaust_steam", "heavy_water"},
+}
+# Sound groups (the part of an event id before the dot) by family.
+SOUND_GROUPS = {
+    "fission": {"reactor", "control_computer"},
+    "steam": {"turbine", "steam", "condenser"},
+    "backend": {"vitrifier", "cask", "pool", "fuel_cell"},
+    "storage": {"smes", "momentum_wheel", "surge_bank"},
+    "grid": {"breaker", "load_bank", "beam", "phased_array", "scram_key"},
+    "radiation": {"geiger", "decontaminant"},
+}
+
+_FACING = ("north", "east", "south", "west")
+_BOOL = ("false", "true")
+_AXIS = ("x", "y", "z")
+# Machine blocks: horizontal ``facing``; the second set also carries ``alarm``.
+MACHINES = {"reactor_steam_port", "turbine_steam_port", "condenser", "vitrifier", "dry_cask", "fuel_cell",
+            "betavoltaic_cell", "surge_bank", "momentum_wheel", "beam_splitter", "phased_array_emitter",
+            "load_bank", "power_monitor"}
+ALARM_MACHINES = {"reactor_control_computer", "turbine_helm", "spent_fuel_pool", "smes_controller",
+                  "circuit_breaker"}
+EXTRA_STATES = {
+    "turbine_spindle": {"axis": _AXIS, "vanes": ("none", "steel", "cindersteel", "superconducting")},
+    "turbine_stator": {"axis": _AXIS, "winding": ("none", "tier1", "tier2", "tier3")},
+    "turbine_steam_port": {"port_mode": ("inlet", "exhaust", "vent")},
+    "surge_bank": {"cans": tuple(str(i) for i in range(7))},
+    "smes_coil": {"shape": ("straight_x", "straight_z", "corner_ne", "corner_nw", "corner_se", "corner_sw")},
+    "circuit_breaker": {"tripped": _BOOL},
+    "load_bank": {"heat": tuple(str(i) for i in range(5))},
+}
+# Full cubes with no block entity: declared states are exactly EXTRA_STATES (or none).
+PLAIN_BLOCKS = {"graphite_moderator", "moderator_tank", "breeder_blanket", "europium_control_rod_assembly",
+                "turbine_shroud", "turbine_spindle", "turbine_stator", "smes_coil", "shielding_block",
+                "shielding_glass"}
+PLACEHOLDER_MARK = b"neropower-placeholder"
+
+
+def declared_states(block: str) -> dict[str, tuple[str, ...]] | None:
+    """Properties and values a 0.4.0 block declares; None for blocks this table does not cover."""
+    if block not in MACHINES and block not in ALARM_MACHINES and block not in PLAIN_BLOCKS:
+        return None
+    props: dict[str, tuple[str, ...]] = {}
+    if block in MACHINES or block in ALARM_MACHINES:
+        props["facing"] = _FACING
+    if block in ALARM_MACHINES:
+        props["alarm"] = _BOOL
+    props.update(EXTRA_STATES.get(block, {}))
+    return props
+
 
 # Lang-key prefixes that Java completes with a runtime value (enum name, status id, ...).
 # Each prefix must have at least one key in en_us.json.
@@ -193,6 +273,114 @@ def blockstate_models(state) -> list[str]:
     return refs
 
 
+def variant_key(key: str) -> dict[str, str]:
+    pairs = {}
+    for part in key.split(","):
+        if part.strip():
+            name, _, value = part.partition("=")
+            pairs[name.strip()] = value.strip()
+    return pairs
+
+
+def check_blockstate_coverage(block: str, state, report: Report, ctx: str) -> None:
+    """Every combination of the block's properties must resolve to a model."""
+    declared = declared_states(block)
+    variants = state.get("variants")
+    if not isinstance(variants, dict):
+        # multipart: only the property names and values can be checked against the declaration.
+        if declared is not None:
+            def visit(node) -> None:
+                if isinstance(node, dict):
+                    when = node.get("when")
+                    if isinstance(when, dict):
+                        for name, value in when.items():
+                            if name in ("OR", "AND"):
+                                continue
+                            if name not in declared:
+                                report.gap(f"{ctx}: blockstate uses undeclared property {name}")
+                            else:
+                                for v in str(value).split("|"):
+                                    if v not in declared[name]:
+                                        report.gap(f"{ctx}: blockstate uses {name}={v}, not a declared value")
+                    for value in node.values():
+                        visit(value)
+                elif isinstance(node, list):
+                    for value in node:
+                        visit(value)
+            visit(state.get("multipart", []))
+        report.ok()
+        return
+    keys = [variant_key(k) for k in variants]
+    seen: dict[str, set[str]] = {}
+    for pairs in keys:
+        for name, value in pairs.items():
+            seen.setdefault(name, set()).add(value)
+    if declared is None:
+        props = {name: tuple(sorted(values)) for name, values in seen.items()}
+    else:
+        props = declared
+        for name, values in seen.items():
+            if name not in declared:
+                report.gap(f"{ctx}: blockstate uses undeclared property {name}")
+            else:
+                for v in sorted(values - set(declared[name])):
+                    report.gap(f"{ctx}: blockstate uses {name}={v}, not a declared value")
+    names = sorted(props)
+    missing = []
+    for combo in itertools.product(*(props[n] for n in names)):
+        actual = dict(zip(names, combo))
+        hits = sum(1 for pairs in keys if all(actual.get(n) == v for n, v in pairs.items()))
+        if hits == 0:
+            missing.append(",".join(f"{n}={actual[n]}" for n in names) or "(default)")
+        elif hits > 1:
+            report.gap(f"{ctx}: blockstate has {hits} variants matching "
+                       + (",".join(f"{n}={actual[n]}" for n in names) or "(default)"))
+    if missing:
+        shown = "; ".join(missing[:4]) + (f"; and {len(missing) - 4} more" if len(missing) > 4 else "")
+        report.gap(f"{ctx}: blockstate has no variant for {shown}")
+    else:
+        report.ok()
+
+
+def model_elements(ref: str, depth: int = 0):
+    """(elements, textures) of a model, following in-mod parents. elements None = none declared."""
+    path = model_path(ref)
+    if path is None or depth > 8 or not os.path.isfile(path):
+        return None, {}
+    try:
+        model = load_json(path)
+    except (OSError, ValueError):
+        return None, {}
+    textures = dict(model.get("textures") or {})
+    elements = model.get("elements")
+    parent = model.get("parent")
+    if isinstance(parent, str):
+        parent_elements, parent_textures = model_elements(parent, depth + 1)
+        if elements is None:
+            elements = parent_elements
+        for key, value in parent_textures.items():
+            textures.setdefault(key, value)
+    return elements, textures
+
+
+def check_machine_model(block: str, refs: list[str], report: Report, ctx: str) -> None:
+    """A 0.4.0 machine block is a multi-element model with the lamp socket, never a plain cube."""
+    for ref in sorted(set(refs)):
+        elements, textures = model_elements(ref)
+        if model_path(ref) is None or not os.path.isfile(model_path(ref)):
+            continue  # reported as a missing model already
+        if not elements:
+            report.gap(f"{ctx}: model {ref} has no elements (a machine block is never a plain cube)")
+            continue
+        if not 3 <= len(elements) <= 24:
+            report.gap(f"{ctx}: model {ref} has {len(elements)} elements (3 to 24 allowed)")
+        if not any(isinstance(e, dict) and e.get("name") == "status_socket" for e in elements):
+            report.gap(f"{ctx}: model {ref} has no status_socket element")
+        if "particle" not in textures:
+            report.gap(f"{ctx}: model {ref} sets no particle texture")
+        report.ok()
+
+
 def item_definition_models(definition) -> list[str]:
     refs: list[str] = []
 
@@ -264,6 +452,156 @@ def pickaxe_members() -> set[str]:
     return members
 
 
+def png_info(path: str):
+    """(width, height, has placeholder mark) from the PNG header and its text chunks."""
+    with open(path, "rb") as fh:
+        data = fh.read()
+    if data[:8] != b"\x89PNG\r\n\x1a\n" or data[12:16] != b"IHDR":
+        raise ValueError("not a PNG")
+    width, height = struct.unpack(">II", data[16:24])
+    marked = False
+    pos = 8
+    while pos + 8 <= len(data):
+        length = struct.unpack(">I", data[pos:pos + 4])[0]
+        kind = data[pos + 4:pos + 8]
+        if kind in (b"tEXt", b"iTXt", b"zTXt") and PLACEHOLDER_MARK in data[pos + 8:pos + 8 + length]:
+            marked = True
+        if kind == b"IDAT":
+            break
+        pos += 12 + length
+    return width, height, marked
+
+
+def check_textures(report: Report) -> None:
+    tex_root = os.path.join(ASSETS, "textures")
+    for path in walk(tex_root, ".png"):
+        rel = os.path.relpath(path, tex_root).replace(os.sep, "/")
+        name = rel[:-4].split("/")[-1]
+        ctx = f"texture {name} ({rel})"
+        try:
+            width, height, marked = png_info(path)
+        except (OSError, ValueError, struct.error) as err:
+            report.gap(f"{ctx}: unreadable PNG: {err}")
+            continue
+        strip = height > width and height % width == 0
+        if height != width and not strip:
+            report.gap(f"{ctx}: {width}x{height} is neither a square nor a strip of square frames")
+        has_meta = os.path.isfile(path + ".mcmeta")
+        top = rel.split("/")[0]
+        if top in ("block", "item", "particle"):
+            if strip and not has_meta:
+                report.gap(f"{ctx}: animated strip without a .png.mcmeta")
+            elif has_meta and not strip:
+                report.gap(f"{ctx}: has a .png.mcmeta but is a single frame")
+        if marked:
+            report.gap(f"{ctx}: placeholder sprite, final art missing")
+        report.ok()
+    for path in walk(tex_root, ".mcmeta"):
+        if not os.path.isfile(path[:-len(".mcmeta")]):
+            report.gap(f"texture meta {os.path.relpath(path, ROOT)}: no PNG beside it")
+
+
+def check_sounds(report: Report, lang: dict) -> None:
+    sounds_json = os.path.join(ASSETS, "sounds.json")
+    sound_dir = os.path.join(ASSETS, "sounds")
+    events = {}
+    if os.path.isfile(sounds_json):
+        try:
+            events = load_json(sounds_json)
+        except (OSError, ValueError):
+            events = {}  # reported by the JSON-parse pass
+    listed: set[str] = set()
+    for event, body in sorted(events.items()):
+        ctx = f"sound {event}"
+        subtitle = body.get("subtitle") if isinstance(body, dict) else None
+        if not subtitle:
+            report.gap(f"{ctx}: no subtitle key")
+        elif subtitle not in lang:
+            report.gap(f"{ctx}: lang key {subtitle} missing")
+        else:
+            report.ok()
+        entries = body.get("sounds", []) if isinstance(body, dict) else []
+        if not entries:
+            report.gap(f"{ctx}: lists no sound files")
+        for entry in entries:
+            ref = entry if isinstance(entry, str) else entry.get("name", "")
+            ns, _, rel = ref.partition(":")
+            if not rel:
+                ns, rel = "minecraft", ns
+            if ns != MOD_ID:
+                continue
+            listed.add(rel)
+            if not os.path.isfile(os.path.join(sound_dir, rel + ".ogg")):
+                report.gap(f"{ctx}: file sounds/{rel}.ogg missing")
+            else:
+                report.ok()
+    for path in walk(sound_dir, ".ogg"):
+        rel = os.path.relpath(path, sound_dir)[:-4].replace(os.sep, "/")
+        if rel not in listed:
+            report.gap(f"sound {rel.replace('/', '.')}: sounds/{rel}.ogg is in no sounds.json event")
+    # Every recipe in tools/sounds must have reached sounds.json.
+    recipe_dir = os.path.join(ROOT, "tools", "sounds")
+    if os.path.isdir(recipe_dir):
+        for path in walk(recipe_dir, ".py"):
+            for match in re.finditer(r'^\s*\(\s*"([a-z0-9_]+\.[a-z0-9_]+)"\s*,', read(path), flags=re.M):
+                if match.group(1) not in events:
+                    report.gap(f"sound {match.group(1)}: recipe in tools/sounds/{os.path.basename(path)} "
+                               f"but no sounds.json event")
+                else:
+                    report.ok()
+
+
+def check_fluids(report: Report, lang: dict) -> None:
+    spec = os.path.join(JAVA_ROOT, "fluid", "FluidSpec.java")
+    if not os.path.isfile(spec):
+        return
+    text = re.sub(r"/\*.*?\*/", "", read(spec), flags=re.S)
+    for fluid in re.findall(r'^\s*[A-Z][A-Z0-9_]*\(\s*"([a-z0-9_]+)"', text, flags=re.M):
+        ctx = f"fluid {fluid}"
+        for part in ("still", "flow"):
+            rel = f"textures/block/fluid/{fluid}_{part}.png"
+            if not os.path.isfile(os.path.join(ASSETS, *rel.split("/"))):
+                report.gap(f"{ctx}: sprite {rel} missing")
+            else:
+                report.ok()
+        for key in (f"fluid.{MOD_ID}.{fluid}", f"fluid_type.{MOD_ID}.{fluid}"):
+            if key not in lang:
+                report.gap(f"{ctx}: lang key {key} missing")
+            else:
+                report.ok()
+
+
+def check_particles(report: Report) -> None:
+    for path in walk(os.path.join(ASSETS, "particles"), ".json"):
+        name = os.path.basename(path)[:-5]
+        try:
+            definition = load_json(path)
+        except (OSError, ValueError):
+            continue  # reported by the JSON-parse pass
+        textures = definition.get("textures") or []
+        if not textures:
+            report.gap(f"particle {name}: lists no textures")
+        for ref in textures:
+            ns, _, rel = ref.partition(":")
+            if not rel:
+                ns, rel = "minecraft", ns
+            if ns != MOD_ID:
+                continue
+            if not os.path.isfile(os.path.join(ASSETS, "textures", "particle", rel + ".png")):
+                report.gap(f"particle {name}: sprite textures/particle/{rel}.png missing")
+            else:
+                report.ok()
+
+
+def family_filter(gaps: list[str], family: str) -> list[str]:
+    """The gaps that name one of the family's ids (also as the stem of a texture or lang key) or
+    one of its sound groups."""
+    ids = "|".join(re.escape(i) for i in sorted(FAMILIES.get(family, ()))) or "(?!)"
+    groups = "|".join(re.escape(g) for g in sorted(SOUND_GROUPS.get(family, ()))) or "(?!)"
+    pattern = re.compile(r"(?<![a-z0-9_])(?:(?:" + ids + r")(?![a-z0-9])|sound (?:" + groups + r")[./])")
+    return [g for g in gaps if pattern.search(g)]
+
+
 def check_all_json(report: Report) -> None:
     for path in walk(RES, ".json"):
         try:
@@ -332,6 +670,9 @@ def main() -> int:
                     report.gap(f"{ctx}: blockstate references no models")
                 for ref in refs:
                     check_model(ref, report, seen_models, ctx)
+                check_blockstate_coverage(block, state, report, ctx)
+                if block in MACHINES or block in ALARM_MACHINES:
+                    check_machine_model(block, refs, report, ctx)
             except ValueError as err:
                 report.gap(f"{ctx}: blockstate invalid JSON: {err}")
         if block not in items:
@@ -442,11 +783,26 @@ def main() -> int:
         else:
             report.ok()
 
+    # Textures, sounds, fluids and particles.
+    check_textures(report)
+    check_sounds(report, lang)
+    check_fluids(report, lang)
+    check_particles(report)
+
+    gaps = report.gaps
+    scope = ""
+    if "--family" in sys.argv[1:-1]:
+        family = sys.argv[sys.argv.index("--family") + 1]
+        if family not in FAMILIES:
+            print(f"error: unknown family {family} (have: {', '.join(sorted(FAMILIES))})")
+            return 2
+        gaps = family_filter(gaps, family)
+        scope = f" [{family}: {len(gaps)} of {len(report.gaps)} gaps]"
     print(f"NeroPower content check: {len(blocks)} blocks, {len(items)} items, "
-          f"{report.checked} checks passed, {len(report.gaps)} gaps")
-    for gap in report.gaps:
+          f"{report.checked} checks passed, {len(gaps)} gaps{scope}")
+    for gap in gaps:
         print("  - " + gap)
-    return 1 if report.gaps else 0
+    return 1 if gaps else 0
 
 
 if __name__ == "__main__":

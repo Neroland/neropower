@@ -3,7 +3,7 @@
 > **How this document is used (2026-09-25).** NeroPower was retired on 2026-07-31 in favour of merging its
 > features into NeroTech, then **revived as an optional add-on to NeroTech** (Option C). The sections below are
 > the original design record, kept verbatim as the source of the pillars and system ideas; the current scope
-> and stage order live in [`../PLAN-0.1.0.md`](../PLAN-0.1.0.md). Where the record says "standalone", read
+> is in [`../CHANGELOG.md`](../CHANGELOG.md) and the [wiki](../wiki/Home.md). Where the record says "standalone", read
 > "add-on that depends on NeroTech": nothing is extracted from NeroTech and no NeroTech block changes.
 
 ## Design

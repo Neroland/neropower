@@ -35,6 +35,8 @@ public final class NeroPowerFabricClient implements ClientModInitializer {
         MenuScreens.register(EnvironmentalContent.RTG_MENU.get(), RtgScreen::new);
         MenuScreens.register(EnvironmentalContent.STIRLING_MENU.get(), StirlingScreen::new);
 
+        registerFluidRendering();
+
         // Machine BERs through the shared cross-loader seam (NeroTech / Nerospace pattern).
         ClientBlockEntityRenderers.registerAll(new ClientBlockEntityRenderers.Sink() {
             //? if >=1.21.9 {
@@ -51,5 +53,30 @@ public final class NeroPowerFabricClient implements ClientModInitializer {
             }
             *///?}
         });
+    }
+
+    /**
+     * Sprites for NeroPower's fluids. They are never placed, so the sprites only show in tank and pipe
+     * GUIs, but an unregistered fluid would draw the missing texture there. One model per fluid.
+     */
+    private static void registerFluidRendering() {
+        for (za.co.neroland.neropower.fluid.FluidSpec spec : za.co.neroland.neropower.fluid.FluidSpec.values()) {
+            net.minecraft.resources.Identifier still = net.minecraft.resources.Identifier.fromNamespaceAndPath(
+                    NeroPowerCommon.MOD_ID, spec.stillTexture());
+            net.minecraft.resources.Identifier flow = net.minecraft.resources.Identifier.fromNamespaceAndPath(
+                    NeroPowerCommon.MOD_ID, spec.flowTexture());
+            net.minecraft.world.level.material.Fluid fluid = za.co.neroland.neropower.fluid.NeroPowerFluids.get(spec);
+            //? if >=26.1 {
+            net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderingRegistry.register(fluid,
+                    new net.minecraft.client.renderer.block.FluidModel.Unbaked(
+                            new net.minecraft.client.resources.model.sprite.Material(still),
+                            new net.minecraft.client.resources.model.sprite.Material(flow),
+                            new net.minecraft.client.resources.model.sprite.Material(still),
+                            net.minecraft.client.color.block.BlockTintSources.constant(spec.tint())));
+            //?} else {
+            /*net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry.INSTANCE.register(fluid,
+                    new net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler(still, flow, spec.tint()));
+            *///?}
+        }
     }
 }

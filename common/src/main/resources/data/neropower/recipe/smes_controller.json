@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "P": "#c:plates/cindersteel", "Q": "#nerotech:processors/quantum", "F": "nerotech:machine_frame", "K": "#nerotech:coils/tier3" },
+  "pattern": [ "PQP", "KFK", "PQP" ],
+  "result": { "id": "neropower:smes_controller" } }

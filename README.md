@@ -5,8 +5,8 @@
 > of NeroTech's machine framework and generators.
 
 **Status:** in development — version `0.2.0-alpha.1`. First release will be `0.2.0-beta.1`.
-See [`PLAN-0.1.0.md`](PLAN-0.1.0.md) for the staged plan and [`docs/DESIGN.md`](docs/DESIGN.md) for the
-design record.
+See [`docs/DESIGN.md`](docs/DESIGN.md) for the design record and [`CHANGELOG.md`](CHANGELOG.md) for
+what each release shipped.
 
 ## What it adds
 

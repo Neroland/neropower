@@ -9,7 +9,7 @@ the focused energy mod, so the core-prism radiates YELLOW power spikes behind a 
 
 Outputs:
   art/logo/neropower_logo.png       (1024x1024 master)
-  art/logo/neropower_logo_400.png   (CurseForge/Modrinth-ready)
+  art/logo/neropower_logo_400.png   (CurseForge-ready)
   common/src/main/resources/neropower_logo.png  (256x256 in-game mods-list icon)
 """
 SEED = 73

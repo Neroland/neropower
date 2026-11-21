@@ -1,12 +1,20 @@
 package za.co.neroland.neropower.machine;
 
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
 import za.co.neroland.nerotech.machine.NeroTechMachineBlock;
+
+import za.co.neroland.neropower.command.BudgetProbe;
 
 /**
  * Shared base for every NeroPower machine block: NeroTech's {@link NeroTechMachineBlock} (directional
@@ -44,6 +52,30 @@ public abstract class NeroPowerMachineBlock extends NeroTechMachineBlock {
      */
     protected boolean hasAlarm() {
         return false;
+    }
+
+    /**
+     * NeroTech's server ticker, timed for {@code /neropower budget} while a sampling window is open
+     * (one volatile read otherwise). Client tickers are returned unchanged.
+     */
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state,
+            BlockEntityType<T> type) {
+        BlockEntityTicker<T> inner = super.getTicker(level, state, type);
+        if (inner == null || level.isClientSide()) {
+            return inner;
+        }
+        return (lvl, pos, st, be) -> {
+            if (!BudgetProbe.sampling()) {
+                inner.tick(lvl, pos, st, be);
+                return;
+            }
+            long start = System.nanoTime();
+            inner.tick(lvl, pos, st, be);
+            long spent = System.nanoTime() - start;
+            Identifier id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(be.getType());
+            BudgetProbe.record(id == null ? "unknown" : id.toString(), spent);
+        };
     }
 
     @Override

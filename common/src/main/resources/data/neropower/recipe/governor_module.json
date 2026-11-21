@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "S": "#nerotech:components/servos",
+    "C": "nerotech:circuit_board",
+    "G": "minecraft:gold_ingot"
+  },
+  "pattern": [
+    " G ",
+    "SCS",
+    " G "
+  ],
+  "result": {
+    "id": "neropower:governor_module"
+  }
+}

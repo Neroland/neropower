@@ -1,0 +1,21 @@
+{
+  "type": "nerotech:centrifuging",
+  "items": [
+    {
+      "ingredient": "neropower:spent_fuel_rod",
+      "count": 1
+    }
+  ],
+  "results": [
+    {
+      "item": "neropower:reprocessed_pellet",
+      "count": 2
+    },
+    {
+      "item": "neropower:fission_residue",
+      "count": 1
+    }
+  ],
+  "energy": 120,
+  "time": 400
+}

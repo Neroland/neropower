@@ -1,0 +1,11 @@
+{
+  "type": "nerotech:reacting",
+  "items": [
+    { "ingredient": "neropower:power_cell_basic", "count": 1 },
+    { "ingredient": "#c:plates/cindersteel", "count": 2 }
+  ],
+  "fluid_in": { "id": "#c:sulfuric_acid", "amount": 250 },
+  "results": [ { "item": "neropower:power_cell_advanced", "count": 1 } ],
+  "energy": 60,
+  "time": 300
+}

@@ -1,0 +1,31 @@
+// NeroPower 0.3.2 block-entity saves, one compound per line group, keyed by role. Hand-authored from the
+// 0.3.2 save writers (FissionCoreBlockEntity, NeroPowerMachineBlockEntity, BankControllerBlockEntity,
+// BeamTransmitterBlockEntity / BeamTarget) with NeroTech's base keys beside them. Must keep loading
+// unchanged in every later release; never edit these values, add a new fixture instead.
+{
+  fission_core: {
+    id: "neropower:fission_core", x: 10, y: 64, z: -20,
+    Progress: 0, MaxProgress: 0, Heat: 4120, Preset: 2, Active: 1b, Pulse: 0,
+    OwnerMost: 0L, OwnerLeast: 0L,
+    ShellSize: 5, RodCount: 2, BurnupAcc: 731552L, Poison: 140, Stalled: 0b, ScramTicks: 300,
+    Items: [
+      {Slot: 0b, id: "neropower:fuel_rod", count: 1, components: {"neropower:burnup": 420}},
+      {Slot: 1b, id: "neropower:fuel_rod", count: 1, components: {"neropower:burnup": 415}},
+      {Slot: 3b, id: "neropower:spent_fuel_rod", count: 1}
+    ]
+  },
+  bank_controller: {
+    id: "neropower:battery_bank_controller", x: 12, y: 64, z: -20,
+    Heat: 0, Preset: 0, Active: 0b, BankMode: 1
+  },
+  beam_transmitter: {
+    id: "neropower:beam_transmitter", x: 40, y: 70, z: -20,
+    Heat: 0, Preset: 0, BeamStatus: 1,
+    Linked: 1b, TargetX: 64, TargetY: 70, TargetZ: -20, TargetDim: "minecraft:overworld",
+    LinkOwnerMost: 4822678189205111L, LinkOwnerLeast: -6534453187483893493L
+  },
+  beam_receiver_unlinked: {
+    id: "neropower:beam_receiver", x: 64, y: 70, z: -20,
+    Heat: 0, Preset: 0, BeamStatus: 0, Linked: 0b, LinkOwnerMost: 0L, LinkOwnerLeast: 0L
+  }
+}
