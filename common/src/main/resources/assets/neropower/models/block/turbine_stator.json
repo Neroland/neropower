@@ -1,0 +1,105 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "yoke": "neropower:block/turbine_stator",
+    "core": "neropower:block/turbine_stator_core",
+    "particle": "neropower:block/turbine_stator"
+  },
+  "elements": [
+    {
+      "from": [
+        1,
+        1,
+        0
+      ],
+      "to": [
+        15,
+        15,
+        2
+      ],
+      "faces": {
+        "down": {
+          "texture": "#yoke"
+        },
+        "up": {
+          "texture": "#yoke"
+        },
+        "north": {
+          "texture": "#yoke",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#yoke"
+        },
+        "west": {
+          "texture": "#yoke"
+        },
+        "east": {
+          "texture": "#yoke"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        1,
+        14
+      ],
+      "to": [
+        15,
+        15,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#yoke"
+        },
+        "up": {
+          "texture": "#yoke"
+        },
+        "north": {
+          "texture": "#yoke"
+        },
+        "south": {
+          "texture": "#yoke",
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#yoke"
+        },
+        "east": {
+          "texture": "#yoke"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        4,
+        2
+      ],
+      "to": [
+        12,
+        12,
+        14
+      ],
+      "faces": {
+        "down": {
+          "texture": "#core",
+          "rotation": 90
+        },
+        "up": {
+          "texture": "#core",
+          "rotation": 90
+        },
+        "west": {
+          "texture": "#core"
+        },
+        "east": {
+          "texture": "#core"
+        }
+      }
+    }
+  ]
+}

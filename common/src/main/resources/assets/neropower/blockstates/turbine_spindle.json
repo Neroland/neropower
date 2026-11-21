@@ -1,0 +1,48 @@
+{
+  "variants": {
+    "axis=z,vanes=none": {
+      "model": "neropower:block/turbine_spindle"
+    },
+    "axis=z,vanes=steel": {
+      "model": "neropower:block/turbine_spindle_steel"
+    },
+    "axis=z,vanes=cindersteel": {
+      "model": "neropower:block/turbine_spindle_cindersteel"
+    },
+    "axis=z,vanes=superconducting": {
+      "model": "neropower:block/turbine_spindle_superconducting"
+    },
+    "axis=x,vanes=none": {
+      "model": "neropower:block/turbine_spindle",
+      "y": 90
+    },
+    "axis=x,vanes=steel": {
+      "model": "neropower:block/turbine_spindle_steel",
+      "y": 90
+    },
+    "axis=x,vanes=cindersteel": {
+      "model": "neropower:block/turbine_spindle_cindersteel",
+      "y": 90
+    },
+    "axis=x,vanes=superconducting": {
+      "model": "neropower:block/turbine_spindle_superconducting",
+      "y": 90
+    },
+    "axis=y,vanes=none": {
+      "model": "neropower:block/turbine_spindle",
+      "x": 90
+    },
+    "axis=y,vanes=steel": {
+      "model": "neropower:block/turbine_spindle_steel",
+      "x": 90
+    },
+    "axis=y,vanes=cindersteel": {
+      "model": "neropower:block/turbine_spindle_cindersteel",
+      "x": 90
+    },
+    "axis=y,vanes=superconducting": {
+      "model": "neropower:block/turbine_spindle_superconducting",
+      "x": 90
+    }
+  }
+}

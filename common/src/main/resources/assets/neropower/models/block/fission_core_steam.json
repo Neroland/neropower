@@ -1,0 +1,6 @@
+{
+  "parent": "neropower:block/fission_core",
+  "textures": {
+    "front": "neropower:block/fission_core_front_steam"
+  }
+}

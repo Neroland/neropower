@@ -1,0 +1,218 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "axle": "neropower:block/turbine_spindle",
+    "collar": "neropower:block/turbine_spindle_collar",
+    "particle": "neropower:block/turbine_spindle_collar",
+    "vanes": "neropower:block/turbine_vanes_cindersteel"
+  },
+  "elements": [
+    {
+      "from": [
+        5,
+        5,
+        0
+      ],
+      "to": [
+        11,
+        11,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#axle",
+          "uv": [
+            5,
+            0,
+            11,
+            16
+          ]
+        },
+        "up": {
+          "texture": "#axle",
+          "uv": [
+            5,
+            0,
+            11,
+            16
+          ]
+        },
+        "north": {
+          "texture": "#collar",
+          "uv": [
+            5,
+            5,
+            11,
+            11
+          ],
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#collar",
+          "uv": [
+            5,
+            5,
+            11,
+            11
+          ],
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#axle",
+          "uv": [
+            5,
+            0,
+            11,
+            16
+          ],
+          "rotation": 90
+        },
+        "east": {
+          "texture": "#axle",
+          "uv": [
+            5,
+            0,
+            11,
+            16
+          ],
+          "rotation": 90
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        3,
+        2
+      ],
+      "to": [
+        13,
+        13,
+        5
+      ],
+      "faces": {
+        "down": {
+          "texture": "#collar"
+        },
+        "up": {
+          "texture": "#collar"
+        },
+        "north": {
+          "texture": "#collar"
+        },
+        "south": {
+          "texture": "#collar"
+        },
+        "west": {
+          "texture": "#collar"
+        },
+        "east": {
+          "texture": "#collar"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        3,
+        11
+      ],
+      "to": [
+        13,
+        13,
+        14
+      ],
+      "faces": {
+        "down": {
+          "texture": "#collar"
+        },
+        "up": {
+          "texture": "#collar"
+        },
+        "north": {
+          "texture": "#collar"
+        },
+        "south": {
+          "texture": "#collar"
+        },
+        "west": {
+          "texture": "#collar"
+        },
+        "east": {
+          "texture": "#collar"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        2,
+        6
+      ],
+      "to": [
+        14,
+        14,
+        10
+      ],
+      "faces": {
+        "down": {
+          "texture": "#vanes",
+          "uv": [
+            12,
+            0,
+            16,
+            12
+          ],
+          "rotation": 90
+        },
+        "up": {
+          "texture": "#vanes",
+          "uv": [
+            12,
+            0,
+            16,
+            12
+          ],
+          "rotation": 90
+        },
+        "north": {
+          "texture": "#vanes",
+          "uv": [
+            0,
+            0,
+            12,
+            12
+          ]
+        },
+        "south": {
+          "texture": "#vanes",
+          "uv": [
+            0,
+            0,
+            12,
+            12
+          ]
+        },
+        "west": {
+          "texture": "#vanes",
+          "uv": [
+            12,
+            0,
+            16,
+            12
+          ]
+        },
+        "east": {
+          "texture": "#vanes",
+          "uv": [
+            12,
+            0,
+            16,
+            12
+          ]
+        }
+      }
+    }
+  ]
+}

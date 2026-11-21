@@ -1,0 +1,49 @@
+{
+  "variants": {
+    "facing=north,port_mode=inlet": {
+      "model": "neropower:block/turbine_steam_port_inlet"
+    },
+    "facing=north,port_mode=exhaust": {
+      "model": "neropower:block/turbine_steam_port_exhaust"
+    },
+    "facing=north,port_mode=vent": {
+      "model": "neropower:block/turbine_steam_port_vent"
+    },
+    "facing=east,port_mode=inlet": {
+      "model": "neropower:block/turbine_steam_port_inlet",
+      "y": 90
+    },
+    "facing=east,port_mode=exhaust": {
+      "model": "neropower:block/turbine_steam_port_exhaust",
+      "y": 90
+    },
+    "facing=east,port_mode=vent": {
+      "model": "neropower:block/turbine_steam_port_vent",
+      "y": 90
+    },
+    "facing=south,port_mode=inlet": {
+      "model": "neropower:block/turbine_steam_port_inlet",
+      "y": 180
+    },
+    "facing=south,port_mode=exhaust": {
+      "model": "neropower:block/turbine_steam_port_exhaust",
+      "y": 180
+    },
+    "facing=south,port_mode=vent": {
+      "model": "neropower:block/turbine_steam_port_vent",
+      "y": 180
+    },
+    "facing=west,port_mode=inlet": {
+      "model": "neropower:block/turbine_steam_port_inlet",
+      "y": 270
+    },
+    "facing=west,port_mode=exhaust": {
+      "model": "neropower:block/turbine_steam_port_exhaust",
+      "y": 270
+    },
+    "facing=west,port_mode=vent": {
+      "model": "neropower:block/turbine_steam_port_vent",
+      "y": 270
+    }
+  }
+}

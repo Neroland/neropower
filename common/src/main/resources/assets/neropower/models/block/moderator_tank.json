@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "neropower:block/moderator_tank_frame",
+    "side": "neropower:block/moderator_tank_window"
+  }
+}

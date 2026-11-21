@@ -257,7 +257,7 @@ def _ring(px, box, col, hollow):
 
 def _steam_port_front(name, steam, water, steam_hollow=False, water_hollow=False, flowing=False):
     """Viewer's left: the lamp rail (px 0-7). Right: the recessed shell with two bolted flanges,
-    steam (white ring) above coolant (blue ring). Flange faces sit at px 12-27 x 2-13 and 18-29."""
+    steam (white ring) above coolant (blue ring). Flange faces sit at px 12-27 x 4-15 and 18-29."""
     rng = rng_for("reactor_steam_port_front")
     img = new_img()
     px = img.load()
@@ -273,7 +273,7 @@ def _steam_port_front(name, steam, water, steam_hollow=False, water_hollow=False
     rivets(img, pts=((3, 26),))
     haz_band_v(px, 3, 4, 17, 23)
     tell(px, 4, 11, vertical=True)
-    top = flange(px, 12, 2, 27, 13)
+    top = flange(px, 12, 4, 27, 15)
     low = flange(px, 12, 18, 27, 29)
     _ring(px, top, steam, steam_hollow)
     _ring(px, low, water, water_hollow)
@@ -377,12 +377,12 @@ def _computer_front(name, lamps, flag=False, key_turned=False, hazard=False):
         for x in (17, 19, 21):
             px[x, 15] = P_EMBER
     # lamp column
-    rect(px, 24, 5, 28, 20, SOCKET)
-    frame(px, 24, 5, 28, 20, A_DARK)
-    for y in range(5, 21):
+    rect(px, 24, 6, 28, 20, SOCKET)
+    frame(px, 24, 6, 28, 20, A_DARK)
+    for y in range(6, 21):
         px[29, y] = _mix(A_LIGHT, A_DARK, 0.55)
     for i, (col, core) in enumerate(lamps):
-        _lamp(px, 7 + i * 3 + (i > 1), col, core)
+        _lamp(px, 8 + i * 3, col, core)
     # console keys (rows 25-31)
     rect(px, 2, 25, 29, 31, SOCKET)
     for ky in (26, 29):

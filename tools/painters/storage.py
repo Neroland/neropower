@@ -3,12 +3,12 @@ Cells, the renderer sprites they need and the quench vapour particle.
 
 Reads, one per block (none is a centred orb, a ring target or a bar graph):
 
-* Surge Bank: stepped rows of upright cans between two bus-bar rails. Charge = how many caps glow
+* Surge Bank: two stepped rows of three upright cans between two low bus bars. Charge = how many caps glow
   (``surge_bank_front_0`` .. ``_6``; front row fills first, left to right).
 * Momentum Wheel: a rim wheel on a cross axle inside a guard cage. The rim, its blur twin and the
   tread are renderer sprites; the one cyan tick is the rim's balance mark.
 * Storage Ring Controller: a square gauge of sixteen sockets round a flag window, two frosted
-  cryo pipes on top. The renderer lights the sockets (arc violet) and shows the flag.
+  cryo pipes carried clear of the cabinet. The renderer lights the sockets (arc violet) and shows the flag.
 * Storage Ring Coil: a wound tube in a cindersteel cradle, with a faint static violet seam.
 * Power Cells: a hand canister with a carry loop; 1 / 2 / 3 bands, then alloy / cindersteel /
   violet inlay.
@@ -28,12 +28,12 @@ from .kit import _mix
 ICE = [(214, 232, 244, 255), (176, 206, 228, 255), (236, 244, 250, 255)]
 STEEL = [(96, 108, 118, 255), (62, 72, 82, 255), (150, 164, 176, 255)]      # wheel rim: base, shade, light
 
-# Surge Bank can columns on the front sheet (texel x of the 8-wide body), left to right as seen.
-CAN_COLS = (3, 12, 21)
+# Surge Bank can columns on the front sheet (texel x of the 6-wide body), left to right as seen.
+CAN_COLS = (3, 13, 23)
 # Rows on the front sheet: back caps, back upper bodies, front caps, shared can body, plinth.
 ROW_BACK_CAP, ROW_BACK_BODY, ROW_FRONT_CAP, ROW_BODY, ROW_PLINTH = 2, 4, 10, 12, 26
-# Storage Ring gauge: sixteen 3x3 sockets on the rim of a 5x5 grid, clockwise from the top left.
-GAUGE_X, GAUGE_Y, GAUGE_PITCH = 7, 5, 4
+# Storage Ring gauge: sixteen 2x2 sockets on the rim of a 5x5 grid, clockwise from the top left.
+GAUGE_X, GAUGE_Y, GAUGE_PITCH = 9, 11, 3
 
 
 def gauge_cells():
@@ -46,19 +46,19 @@ def gauge_cells():
 # ---------------------------------------------------------------- Surge Bank
 
 def _cap(px, x0, y0, lit):
-    """A domed can cap, 6x2 texels. Columns are uniform top to bottom so it can stretch on a top face."""
+    """A domed can cap, 4x2 texels. Columns are uniform top to bottom so it can stretch on a top face."""
     if lit:
-        cols = (P_AMBER, P_HOT, P_GLOW, P_HOT, P_HOT, P_AMBER)
+        cols = (P_AMBER, P_GLOW, P_HOT, P_AMBER)
     else:
-        cols = (ALLOY[2], ALLOY[3], A_LIGHT, ALLOY[3], ALLOY[1], A_DARK)
+        cols = (ALLOY[3], A_LIGHT, ALLOY[1], A_DARK)
     for i, col in enumerate(cols):
         px[x0 + i, y0] = col
         px[x0 + i, y0 + 1] = col
 
 
 def _can_band(px, x0, y, lit):
-    for x in range(x0, x0 + 8):
-        edge = x in (x0, x0 + 7)
+    for x in range(x0, x0 + 6):
+        edge = x in (x0, x0 + 5)
         px[x, y] = (P_AMBER if not edge else _mix(P_AMBER, A_DARK, 0.5)) if lit else P_EMBER
         px[x, y + 1] = (_mix(P_AMBER, A_DARK, 0.55) if lit else A_DARK)
 
@@ -75,7 +75,7 @@ def surge_bank_front(n):
     for x in range(S):
         px[x, ROW_PLINTH] = A_LIGHT
         px[x, S - 1] = A_DARK
-    for y in range(8, ROW_PLINTH):
+    for y in range(20, ROW_PLINTH):
         for x, col in ((0, CINDER[2]), (1, CINDER[1]), (30, CINDER[0]), (31, CINDER[1])):
             px[x, y] = col
     rect(px, 2, 27, 5, 30, SOCKET)
@@ -85,11 +85,11 @@ def surge_bank_front(n):
         front_lit = n > i
         back_lit = n > i + 3
         # Back row: upper body and cap, seen over the front row.
-        can(px, cx, ROW_BACK_BODY, cx + 7, ROW_BACK_BODY + 5, body=ALLOY[2])
+        can(px, cx, ROW_BACK_BODY, cx + 5, ROW_BACK_BODY + 5, body=ALLOY[2])
         _can_band(px, cx, ROW_BACK_BODY, back_lit)
         _cap(px, cx + 1, ROW_BACK_CAP, back_lit)
         # Front row: body with one cindersteel clamp band, and its cap.
-        can(px, cx, ROW_BODY, cx + 7, ROW_PLINTH - 1, body=ALLOY[1], band=CINDER[0])
+        can(px, cx, ROW_BODY, cx + 5, ROW_PLINTH - 1, body=ALLOY[1], band=CINDER[0])
         _can_band(px, cx, ROW_BODY, front_lit)
         _cap(px, cx + 1, ROW_FRONT_CAP, front_lit)
     save(img, "block", name)
@@ -99,18 +99,14 @@ def surge_bank_front(n):
 def surge_bank_side():
     img = machine_base("surge_bank_side")
     px = img.load()
-    # The bus-bar rail (rows 8..25): a cindersteel plate with a bright top edge and three bolts.
-    rect(px, 2, 8, 29, 25, CINDER[0])
+    # The bus-bar rail (rows 20..25): a low cindersteel bar with a bright top edge and three bolts.
+    rect(px, 2, 20, 29, 25, CINDER[0])
     for x in range(2, 30):
-        px[x, 8] = CINDER[2]
+        px[x, 20] = CINDER[2]
         px[x, 25] = CINDER[1]
-        px[x, 16] = CINDER[1]
-        px[x, 17] = CINDER[2]
     for bx in (6, 15, 24):
-        px[bx, 12] = A_LIGHT
-        px[bx + 1, 12] = A_DARK
-        px[bx, 21] = A_LIGHT
-        px[bx + 1, 21] = A_DARK
+        px[bx, 22] = A_LIGHT
+        px[bx + 1, 22] = A_DARK
     for x in range(S):
         px[x, ROW_PLINTH] = A_LIGHT
     save(img, "block", "surge_bank_side")
@@ -122,8 +118,8 @@ def surge_bank_top():
     family_mark(px, "storage")
     for cz in (4, 20):                      # the six can seats
         for cx in CAN_COLS:
-            frame(px, cx, cz, cx + 7, cz + 7, A_DARK)
-            rect(px, cx + 1, cz + 1, cx + 6, cz + 6, SOCKET)
+            frame(px, cx, cz, cx + 5, cz + 7, A_DARK)
+            rect(px, cx + 1, cz + 1, cx + 4, cz + 6, SOCKET)
     save(img, "block", "surge_bank_top")
 
 
@@ -239,20 +235,20 @@ def _cinder_strip(px, y0, y1, rng):
 
 def smes_controller_front(alarm):
     name = "smes_controller_front_alarm" if alarm else "smes_controller_front"
-    img = front_base("smes_controller_front")
+    img = machine_base("smes_controller_front")
     px = img.load()
+    for x in range(2, 30):                  # the bezel's top edge (rows 10..25 are the bezel)
+        px[x, 9] = A_DARK
+        px[x, 10] = A_LIGHT
+    status_socket(px, 2, 12)                # the lamp sits on the bezel, below the pipes
     _cinder_strip(px, 26, 31, rng_for("smes_controller_base"))
     hazard_edge(px, lit=alarm)
-    # The square gauge: sixteen dark sockets (the renderer lights a 2x2 core in each).
+    # The square gauge: sixteen dark sockets (the renderer lights the outer half of each).
     for (gx, gy) in gauge_cells():
-        rect(px, gx, gy, gx + 2, gy + 2, SOCKET)
-        px[gx, gy] = px[gx + 1, gy] = px[gx + 2, gy] = SOCKET_SHADOW
-        px[gx, gy + 1] = px[gx, gy + 2] = SOCKET_SHADOW
-    recess(px, 11, 9, 21, 19)
-    trip_flag(px, 13, 12, shown=False)
-    px[12, 18] = P_EMBER                    # I/O-halved tick socket
-    px[13, 18] = P_EMBER
-    tell(px, 26, 24)
+        rect(px, gx, gy, gx + 1, gy + 1, SOCKET)
+        px[gx, gy] = SOCKET_SHADOW
+    trip_flag(px, 13, 16, shown=False)
+    tell(px, 26, 23)
     save(img, "block", name)
     return img
 
@@ -261,8 +257,8 @@ def smes_controller_side():
     img = machine_base("smes_controller_side")
     px = img.load()
     _cinder_strip(px, 26, 31, rng_for("smes_controller_base"))
-    louvre(px, 5, 7, 26, 12)
-    rib(px, 5, 15, 26, 23, 4)
+    louvre(px, 5, 11, 26, 16)
+    rib(px, 5, 18, 26, 24, 4)
     save(img, "block", "smes_controller_side")
 
 
@@ -531,23 +527,23 @@ def surge_bank_model():
     els = [
         _box((0, 0, 0), (16, 3, 16), {"north": "front", "south": "side", "west": "side", "east": "side",
                                       "up": "top", "down": "top"}, cull=("down", "north", "south", "west", "east")),
-        _box((0, 3, 1), (1, 12, 15), "side", cull=("west",)),
-        _box((15, 3, 1), (16, 12, 15), "side", cull=("east",)),
+        _box((0, 3, 1), (1, 6, 15), "side", cull=("west",)),
+        _box((15, 3, 1), (16, 6, 15), "side", cull=("east",)),
     ]
-    xs = (10.5, 6.0, 1.5)                                   # model x of the columns, left to right as seen
+    xs = (11.5, 6.5, 1.5)                                    # model x of the columns, left to right as seen
     for i, cx in enumerate(CAN_COLS):
         x = xs[i]
-        body = _tex(cx, ROW_BODY, cx + 8, ROW_PLINTH)
-        plain = _tex(cx, ROW_BODY + 4, cx + 8, ROW_BODY + 12)
-        fcap = _tex(cx + 1, ROW_FRONT_CAP, cx + 7, ROW_FRONT_CAP + 2)
-        upper = _tex(cx, ROW_BACK_BODY, cx + 8, ROW_BACK_BODY + 6)
-        bcap = _tex(cx + 1, ROW_BACK_CAP, cx + 7, ROW_BACK_CAP + 2)
+        body = _tex(cx, ROW_BODY, cx + 6, ROW_PLINTH)
+        plain = _tex(cx, ROW_BODY + 4, cx + 6, ROW_BODY + 10)
+        fcap = _tex(cx + 1, ROW_FRONT_CAP, cx + 5, ROW_FRONT_CAP + 2)
+        upper = _tex(cx, ROW_BACK_BODY, cx + 6, ROW_BACK_BODY + 6)
+        bcap = _tex(cx + 1, ROW_BACK_CAP, cx + 5, ROW_BACK_CAP + 2)
         faces = {f: "front" for f in ns + ("up",)}
-        els.append(_box((x, 3, 2), (x + 4, 10, 6), faces, uv=dict({f: body for f in ns}, up=plain)))
-        els.append(_box((x + 0.5, 10, 2.5), (x + 3.5, 11, 5.5), faces, uv={f: fcap for f in ns + ("up",)}))
-        els.append(_box((x, 3, 10), (x + 4, 10, 14), {f: "front" for f in ns}, uv={f: body for f in ns}))
-        els.append(_box((x, 10, 10), (x + 4, 13, 14), faces, uv=dict({f: upper for f in ns}, up=plain)))
-        els.append(_box((x + 0.5, 13, 10.5), (x + 3.5, 14, 13.5), faces, uv={f: bcap for f in ns + ("up",)}))
+        els.append(_box((x, 3, 3), (x + 3, 10, 6), faces, uv=dict({f: body for f in ns}, up=plain)))
+        els.append(_box((x + 0.5, 10, 3.5), (x + 2.5, 11, 5.5), faces, uv={f: fcap for f in ns + ("up",)}))
+        els.append(_box((x, 3, 10), (x + 3, 10, 13), {f: "front" for f in ns}, uv={f: body for f in ns}))
+        els.append(_box((x, 10, 10), (x + 3, 13, 13), faces, uv=dict({f: upper for f in ns}, up=plain)))
+        els.append(_box((x + 0.5, 13, 10.5), (x + 2.5, 14, 12.5), faces, uv={f: bcap for f in ns + ("up",)}))
     els.append(_box((13, 0.5, -0.5), (15, 2.5, 0), "front", name="status_socket",
                     uv={f: _tex(2, 27, 6, 31) for f in _ALL}))
     return els
@@ -579,16 +575,16 @@ def smes_controller_model():
     pipe_uv = {"west": _tex(0, 0, 6, 6), "east": _tex(0, 0, 6, 6)}
     return [
         _box((0, 0, 0), (16, 3, 16), base, cull=("down", "north", "south", "west", "east")),
-        _box((2, 3, 1), (14, 13, 14), {"south": "side", "west": "side", "east": "side", "up": "top"}),
-        _box((1, 3, 0), (15, 14, 1), {"north": "front", "south": "side", "west": "side", "east": "side",
+        _box((2, 3, 1), (14, 11, 14), {"south": "side", "west": "side", "east": "side", "up": "top"}),
+        _box((1, 3, 0), (15, 11, 1), {"north": "front", "south": "side", "west": "side", "east": "side",
                                       "up": "top"}, cull=("north",)),
         _box((0, 13, 3), (16, 16, 6), "pipe", cull=("west", "east", "up"), uv=pipe_uv),
         _box((0, 13, 10), (16, 16, 13), "pipe", cull=("west", "east", "up"), uv=pipe_uv),
-        _box((6, 13, 6), (10, 15, 10), {"north": "top", "south": "top", "west": "top", "east": "top", "up": "top"}),
-        _box((0, 5, 4), (2, 13, 12), "coil", cull=("west",), rot={"up": 90, "down": 90}),
-        _box((14, 5, 4), (16, 13, 12), "coil", cull=("east",), rot={"up": 90, "down": 90}),
-        _box((4, 5, 14), (12, 13, 16), "coil", cull=("south",)),
-        _socket(),
+        _box((6, 11, 3), (10, 13, 13), {"north": "top", "south": "top", "west": "top", "east": "top"}),
+        _box((0, 5, 4), (2, 11, 12), "coil", cull=("west",), rot={"up": 90, "down": 90}),
+        _box((14, 5, 4), (16, 11, 12), "coil", cull=("east",), rot={"up": 90, "down": 90}),
+        _box((4, 5, 14), (12, 11, 16), "coil", cull=("south",)),
+        _box((13, 8, -0.5), (15, 10, 0), "front", name="status_socket", uv={f: _tex(2, 12, 6, 16) for f in _ALL}),
     ]
 
 

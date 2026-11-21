@@ -36,11 +36,31 @@ import za.co.neroland.neropower.machine.NeroPowerMachineBlock;
  * {@code renderActive}, {@code heatFraction}, {@code renderFailureStage}) and the {@code alarm} /
  * {@code facing} block state. {@code renderAnimationsEnabled=false} freezes the pulse and the disc
  * and holds the strobe steady-on, so the danger stays readable as a static frame.</p>
+ *
+ * <p><b>Structure dressing.</b> A formed reactor carries a thin full-bright seam along the twelve
+ * outer edges of its shell (one quad per edge, whatever the shell size): ember when formed and idle,
+ * amber when working, the overheat / trip / failure colours otherwise, and nothing when unformed, so
+ * "is it formed?" reads from outside. It is drawn only within {@value #DRESS_RANGE} blocks. In steam
+ * mode a white collar is laid over the viewport, and breeding progress lifts the core glow a step
+ * at a time. All of it comes from the synced, bucketed fields ({@code shellSize}, {@code renderMode},
+ * {@code renderBreedStep}, {@code renderReadout}).</p>
  */
 public class FissionCoreRenderer
         implements BlockEntityRenderer<FissionCoreBlockEntity, FissionCoreRenderer.State> {
 
     private static final Identifier GLOW_TEX = PowerRenderHelper.texture("fission_core_glow");
+    private static final Identifier STEAM_RING_TEX = PowerRenderHelper.texture("fission_core_steam_ring");
+
+    /** Camera distance (blocks) past which the shell seams are not drawn. */
+    private static final double DRESS_RANGE = 32.0;
+    /** Half the seam's width (blocks): one pixel either side of the shell edge. */
+    private static final float SEAM_HALF = 1.0F / 16.0F;
+    /** How far the seam stands off the shell so it never z-fights the casing. */
+    private static final float SEAM_GAP = 0.01F;
+    /** Steam collar plane: between the recessed panel (z=2) and the glow plate. */
+    private static final float RING_Z = 1.8F / 16.0F;
+    /** Core glow gained per breeding step (0..4). */
+    private static final float BREED_GLOW = 0.04F;
 
     /** Glow plate depth: just in front of the recessed panel (body face at z=2), behind the frame. */
     private static final float GLOW_Z = 1.5F / 16.0F;
@@ -71,6 +91,16 @@ public class FissionCoreRenderer
         float spin;
         boolean strobe;
         Direction facing = Direction.NORTH;
+        /** Formed shell edge (3 / 5 / 7), 0 when unformed. */
+        int shell;
+        /** 1 while the core runs in steam mode. */
+        int mode;
+        /** Breeding progress bucket 0..4. */
+        int breedStep;
+        /** Shell seams are drawn (formed and within range). */
+        boolean dress;
+        /** Readout rhythm and colour for the seams; the core model has no lamp socket. */
+        final PowerRenderHelper.Lamp lamp = new PowerRenderHelper.Lamp();
     }
 
     @Override
@@ -80,7 +110,15 @@ public class FissionCoreRenderer
 
     /** One-block pad; NeoForge-only frustum hook, inert non-override on Fabric/Forge (NeroTech recipe). */
     public AABB getRenderBoundingBox(FissionCoreBlockEntity core) {
-        return new AABB(core.getBlockPos()).inflate(1.0);
+        AABB block = new AABB(core.getBlockPos());
+        int size = core.shellSize();
+        if (size < 3) {
+            return block.inflate(1.0);
+        }
+        // The formed shell: the core sits at the centre of one wall, the cube lies behind it.
+        Direction back = core.getBlockState().getValue(NeroTechMachineBlock.FACING).getOpposite();
+        double half = (size - 1) / 2.0;
+        return block.move(back.getStepX() * half, 0.0, back.getStepZ() * half).inflate(half + 0.25);
     }
 
     @Override
@@ -98,6 +136,12 @@ public class FissionCoreRenderer
             heat = Math.max(heat, 0.85F);
         }
         state.heat = heat;
+        state.shell = state.formed ? core.shellSize() : 0;
+        state.mode = core.renderMode();
+        state.breedStep = Mth.clamp(core.renderBreedStep(), 0, 4);
+        PowerRenderHelper.lampExtract(state.lamp, core.renderReadout(), heat >= 0.9F, level, partialTick);
+        state.dress = state.shell >= 3
+                && cameraPos.distanceToSqr(Vec3.atCenterOf(core.getBlockPos())) <= DRESS_RANGE * DRESS_RANGE;
         boolean alarm = blockState.hasProperty(NeroPowerMachineBlock.ALARM)
                 && blockState.getValue(NeroPowerMachineBlock.ALARM);
         // Explicit null check (not folded into a flag) so ecj's null-flow analysis can track it.
@@ -125,7 +169,8 @@ public class FissionCoreRenderer
     public void submit(State state, PoseStack poseStack, SubmitNodeCollector collector,
             CameraRenderState cameraState) {
         boolean glow = state.formed && (state.active || state.heat > 0.02F);
-        if (!glow && !state.strobe) {
+        boolean steam = state.formed && state.mode == 1;
+        if (!glow && !state.strobe && !state.dress && !steam) {
             return; // unformed / cold / safe: the static head is the whole machine
         }
         int light = PowerRenderHelper.FULL_BRIGHT;
@@ -137,7 +182,8 @@ public class FissionCoreRenderer
             // idle-but-hot core dims to ~45% so brightness reads as output.
             int rgb = PowerRenderHelper.powerColor(state.heat);
             float brightness = state.active
-                    ? 0.75F + 0.25F * state.pulse * (0.4F + 0.6F * state.heat)
+                    ? Math.min(1.0F, 0.75F + 0.25F * state.pulse * (0.4F + 0.6F * state.heat)
+                            + BREED_GLOW * state.breedStep)
                     : 0.45F;
             int glowRgb = PowerRenderHelper.dim(rgb, brightness);
             collector.order(1).submitCustomGeometry(poseStack, RenderTypes.entityCutout(GLOW_TEX),
@@ -168,6 +214,22 @@ public class FissionCoreRenderer
             }
         }
 
+        // Steam mode: the white collar over the viewport (full when running, dimmed when idle). The
+        // sprite is the whole front face, so the quad takes the panel window's share of it.
+        if (steam) {
+            int ringRgb = PowerRenderHelper.dim(0xFFFFFF, state.active ? 1.0F : 0.6F);
+            collector.order(1).submitCustomGeometry(poseStack, RenderTypes.entityCutout(STEAM_RING_TEX),
+                    (pose, c) -> PowerRenderHelper.face(c, pose, light, ringRgb, 0, 0, -1,
+                            WIN_X0, WIN_Y0, RING_Z, 1.0F - WIN_X0, 1.0F - WIN_Y0,
+                            WIN_X0, WIN_Y1, RING_Z, 1.0F - WIN_X0, 1.0F - WIN_Y1,
+                            WIN_X1, WIN_Y1, RING_Z, 1.0F - WIN_X1, 1.0F - WIN_Y1,
+                            WIN_X1, WIN_Y0, RING_Z, 1.0F - WIN_X1, 1.0F - WIN_Y0));
+        }
+
+        if (state.dress) {
+            submitSeams(state, poseStack, collector);
+        }
+
         // Alarm strobe: an H_CRIT overlay across the front panel (the ladder's telegraph, readable
         // from the operator's side whatever the shell size).
         if (state.strobe) {
@@ -180,5 +242,45 @@ public class FissionCoreRenderer
                             WIN_X1, WIN_Y0, STROBE_Z, 1, 1));
         }
         poseStack.popPose();
+    }
+
+    /**
+     * The shell seams: one diagonal full-bright strip standing on each of the twelve outer edges of
+     * the formed cube, in model space (front wall at z 0, the cube behind it). Steady in every state
+     * but failing, where it dims on the lamp's 2 Hz beat rather than going out.
+     */
+    private static void submitSeams(State state, PoseStack poseStack, SubmitNodeCollector collector) {
+        float half = (state.shell - 1) / 2.0F;
+        float lo = -half;
+        float hi = 1.0F + half;
+        float z0 = 0.0F;
+        float z1 = state.shell;
+        int base = PowerRenderHelper.lampColor(state.lamp);
+        boolean failing = state.lamp.readout == PowerRenderHelper.READOUT_FAIL;
+        int rgb = failing && !PowerRenderHelper.lampLit(state.lamp) ? PowerRenderHelper.dim(base, 0.4F) : base;
+        float mid = (lo + hi) / 2.0F;
+        float zMid = (z0 + z1) / 2.0F;
+        float len = (hi - lo) / 2.0F;
+        float zLen = (z1 - z0) / 2.0F;
+        float w = SEAM_HALF * 0.70710677F;
+        collector.order(2).submitCustomGeometry(poseStack, RenderTypes.entityCutout(PowerRenderHelper.LAMP_TEX),
+                (pose, c) -> {
+                    for (int a = -1; a <= 1; a += 2) {
+                        for (int b = -1; b <= 1; b += 2) {
+                            float ea = a < 0 ? lo - SEAM_GAP : hi + SEAM_GAP;
+                            float eb = b < 0 ? lo - SEAM_GAP : hi + SEAM_GAP;
+                            float ez = b < 0 ? z0 - SEAM_GAP : z1 + SEAM_GAP;
+                            // edges along z (corner in x / y)
+                            PowerRenderHelper.quad(c, pose, PowerRenderHelper.FULL_BRIGHT, rgb,
+                                    ea, eb, zMid, 0.0F, 0.0F, zLen, a * w, -b * w, 0.0F, 0.0F, 1.0F);
+                            // edges along x (corner in y / z)
+                            PowerRenderHelper.quad(c, pose, PowerRenderHelper.FULL_BRIGHT, rgb,
+                                    mid, ea, ez, len, 0.0F, 0.0F, 0.0F, a * w, -b * w, 0.0F, 1.0F);
+                            // edges along y (corner in x / z)
+                            PowerRenderHelper.quad(c, pose, PowerRenderHelper.FULL_BRIGHT, rgb,
+                                    ea, mid, ez, 0.0F, len, 0.0F, a * w, 0.0F, -b * w, 0.0F, 1.0F);
+                        }
+                    }
+                });
     }
 }

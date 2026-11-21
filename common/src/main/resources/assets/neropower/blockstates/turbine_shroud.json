@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "neropower:block/turbine_shroud"
+    }
+  }
+}

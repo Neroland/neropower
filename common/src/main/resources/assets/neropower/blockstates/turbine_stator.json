@@ -1,0 +1,48 @@
+{
+  "variants": {
+    "axis=z,winding=none": {
+      "model": "neropower:block/turbine_stator"
+    },
+    "axis=z,winding=tier1": {
+      "model": "neropower:block/turbine_stator_tier1"
+    },
+    "axis=z,winding=tier2": {
+      "model": "neropower:block/turbine_stator_tier2"
+    },
+    "axis=z,winding=tier3": {
+      "model": "neropower:block/turbine_stator_tier3"
+    },
+    "axis=x,winding=none": {
+      "model": "neropower:block/turbine_stator",
+      "y": 90
+    },
+    "axis=x,winding=tier1": {
+      "model": "neropower:block/turbine_stator_tier1",
+      "y": 90
+    },
+    "axis=x,winding=tier2": {
+      "model": "neropower:block/turbine_stator_tier2",
+      "y": 90
+    },
+    "axis=x,winding=tier3": {
+      "model": "neropower:block/turbine_stator_tier3",
+      "y": 90
+    },
+    "axis=y,winding=none": {
+      "model": "neropower:block/turbine_stator",
+      "x": 90
+    },
+    "axis=y,winding=tier1": {
+      "model": "neropower:block/turbine_stator_tier1",
+      "x": 90
+    },
+    "axis=y,winding=tier2": {
+      "model": "neropower:block/turbine_stator_tier2",
+      "x": 90
+    },
+    "axis=y,winding=tier3": {
+      "model": "neropower:block/turbine_stator_tier3",
+      "x": 90
+    }
+  }
+}

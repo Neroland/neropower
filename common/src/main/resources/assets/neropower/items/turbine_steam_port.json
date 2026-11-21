@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "neropower:block/turbine_steam_port_inlet"
+  }
+}

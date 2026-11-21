@@ -1,0 +1,6 @@
+{
+  "parent": "neropower:block/reactor_steam_port",
+  "textures": {
+    "front": "neropower:block/reactor_steam_port_front_starved"
+  }
+}

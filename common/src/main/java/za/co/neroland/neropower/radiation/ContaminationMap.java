@@ -125,6 +125,34 @@ public final class ContaminationMap {
         return excess;
     }
 
+    /**
+     * Up to {@code limit} chunks at or above {@code min}, in key order starting after {@code after}
+     * (exclusive; null = from the start) and wrapping round once. Used by the round-robin effect pass.
+     */
+    public List<Long> nextAtLeast(Long after, int min, int limit) {
+        List<Long> out = new ArrayList<>();
+        if (limit <= 0 || this.levels.isEmpty()) {
+            return out;
+        }
+        NavigableMap<Long, Short> first = after == null ? this.levels : this.levels.tailMap(after, false);
+        collect(first, min, limit, out);
+        if (out.size() < limit && after != null) {
+            collect(this.levels.headMap(after, true), min, limit, out);
+        }
+        return out;
+    }
+
+    private static void collect(NavigableMap<Long, Short> range, int min, int limit, List<Long> out) {
+        for (Map.Entry<Long, Short> e : range.entrySet()) {
+            if (out.size() >= limit) {
+                return;
+            }
+            if (e.getValue() >= min) {
+                out.add(e.getKey());
+            }
+        }
+    }
+
     /** Load persisted entries (levels clamped; zero and negative dropped). */
     public void load(Map<Long, Short> entries) {
         this.levels.clear();

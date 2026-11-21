@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "neropower:block/reactor_steam_port"
+    },
+    "facing=east": {
+      "model": "neropower:block/reactor_steam_port",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "neropower:block/reactor_steam_port",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "neropower:block/reactor_steam_port",
+      "y": 270
+    }
+  }
+}

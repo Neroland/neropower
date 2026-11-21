@@ -1,0 +1,49 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "window": "neropower:block/turbine_shroud_window",
+    "plate": "neropower:block/turbine_shroud",
+    "particle": "neropower:block/turbine_shroud"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#plate",
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#plate",
+          "cullface": "up"
+        },
+        "north": {
+          "texture": "#window",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#window",
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#window",
+          "cullface": "west"
+        },
+        "east": {
+          "texture": "#window",
+          "cullface": "east"
+        }
+      }
+    }
+  ]
+}
