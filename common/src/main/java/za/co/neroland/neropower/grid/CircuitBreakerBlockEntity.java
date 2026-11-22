@@ -178,12 +178,20 @@ public class CircuitBreakerBlockEntity extends NeroPowerMachineBlockEntity {
         }
         this.tripped = false;
         setChanged();
+        sound(za.co.neroland.neropower.registry.ModSounds.BREAKER_RESET.get());
         return true;
     }
 
     private void trip() {
         this.tripped = true;
         setChanged();
+        sound(za.co.neroland.neropower.registry.ModSounds.BREAKER_TRIP.get());
+    }
+
+    private void sound(net.minecraft.sounds.SoundEvent event) {
+        if (this.level != null && !this.level.isClientSide()) {
+            this.level.playSound(null, this.worldPosition, event, net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
+        }
     }
 
     // --- ticking ----------------------------------------------------------------------------------

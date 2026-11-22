@@ -35,6 +35,20 @@ public final class NeoForgeClientSetup {
     public static void init(IEventBus modEventBus) {
         modEventBus.addListener(NeoForgeClientSetup::onRegisterScreens);
         modEventBus.addListener(NeoForgeClientSetup::onRegisterEntityRenderers);
+        // 0.4.0: particle providers, the Geiger HUD layer (under chat), the client tick, item-model properties.
+        modEventBus.addListener((net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent event) ->
+                za.co.neroland.neropower.client.particle.PowerParticles.registerAll((type, factory) ->
+                        event.registerSpriteSet(type, factory::apply)));
+        modEventBus.addListener((net.neoforged.neoforge.client.event.RegisterGuiLayersEvent event) ->
+                event.registerBelow(net.neoforged.neoforge.client.gui.VanillaGuiLayers.CHAT,
+                        net.minecraft.resources.Identifier.fromNamespaceAndPath(
+                                za.co.neroland.neropower.NeroPowerCommon.MOD_ID, "geiger_hud"),
+                        (graphics, delta) -> za.co.neroland.neropower.client.NeroPowerClient.hud(graphics,
+                                delta.getGameTimeDeltaPartialTick(false))));
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(
+                (net.neoforged.neoforge.client.event.ClientTickEvent.Post event) ->
+                        za.co.neroland.neropower.client.NeroPowerClient.clientTick());
+        za.co.neroland.neropower.client.NeroPowerClient.init();
         //? if >=26.1 {
         modEventBus.addListener(NeoForgeClientSetup::onRegisterFluidModels);
         //?} else {
@@ -114,5 +128,16 @@ public final class NeoForgeClientSetup {
         event.register(BeamContent.BEAM_MENU.get(), BeamScreen::new);
         event.register(EnvironmentalContent.RTG_MENU.get(), RtgScreen::new);
         event.register(EnvironmentalContent.STIRLING_MENU.get(), StirlingScreen::new);
+        za.co.neroland.neropower.client.NeroPowerClient.registerScreens(
+                new za.co.neroland.neropower.client.NeroPowerClient.ScreenSink() {
+                    @Override
+                    public <M extends net.minecraft.world.inventory.AbstractContainerMenu,
+                            U extends net.minecraft.client.gui.screens.Screen
+                                    & net.minecraft.client.gui.screens.inventory.MenuAccess<M>> void register(
+                            net.minecraft.world.inventory.MenuType<? extends M> type,
+                            net.minecraft.client.gui.screens.MenuScreens.ScreenConstructor<M, U> constructor) {
+                        event.register(type, constructor);
+                    }
+                });
     }
 }

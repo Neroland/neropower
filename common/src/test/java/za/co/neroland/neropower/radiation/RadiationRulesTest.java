@@ -48,7 +48,8 @@ class RadiationRulesTest {
 
     @Test
     void shieldingArmourRemovesAQuarterPerPiece() {
-        assertEquals(800, RadiationMath.effectiveLevel(800, 1));
+        assertEquals(800, RadiationMath.effectiveLevel(800, 0));
+        assertEquals(600, RadiationMath.effectiveLevel(800, 1), "one piece takes a quarter off");
         assertEquals(400, RadiationMath.effectiveLevel(800, 2));
         assertEquals(0, RadiationMath.effectiveLevel(1000, 4), "four pieces = immune");
         assertEquals(3, RadiationMath.effectTier(true, 1000, 0));

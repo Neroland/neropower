@@ -37,6 +37,8 @@ public final class NeroPowerNeoForge {
         // The FluidTypes behind NeroPower's fluids: a NeoForge-only registry, created before the flush.
         NeoForgeFluidTypes.init();
         NeoForgeRegistrationFactory.registerAll(modEventBus);
+        // Power cells on the item energy capability (block machines are wired by NeroTech's handler).
+        modEventBus.addListener(NeoForgeItemEnergy::register);
         // Scorch zones (fission failure aftermath) expire and hurt on the server tick.
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> ScorchTicker.tick(event.getServer()));
         // Quest hook delivery (pending hook gates on login) rides the same tick.

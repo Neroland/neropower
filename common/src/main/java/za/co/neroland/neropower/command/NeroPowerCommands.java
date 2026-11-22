@@ -343,7 +343,10 @@ public final class NeroPowerCommands {
         }
         placeMachine(level, corePos, FissionContent.FISSION_CORE.get(), Direction.SOUTH);
         if (level.getBlockEntity(corePos) instanceof FissionCoreBlockEntity core) {
-            for (int slot = 0; slot < FissionCoreBlockEntity.ROD_SLOTS; slot++) {
+            // Only the rods this shell size can use (6 slots exist; a 5³ shell takes 4).
+            int usable = Math.min(FissionCoreBlockEntity.ROD_SLOTS,
+                    za.co.neroland.neropower.fission.FissionMath.usableRodSlots(size));
+            for (int slot = 0; slot < usable; slot++) {
                 core.setItem(slot, new ItemStack(FissionContent.FUEL_ROD.get()));
             }
         }

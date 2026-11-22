@@ -61,7 +61,7 @@ public class SpentFuelPoolBlockEntity extends NeroPowerMachineBlockEntity implem
     /** Water-source contacts, recounted every {@link #CONTACT_REFRESH_TICKS}; -1 until first counted. */
     private int contacts = -1;
 
-    /** Render surface (BLOCK-CONTRACT): coolStep ×4 then waterContacts, packed; compare-and-record state. */
+    /** Render surface: coolStep ×4 then waterContacts, packed; compare-and-record state. */
     private int syncedRender = -1;
     private final int[] clientCoolStep = new int[PoolMath.SLOTS];
     private int clientContacts;
@@ -124,6 +124,18 @@ public class SpentFuelPoolBlockEntity extends NeroPowerMachineBlockEntity implem
 
         FailureStage stage = tickFailure(level, pos);
         boolean calm = stage == FailureStage.STABLE;
+        if (hot > 0 && (!calm || this.contacts == 0) && level instanceof net.minecraft.server.level.ServerLevel sl) {
+            // Boiling or starved of water: bubbles every half second, the boil sound every two.
+            long t = level.getGameTime() + exchangePhase();
+            if (t % 10 == 0) {
+                sl.sendParticles(za.co.neroland.neropower.registry.ModParticles.POOL_BUBBLE.get(),
+                        pos.getX() + 0.5D, pos.getY() + 0.8D, pos.getZ() + 0.5D, 3, 0.25D, 0.05D, 0.25D, 0.01D);
+            }
+            if (t % 40 == 0) {
+                level.playSound(null, pos, za.co.neroland.neropower.registry.ModSounds.POOL_BOIL.get(),
+                        net.minecraft.sounds.SoundSource.BLOCKS, 0.7F, 1.0F);
+            }
+        }
 
         int coolTicks = BackEndConfig.poolCoolTicks();
         int best = 0;

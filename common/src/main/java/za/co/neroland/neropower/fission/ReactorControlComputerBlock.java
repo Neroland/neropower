@@ -33,6 +33,12 @@ public class ReactorControlComputerBlock extends ReactorShellPortBlock {
         super(properties);
     }
 
+    /** In-world status for the painted state models (decision 012 addendum). */
+    @Override
+    protected boolean hasStatus() {
+        return true;
+    }
+
     protected MapCodec<ReactorControlComputerBlock> codec() {
         return CODEC;
     }

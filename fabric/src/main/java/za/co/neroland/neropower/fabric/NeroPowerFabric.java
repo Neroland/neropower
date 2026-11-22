@@ -21,10 +21,39 @@ import za.co.neroland.neropower.progression.QuestHooks;
  */
 public final class NeroPowerFabric implements ModInitializer {
 
+    /**
+     * Names, temperature and gaseousness of NeroPower's fluids in other mods' tank and pipe screens
+     * (Fabric's counterpart to the FluidTypes NeoForge and Forge register).
+     */
+    private static void registerFluidAttributes() {
+        for (za.co.neroland.neropower.fluid.FluidSpec spec : za.co.neroland.neropower.fluid.FluidSpec.values()) {
+            net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes.register(
+                    za.co.neroland.neropower.fluid.NeroPowerFluids.get(spec),
+                    new net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributeHandler() {
+                        @Override
+                        public net.minecraft.network.chat.Component getName(
+                                net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant variant) {
+                            return net.minecraft.network.chat.Component.translatable(spec.translationKey());
+                        }
+
+                        @Override
+                        public int getTemperature(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant variant) {
+                            return spec.temperature();
+                        }
+
+                        @Override
+                        public boolean isLighterThanAir(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant variant) {
+                            return spec.gaseous();
+                        }
+                    });
+        }
+    }
+
     @Override
     public void onInitialize() {
         NeroPowerCommon.LOGGER.info("[NeroPower] Fabric bootstrap");
         NeroPowerCommon.init();
+        registerFluidAttributes();
         // Scorch zones (fission failure aftermath) expire and hurt on the server tick.
         ServerTickEvents.END_SERVER_TICK.register(ScorchTicker::tick);
         // Quest hook delivery (pending hook gates on login) rides the same tick.

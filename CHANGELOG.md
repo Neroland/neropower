@@ -12,6 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Hovering a gauge now shows what it is, how much, and the rate.
 - Three new fluids for pipes and tanks: Steam, Exhaust Steam and Heavy Water (tagged `c:steam`, `neropower:exhaust_steam` and `c:heavy_water`). They cannot be placed in the world and have no bucket. Their textures are placeholders for now.
 - `/neropower budget start [ticks]` and `/neropower budget` (operators): how many milliseconds per tick NeroPower's machines take, per machine type and in total, over a sampling window (10 seconds by default). Nothing is measured while no window is open.
+- **Steam plant:** the Turbine Helm, Shroud, Spindle, Stator and Steam Port build a 5 × 5 steam turbine 4 to 16 blocks long, with Steel, Cindersteel and Superconducting Vane Sets and a Governor Module. The Steam Condenser turns exhaust steam back into water.
+- **Fission:** Graphite Moderator, Moderator Tank, Breeder Blanket, Europium Control Rod Assembly, Reactor Steam Port (steam mode) and Reactor Control Computer (redstone, comparator and automatic SCRAM). Reactors can now be 7³. New fuel line: Pallurite Dust, Pallurite Pellet, Kindled Pellet and the Braided Fuel Rod, plus the Fuel Economizer module. Burnt rods now leave the core as Hot Spent Fuel Rods.
+- **Waste:** Spent Fuel Rack (cools hot rods under water), Vitrifier (turns final waste into inert Vitrified Waste) and Dry Cask. New items: Fission Residue, Vitrified Waste, Beta Capsule, Spent Beta Capsule.
+- **Generation:** Hydrogen Fuel Cell and Betavoltaic Cell.
+- **Storage:** Surge Bank, Momentum Wheel, the Storage Ring (Controller and Coil) and three Power Cells. Power Cells charge in battery cells, Surge Banks and near an Induction Charger, and offer item energy to other mods on NeoForge and Forge.
+- **Beam and grid:** Beam Splitter, Phased Array Emitter, Circuit Breaker, Load Bank and Power Monitor.
+- **Radiation:** Shielding Block, Shielding Glass, Geiger Counter (with an on-screen reading; the `geigerHudCorner` setting picks its corner), Dosimeter Badge and Decontaminant. Failing reactors, failing fuel racks, casks and rods dropped on the ground contaminate their chunk.
+- **Tools:** the Beam Alignment Scope shows a beam's line of sight and the first block in its way while you hold it and look at an emitter. The SCRAM Key SCRAMs a reactor when you use it on the core or its shell. It only works within reach.
+- Sounds with subtitles and particles for the new machines (steam, quench vapour, fuel rack bubbles, radiation motes). Recipe-book unlocks for every new recipe.
 - Chunk contamination storage for the coming radiation system, behind the new `radiationMode` setting (`auto` by default: on in singleplayer and LAN, off on dedicated servers). It records only a level per chunk, decays over time and is capped per dimension (`radiationDecayPermillePerMinute`, `radiationMaxChunksPerDimension`, `radiationDecayBudgetPerTick`). No player data.
 
 ### Changed
@@ -21,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The reactor shell is now checked only when something changes (a casing or rod assembly placed or removed anywhere in the shell, the core's neighbours, loading, opening the screen) instead of every two seconds. Reactors, banks and beam links from 0.3.x load unchanged.
 - A machine saved mid-failure now loads one step back (unstable instead of failing), so a world never runs a failure on its first tick after loading.
 - NeroPower no longer reads NeroTech's internal block registry: the Stirling Generator's cold face and the gallery find NeroTech's blocks by id, and the storage push guard uses the `neropower:energy_storages` block tag (NeroTech's Battery Bank is an optional entry).
+- The Chemical Processor's spent-rod reprocessing still yields only the reprocessed pellet, because its recipe format allows a single result. The Centrifuge route gives 2 pellets plus 1 Fission Residue.
+- Fluid names show in other mods' tank and pipe screens on Fabric too.
 
 ### Dependencies
 

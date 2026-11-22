@@ -91,6 +91,8 @@ public class DryCaskBlockEntity extends NeroPowerMachineBlockEntity implements R
             }
         }
         this.readout = BackEndReadout.readout(false, overheated(), BackEndReadout.CAUSE_NONE, false);
+        za.co.neroland.neropower.machine.NeroPowerMachineBlock.applyStatus(level, pos,
+                za.co.neroland.neropower.machine.NeroPowerMachineBlock.VisualStatus.fromReadout(this.readout));
         reportStatus(MachineStatus.IDLE);
         setActive(false);
     }

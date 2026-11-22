@@ -46,6 +46,8 @@ public final class NeroPowerForge {
         // The FluidTypes behind NeroPower's fluids: a Forge-only registry, created before the flush.
         ForgeFluidTypes.init();
         ForgeRegistrationFactory.registerAll(modBusGroup);
+        // Power cells on the item energy capability (block machines are attached by NeroTech).
+        ForgeItemEnergy.register();
         // Scorch zones (fission failure aftermath) expire and hurt on the server tick.
         // Quest hook delivery (pending hook gates on login) rides the same tick.
         //? if >=1.21.9 {

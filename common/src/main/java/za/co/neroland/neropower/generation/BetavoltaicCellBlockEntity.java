@@ -99,6 +99,8 @@ public class BetavoltaicCellBlockEntity extends NeroPowerMachineBlockEntity {
         this.output = step.generate();
         this.stallCause = step.cause();
         this.readout = GenerationReadout.readout(step.working(), step.cause());
+        za.co.neroland.neropower.machine.NeroPowerMachineBlock.applyStatus(level, pos,
+                za.co.neroland.neropower.machine.NeroPowerMachineBlock.VisualStatus.fromReadout(this.readout));
         if (step.cause() == GenerationReadout.CAUSE_NO_FUEL) {
             reportStatus(MachineStatus.STARVED);
         } else if (step.cause() == GenerationReadout.CAUSE_BUFFER_FULL) {

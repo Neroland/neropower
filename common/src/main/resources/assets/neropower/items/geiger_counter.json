@@ -1,6 +1,26 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "neropower:item/geiger_counter_0"
+    "type": "minecraft:select",
+    "property": "neropower:geiger_frame",
+    "cases": [
+      {
+        "when": "1",
+        "model": {
+          "type": "minecraft:model",
+          "model": "neropower:item/geiger_counter_1"
+        }
+      },
+      {
+        "when": "2",
+        "model": {
+          "type": "minecraft:model",
+          "model": "neropower:item/geiger_counter_2"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "neropower:item/geiger_counter_0"
+    }
   }
 }

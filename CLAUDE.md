@@ -73,6 +73,24 @@
   `net.fabricmc.*` / `net.minecraftforge.*` imports.
 - Loader entry points: `NeroPowerFabric` (+ `NeroPowerFabricClient`), `NeroPowerForge`,
   `NeroPowerNeoForge` — each calls `NeroPowerCommon.init()` during construction.
+- **Registration (0.4.0).** Each feature package registers its own blocks, items, block entities and
+  menus in a holder `registry/content/<Family>Content.java` (`init()` is called from
+  `NeroPowerCommon.init()`, after `ModRegistries.init()` and before `ModBlockEntities.registerMachineTypes()`;
+  feature configs class-load before `NeroPowerConfig.load()`). `ModBlockEntities` aggregates every holder's
+  `energyTypes()` / `itemTypes()` / `fluidTypes()` / `gasTypes()` into NeroTech's `MachineTypeRegistry`,
+  which is what NeroTech's loader code reads on all three loaders (`registry/MachineWiringTest` guards both
+  this and the `SideConfig` default presets). Shared holders: `registry/ModSounds` (every sound event except
+  the three radiation ones in `RadiationContent`), `registry/ModParticles`, `registry/content/ToolContent`
+  (Beam Alignment Scope, SCRAM Key). The creative order is `ModItems.creativeOrder()`.
+- **Client wiring (0.4.0)** is loader-neutral in `client/NeroPowerClient` (screens through a `ScreenSink`,
+  the client tick, the Geiger HUD layer, `PowerItemProperties` for the Geiger/dosimeter item frames),
+  `client/ClientBlockEntityRenderers` (BERs) and `client/particle/PowerParticles`; each loader's client
+  setup only binds them. Power cells get item energy from `neoforge/NeoForgeItemEnergy` and
+  `forge/ForgeItemEnergy` (none on Fabric). Fabric registers fluid names via `FluidVariantAttributes` and
+  render layers below 26.1 (26.x picks the layer from the sprites).
+- **`status` block state.** Machines with state art but no renderer (`reactor_steam_port`,
+  `reactor_control_computer`, `dry_cask`, `betavoltaic_cell`) override `hasStatus()`; their block entity
+  calls `NeroPowerMachineBlock.applyStatus(...)`, which writes only when the value changes.
 - NeoForge/Forge debug tasks use `-PneropowerDebug`; Fabric Loom honours Gradle `--debug-jvm`.
 
 ## IDE (VS Code) run & debug

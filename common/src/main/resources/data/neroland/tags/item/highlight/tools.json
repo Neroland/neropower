@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "neropower:geiger_counter",
+    "neropower:dosimeter_badge",
+    "neropower:beam_alignment_scope",
+    "neropower:scram_key"
+  ]
+}

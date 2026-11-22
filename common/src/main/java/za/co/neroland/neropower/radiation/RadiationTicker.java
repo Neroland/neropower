@@ -245,6 +245,11 @@ public final class RadiationTicker {
             int amount = droppedAmount(BuiltInRegistries.ITEM.getKey(item.getItem().getItem()), hot, spent);
             if (amount > 0) {
                 BlockPos pos = item.blockPosition();
+                if (amount >= hot) {
+                    // Hot rods on the ground glow with motes.
+                    level.sendParticles(za.co.neroland.neropower.registry.ModParticles.RAD_MOTE.get(),
+                            item.getX(), item.getY() + 0.3D, item.getZ(), 2, 0.2D, 0.2D, 0.2D, 0.0D);
+                }
                 perChunk.merge(RadiationMath.chunkKeyOfBlock(pos.getX(), pos.getZ()), amount, Integer::sum);
             }
         }

@@ -16,6 +16,24 @@
     "neropower:fission_casing",
     "neropower:fission_core",
     "neropower:radioisotope_generator",
-    "neropower:stirling_generator"
+    "neropower:stirling_generator",
+    "neropower:reactor_steam_port",
+    "neropower:reactor_control_computer",
+    "neropower:turbine_helm",
+    "neropower:turbine_steam_port",
+    "neropower:condenser",
+    "neropower:spent_fuel_pool",
+    "neropower:vitrifier",
+    "neropower:dry_cask",
+    "neropower:fuel_cell",
+    "neropower:betavoltaic_cell",
+    "neropower:surge_bank",
+    "neropower:momentum_wheel",
+    "neropower:smes_controller",
+    "neropower:beam_splitter",
+    "neropower:phased_array_emitter",
+    "neropower:circuit_breaker",
+    "neropower:load_bank",
+    "neropower:power_monitor"
   ]
 }

@@ -10,6 +10,23 @@
     "neropower:isotope_pellet",
     "neropower:spent_isotope_pellet",
     "neropower:reprocessed_pellet",
-    "neropower:uranium_pellet"
+    "neropower:uranium_pellet",
+    "neropower:pallurite_dust",
+    "neropower:pallurite_pellet",
+    "neropower:kindled_pellet",
+    "neropower:braided_fuel_rod",
+    "neropower:hot_spent_fuel_rod",
+    "neropower:europium_control_rod",
+    "neropower:fission_residue",
+    "neropower:vitrified_waste",
+    "neropower:beta_capsule",
+    "neropower:spent_beta_capsule",
+    "neropower:decontaminant",
+    "neropower:power_cell_basic",
+    "neropower:power_cell_advanced",
+    "neropower:power_cell_elite",
+    "neropower:steel_vane_set",
+    "neropower:cindersteel_vane_set",
+    "neropower:superconducting_vane_set"
   ]
 }

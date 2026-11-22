@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "P": "#c:plates/cindersteel",
+    "R": "minecraft:redstone",
+    "I": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    " P ",
+    " R ",
+    " I "
+  ],
+  "result": {
+    "id": "neropower:scram_key"
+  }
+}

@@ -750,6 +750,7 @@ def _variants(model_for):
 
 
 BLOCKS = ("spent_fuel_pool", "vitrifier", "dry_cask", "fuel_cell", "betavoltaic_cell")
+STATUS = ("idle", "working", "starved", "tripped")
 ITEMS = ("fission_residue", "vitrified_waste", "beta_capsule", "spent_beta_capsule")
 
 
@@ -767,8 +768,14 @@ def write_models():
         _write_json("models/block/%s.json" % name, model)
     _write_json("blockstates/spent_fuel_pool.json", _variants(lambda f: [
         ("alarm=false,facing=%s" % f, "spent_fuel_pool"), ("alarm=true,facing=%s" % f, "spent_fuel_pool_alarm")]))
-    for block in BLOCKS[1:]:
+    for block in ("vitrifier", "fuel_cell"):
         _write_json("blockstates/%s.json" % block, _variants(lambda f, b=block: [("facing=%s" % f, b)]))
+    # The cask and the betavoltaic cell have no renderer, so they carry the `status` block state
+    # (idle / working / starved / tripped, set on a bucket change). No state art yet: every status
+    # shows the same model until art paints one.
+    for block in ("dry_cask", "betavoltaic_cell"):
+        _write_json("blockstates/%s.json" % block, _variants(lambda f, b=block: [
+            ("facing=%s,status=%s" % (f, s), b) for s in STATUS]))
     for block in BLOCKS:
         _write_json("items/%s.json" % block,
                     {"model": {"type": "minecraft:model", "model": "%s:block/%s" % (NS, block)}})

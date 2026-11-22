@@ -38,20 +38,50 @@ public final class ForgeClientSetup {
         //? if >=26.1 {
         net.minecraftforge.client.event.ModelEvent.BakeFluidModels.BUS.addListener(ForgeClientSetup::onBakeFluidModels);
         //?}
+        net.minecraftforge.client.event.RegisterParticleProvidersEvent.BUS.addListener(ForgeClientSetup::onRegisterParticles);
+        net.minecraftforge.client.event.AddGuiOverlayLayersEvent.BUS.addListener(ForgeClientSetup::onAddGuiLayers);
+        net.minecraftforge.event.TickEvent.ClientTickEvent.Post.BUS.addListener(event ->
+                za.co.neroland.neropower.client.NeroPowerClient.clientTick());
+        za.co.neroland.neropower.client.NeroPowerClient.init();
     }
     //?}
     //? if >=1.21.6 && <1.21.9 {
     /*public static void init(BusGroup modBusGroup) {
         FMLClientSetupEvent.getBus(modBusGroup).addListener(ForgeClientSetup::onClientSetup);
         EntityRenderersEvent.RegisterRenderers.getBus(modBusGroup).addListener(ForgeClientSetup::onRegisterEntityRenderers);
+        net.minecraftforge.client.event.RegisterParticleProvidersEvent.getBus(modBusGroup).addListener(ForgeClientSetup::onRegisterParticles);
+        net.minecraftforge.client.event.AddGuiOverlayLayersEvent.getBus(modBusGroup).addListener(ForgeClientSetup::onAddGuiLayers);
+        net.minecraftforge.event.TickEvent.ClientTickEvent.Post.BUS.addListener(event ->
+                za.co.neroland.neropower.client.NeroPowerClient.clientTick());
+        za.co.neroland.neropower.client.NeroPowerClient.init();
     }
     *///?}
     //? if <1.21.6 {
     /*public static void init(IEventBus modEventBus) {
         modEventBus.addListener(ForgeClientSetup::onClientSetup);
         modEventBus.addListener(ForgeClientSetup::onRegisterEntityRenderers);
+        modEventBus.addListener(ForgeClientSetup::onRegisterParticles);
+        modEventBus.addListener(ForgeClientSetup::onAddGuiLayers);
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.addListener(
+                (net.minecraftforge.event.TickEvent.ClientTickEvent.Post event) ->
+                        za.co.neroland.neropower.client.NeroPowerClient.clientTick());
+        za.co.neroland.neropower.client.NeroPowerClient.init();
     }
     *///?}
+
+    /** 0.4.0 particle providers (sprite sets from {@code particles/<id>.json}). */
+    private static void onRegisterParticles(net.minecraftforge.client.event.RegisterParticleProvidersEvent event) {
+        za.co.neroland.neropower.client.particle.PowerParticles.registerAll(
+                (type, factory) -> event.registerSpriteSet(type, factory::apply));
+    }
+
+    /** The Geiger Counter HUD plate (drawn only while a counter is held). */
+    private static void onAddGuiLayers(net.minecraftforge.client.event.AddGuiOverlayLayersEvent event) {
+        event.getLayeredDraw().add(net.minecraft.resources.Identifier.fromNamespaceAndPath(
+                        za.co.neroland.neropower.NeroPowerCommon.MOD_ID, "geiger_hud"),
+                (graphics, delta) -> za.co.neroland.neropower.client.NeroPowerClient.hud(graphics,
+                        delta.getGameTimeDeltaPartialTick(false)));
+    }
 
     /** Machine BERs through the shared cross-loader seam (NeroTech / Nerospace pattern). */
     private static void onRegisterEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
@@ -103,5 +133,16 @@ public final class ForgeClientSetup {
         MenuScreens.register(BeamContent.BEAM_MENU.get(), BeamScreen::new);
         MenuScreens.register(EnvironmentalContent.RTG_MENU.get(), RtgScreen::new);
         MenuScreens.register(EnvironmentalContent.STIRLING_MENU.get(), StirlingScreen::new);
+        za.co.neroland.neropower.client.NeroPowerClient.registerScreens(
+                new za.co.neroland.neropower.client.NeroPowerClient.ScreenSink() {
+                    @Override
+                    public <M extends net.minecraft.world.inventory.AbstractContainerMenu,
+                            U extends net.minecraft.client.gui.screens.Screen
+                                    & net.minecraft.client.gui.screens.inventory.MenuAccess<M>> void register(
+                            net.minecraft.world.inventory.MenuType<? extends M> type,
+                            net.minecraft.client.gui.screens.MenuScreens.ScreenConstructor<M, U> constructor) {
+                        MenuScreens.register(type, constructor);
+                    }
+                });
     }
 }

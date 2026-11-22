@@ -8,6 +8,7 @@
     {
       "id": "neropower:spent_isotope_pellet",
       "required": false
-    }
+    },
+    "neropower:hot_spent_fuel_rod"
   ]
 }

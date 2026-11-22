@@ -65,7 +65,7 @@ public final class PoolMath {
     }
 
     /**
-     * The per-slot render bucket (BLOCK-CONTRACT {@code coolStep}, 0..4): {@code 0} empty slot,
+     * The per-slot render bucket (the render input {@code coolStep}, 0..4): {@code 0} empty slot,
      * {@code 1} a cooled spent rod, {@code 4} a hot rod just in, {@code 3} past a third of its cooling,
      * {@code 2} past two thirds.
      */

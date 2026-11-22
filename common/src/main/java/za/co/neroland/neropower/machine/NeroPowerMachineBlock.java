@@ -36,13 +36,73 @@ public abstract class NeroPowerMachineBlock extends NeroTechMachineBlock {
      */
     public static final BooleanProperty ALARM = BooleanProperty.create("alarm");
 
+    /**
+     * In-world state for machines whose art has states but no renderer (decision 012 addendum): set by the
+     * block entity from its readout only when the bucket changes, never per tick.
+     */
+    public enum VisualStatus implements net.minecraft.util.StringRepresentable {
+        IDLE("idle"), WORKING("working"), STARVED("starved"), TRIPPED("tripped");
+
+        private final String id;
+
+        VisualStatus(String id) {
+            this.id = id;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return this.id;
+        }
+
+        /** Readout code (0 rest, 1 work, 2 stall, 3 hot, 4 trip, 5 fail) to status. */
+        public static VisualStatus fromReadout(int readout) {
+            return switch (readout) {
+                case 1, 3 -> WORKING;
+                case 2 -> STARVED;
+                case 4, 5 -> TRIPPED;
+                default -> IDLE;
+            };
+        }
+    }
+
+    /** The {@link VisualStatus} property, on blocks that {@link #hasStatus() declare it}. */
+    public static final net.minecraft.world.level.block.state.properties.EnumProperty<VisualStatus> STATUS =
+            net.minecraft.world.level.block.state.properties.EnumProperty.create("status", VisualStatus.class);
+
     @SuppressWarnings("this-escape")
     protected NeroPowerMachineBlock(Properties properties) {
         super(properties);
-        if (hasAlarm()) {
-            this.registerDefaultState(this.stateDefinition.any()
-                    .setValue(FACING, Direction.NORTH)
-                    .setValue(ALARM, false));
+        if (hasAlarm() || hasStatus()) {
+            BlockState base = this.stateDefinition.any().setValue(FACING, Direction.NORTH);
+            if (hasAlarm()) {
+                base = base.setValue(ALARM, false);
+            }
+            if (hasStatus()) {
+                base = base.setValue(STATUS, VisualStatus.IDLE);
+            }
+            this.registerDefaultState(base);
+        }
+    }
+
+    /**
+     * Whether this block carries the {@link #STATUS} property. Must be a constant per class (no field
+     * reads): it is called from the {@link Block} constructor.
+     */
+    protected boolean hasStatus() {
+        return false;
+    }
+
+    /**
+     * Sets {@link #STATUS} on the block at {@code pos} if it has the property and the value differs;
+     * clients only (no neighbour update). Server side; a no-op for any other block.
+     */
+    public static void applyStatus(Level level, net.minecraft.core.BlockPos pos, VisualStatus status) {
+        if (level == null || level.isClientSide()) {
+            return;
+        }
+        BlockState now = level.getBlockState(pos);
+        if (now.hasProperty(STATUS) && now.getValue(STATUS) != status) {
+            level.setBlock(pos, now.setValue(STATUS, status), Block.UPDATE_CLIENTS);
         }
     }
 
@@ -83,6 +143,9 @@ public abstract class NeroPowerMachineBlock extends NeroTechMachineBlock {
         super.createBlockStateDefinition(builder);
         if (hasAlarm()) {
             builder.add(ALARM);
+        }
+        if (hasStatus()) {
+            builder.add(STATUS);
         }
     }
 }

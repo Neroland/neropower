@@ -28,7 +28,21 @@ class GaugeTooltipOnceTest {
             "za.co.neroland.neropower.storage.client.BankControllerScreen",
             "za.co.neroland.neropower.beam.client.BeamScreen",
             "za.co.neroland.neropower.environmental.client.RtgScreen",
-            "za.co.neroland.neropower.environmental.client.StirlingScreen");
+            "za.co.neroland.neropower.environmental.client.StirlingScreen",
+            // 0.4.0 (the three back-end screens extend NeroTech's MachineScreen directly, outside this chain)
+            "za.co.neroland.neropower.fission.client.ReactorControlComputerScreen",
+            "za.co.neroland.neropower.turbine.client.TurbineHelmScreen",
+            "za.co.neroland.neropower.turbine.client.CondenserScreen",
+            "za.co.neroland.neropower.generation.client.FuelCellScreen",
+            "za.co.neroland.neropower.generation.client.BetavoltaicCellScreen",
+            "za.co.neroland.neropower.storage.client.SurgeBankScreen",
+            "za.co.neroland.neropower.storage.client.MomentumWheelScreen",
+            "za.co.neroland.neropower.storage.client.SmesScreen",
+            "za.co.neroland.neropower.beam.client.BeamSplitterScreen",
+            "za.co.neroland.neropower.beam.client.PhasedArrayEmitterScreen",
+            "za.co.neroland.neropower.grid.client.CircuitBreakerScreen",
+            "za.co.neroland.neropower.grid.client.LoadBankScreen",
+            "za.co.neroland.neropower.grid.client.PowerMonitorScreen");
 
     /** Methods that answer a default gauge or emit; only NeroTech's base and PowerMachineScreen may declare them. */
     private static final Set<String> GAUGE_PROVIDERS = Set.of(

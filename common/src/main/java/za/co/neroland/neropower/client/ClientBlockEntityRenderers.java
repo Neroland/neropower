@@ -68,5 +68,36 @@ public final class ClientBlockEntityRenderers {
         add(sink, EnvironmentalContent.RTG_TYPE.get(), RtgRenderer::new);
         // Stirling: the flywheel in the front cut-out, turning with the heat drawn.
         add(sink, EnvironmentalContent.STIRLING_TYPE.get(), StirlingRenderer::new);
+        registerAll040(sink);
+    }
+
+    /** NeroPower 0.4.0 renderers (art packages' classes; none returns blanket true from shouldRender). */
+    private static void registerAll040(Sink sink) {
+        add(sink, za.co.neroland.neropower.registry.content.TurbineContent.TURBINE_HELM_TYPE.get(),
+                za.co.neroland.neropower.client.render.TurbineRenderer::new);
+        add(sink, za.co.neroland.neropower.registry.content.TurbineContent.CONDENSER_TYPE.get(),
+                za.co.neroland.neropower.client.render.CondenserRenderer::new);
+        add(sink, za.co.neroland.neropower.registry.content.BackEndContent.SPENT_FUEL_POOL_TYPE.get(),
+                za.co.neroland.neropower.client.render.SpentFuelPoolRenderer::new);
+        add(sink, za.co.neroland.neropower.registry.content.BackEndContent.VITRIFIER_TYPE.get(),
+                za.co.neroland.neropower.client.render.VitrifierRenderer::new);
+        add(sink, za.co.neroland.neropower.registry.content.GenerationContent.FUEL_CELL_TYPE.get(),
+                za.co.neroland.neropower.client.render.FuelCellRenderer::new);
+        add(sink, za.co.neroland.neropower.registry.content.StorageContent.MOMENTUM_WHEEL.get(),
+                za.co.neroland.neropower.client.render.MomentumWheelRenderer::new);
+        add(sink, za.co.neroland.neropower.registry.content.StorageContent.SMES_CONTROLLER.get(),
+                za.co.neroland.neropower.client.render.SmesControllerRenderer::new);
+        add(sink, za.co.neroland.neropower.registry.content.StorageContent.SURGE_BANK.get(),
+                za.co.neroland.neropower.client.render.SurgeBankRenderer::new);
+        add(sink, za.co.neroland.neropower.registry.content.GridContent.BEAM_SPLITTER_BE.get(),
+                za.co.neroland.neropower.client.render.BeamSplitterRenderer::new);
+        add(sink, za.co.neroland.neropower.registry.content.GridContent.PHASED_ARRAY_EMITTER_BE.get(),
+                za.co.neroland.neropower.client.render.PhasedArrayRenderer::new);
+        add(sink, za.co.neroland.neropower.registry.content.GridContent.POWER_MONITOR_BE.get(),
+                za.co.neroland.neropower.client.render.PowerMonitorRenderer::new);
+        add(sink, za.co.neroland.neropower.registry.content.GridContent.CIRCUIT_BREAKER_BE.get(),
+                za.co.neroland.neropower.client.render.CircuitBreakerRenderer::new);
+        add(sink, za.co.neroland.neropower.registry.content.GridContent.LOAD_BANK_BE.get(),
+                za.co.neroland.neropower.client.render.LoadBankRenderer::new);
     }
 }

@@ -239,6 +239,13 @@ public class ReactorSteamPortBlockEntity extends NeroPowerMachineBlockEntity {
         }
         this.stallCause = cause;
         this.readout = flowing ? READOUT_WORK : linked && cause != STALL_NONE ? READOUT_STALL : READOUT_REST;
+        za.co.neroland.neropower.machine.NeroPowerMachineBlock.applyStatus(level, pos,
+                flowing ? za.co.neroland.neropower.machine.NeroPowerMachineBlock.VisualStatus.WORKING
+                        : linked && cause == STALL_STEAM_FULL
+                                ? za.co.neroland.neropower.machine.NeroPowerMachineBlock.VisualStatus.TRIPPED
+                                : linked && cause != STALL_NONE
+                                        ? za.co.neroland.neropower.machine.NeroPowerMachineBlock.VisualStatus.STARVED
+                                        : za.co.neroland.neropower.machine.NeroPowerMachineBlock.VisualStatus.IDLE);
         setActive(flowing);
         if (linked && cause == STALL_NO_COOLANT) {
             reportStatus(MachineStatus.STARVED);

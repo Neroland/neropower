@@ -253,6 +253,8 @@ public class ReactorControlComputerBlockEntity extends NeroPowerMachineBlockEnti
         }
         this.stallCause = linked ? 0 : 1;
         this.readout = !linked ? 2 : this.tripped ? 4 : this.stage >= 1 ? 3 : 1;
+        za.co.neroland.neropower.machine.NeroPowerMachineBlock.applyStatus(level, pos,
+                za.co.neroland.neropower.machine.NeroPowerMachineBlock.VisualStatus.fromReadout(this.readout));
         setActive(linked);
     }
 

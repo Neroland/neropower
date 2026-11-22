@@ -27,6 +27,12 @@ public class ReactorSteamPortBlock extends ReactorShellPortBlock {
         super(properties);
     }
 
+    /** In-world status for the painted state models (decision 012 addendum). */
+    @Override
+    protected boolean hasStatus() {
+        return true;
+    }
+
     protected MapCodec<ReactorSteamPortBlock> codec() {
         return CODEC;
     }

@@ -347,8 +347,15 @@ subprojects {
                         if (json.ingredients instanceof List) {
                             json.ingredients = json.ingredients.collect { conv(it) }
                         }
+                        // NeroTech 0.8.0 process recipes (centrifuging, reacting, ...): items[].ingredient,
+                        // kept identical to NeroTech's own build (the catalyst is handled below).
+                        if (json.items instanceof List) {
+                            json.items = json.items.collect { e ->
+                                (e instanceof Map && e.ingredient != null) ? (e + [ingredient: conv(e.ingredient)]) : e
+                            }
+                        }
                         // input_a / input_b: NeroTech-style two-input recipes (kept identical to NeroTech's build).
-                        ['ingredient', 'template', 'base', 'addition', 'input_a', 'input_b'].each { k ->
+                        ['ingredient', 'template', 'base', 'addition', 'input_a', 'input_b', 'catalyst'].each { k ->
                             if (json[k] != null) {
                                 json[k] = conv(json[k])
                             }

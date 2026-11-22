@@ -103,10 +103,17 @@ public class PowerParticle extends SingleQuadParticle {
         this.setSpriteFromAge(this.sprites);
     }
 
+    //? if >=26.1 {
     @Override
     protected int getLightCoords(float partialTick) {
         return this.kind.emissive ? 0xF000F0 : super.getLightCoords(partialTick);
     }
+    //?} else {
+    /*@Override
+    public int getLightColor(float partialTick) {
+        return this.kind.emissive ? 0xF000F0 : super.getLightColor(partialTick);
+    }
+    *///?}
 
     /** One provider per type, created by each loader with the type's sprite set. */
     public static final class Provider implements ParticleProvider<SimpleParticleType> {

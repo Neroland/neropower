@@ -417,10 +417,13 @@ def write_models():
         for i in range(count):
             _write_json("models/item/%s_%d.json" % (item, i), _flat("%s_%d" % (item, i), parent))
         _write_json("models/item/%s.json" % item, _stepped(item, count, predicate, parent))
-        # 1.21.4+ item definition: frame 0 until the client range property is bound; the
-        # range_dispatch form replaces it then.
-        _write_json("items/%s.json" % item,
-                    {"model": {"type": "minecraft:model", "model": "%s:item/%s_0" % (NS, item)}})
+        # 1.21.4+ item definition: a select on the client property (client.PowerItemProperties,
+        # values "0".."n-1"); frame 0 is the fallback if the property is not bound.
+        _write_json("items/%s.json" % item, {"model": {
+            "type": "minecraft:select", "property": "%s:%s" % (NS, predicate),
+            "cases": [{"when": str(i), "model": {"type": "minecraft:model", "model": "%s:item/%s_%d" % (NS, item, i)}}
+                      for i in range(1, count)],
+            "fallback": {"type": "minecraft:model", "model": "%s:item/%s_0" % (NS, item)}}})
     _write_json("items/decontaminant.json",
                 {"model": {"type": "minecraft:model", "model": "%s:item/decontaminant" % NS}})
     _write_json("models/item/decontaminant.json", _flat("decontaminant"))

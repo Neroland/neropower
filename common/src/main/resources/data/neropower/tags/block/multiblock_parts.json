@@ -2,6 +2,14 @@
   "replace": false,
   "values": [
     "neropower:fission_casing",
-    "neropower:control_rod_assembly"
+    "neropower:control_rod_assembly",
+    "neropower:graphite_moderator",
+    "neropower:moderator_tank",
+    "neropower:breeder_blanket",
+    "neropower:europium_control_rod_assembly",
+    "neropower:turbine_shroud",
+    "neropower:turbine_spindle",
+    "neropower:turbine_stator",
+    "neropower:smes_coil"
   ]
 }

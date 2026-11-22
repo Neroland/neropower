@@ -1,6 +1,40 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "neropower:item/dosimeter_badge_0"
+    "type": "minecraft:select",
+    "property": "neropower:dosimeter_step",
+    "cases": [
+      {
+        "when": "1",
+        "model": {
+          "type": "minecraft:model",
+          "model": "neropower:item/dosimeter_badge_1"
+        }
+      },
+      {
+        "when": "2",
+        "model": {
+          "type": "minecraft:model",
+          "model": "neropower:item/dosimeter_badge_2"
+        }
+      },
+      {
+        "when": "3",
+        "model": {
+          "type": "minecraft:model",
+          "model": "neropower:item/dosimeter_badge_3"
+        }
+      },
+      {
+        "when": "4",
+        "model": {
+          "type": "minecraft:model",
+          "model": "neropower:item/dosimeter_badge_4"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "neropower:item/dosimeter_badge_0"
+    }
   }
 }

@@ -1,0 +1,275 @@
+{
+  "vitrifier.pour": {
+    "subtitle": "subtitles.neropower.vitrifier.pour",
+    "sounds": [
+      {
+        "name": "neropower:vitrifier/pour",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "cask.seal": {
+    "subtitle": "subtitles.neropower.cask.seal",
+    "sounds": [
+      {
+        "name": "neropower:cask/seal",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "pool.boil": {
+    "subtitle": "subtitles.neropower.pool.boil",
+    "sounds": [
+      {
+        "name": "neropower:pool/boil",
+        "attenuation_distance": 16,
+        "stream": false
+      }
+    ]
+  },
+  "fuel_cell.hiss": {
+    "subtitle": "subtitles.neropower.fuel_cell.hiss",
+    "sounds": [
+      {
+        "name": "neropower:fuel_cell/hiss",
+        "attenuation_distance": 16,
+        "stream": false
+      }
+    ]
+  },
+  "reactor.steam_mode": {
+    "subtitle": "subtitles.neropower.reactor.steam_mode",
+    "sounds": [
+      {
+        "name": "neropower:reactor/steam_mode",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "control_computer.alarm": {
+    "subtitle": "subtitles.neropower.control_computer.alarm",
+    "sounds": [
+      {
+        "name": "neropower:control_computer/alarm",
+        "attenuation_distance": 24,
+        "stream": false
+      }
+    ]
+  },
+  "breaker.trip": {
+    "subtitle": "subtitles.neropower.breaker.trip",
+    "sounds": [
+      {
+        "name": "neropower:breaker/trip",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "breaker.reset": {
+    "subtitle": "subtitles.neropower.breaker.reset",
+    "sounds": [
+      {
+        "name": "neropower:breaker/reset",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "breaker.strain": {
+    "subtitle": "subtitles.neropower.breaker.strain",
+    "sounds": [
+      {
+        "name": "neropower:breaker/strain",
+        "attenuation_distance": 16,
+        "stream": false
+      }
+    ]
+  },
+  "load_bank.sizzle": {
+    "subtitle": "subtitles.neropower.load_bank.sizzle",
+    "sounds": [
+      {
+        "name": "neropower:load_bank/sizzle",
+        "attenuation_distance": 16,
+        "stream": false
+      }
+    ]
+  },
+  "beam.split": {
+    "subtitle": "subtitles.neropower.beam.split",
+    "sounds": [
+      {
+        "name": "neropower:beam/split",
+        "attenuation_distance": 16,
+        "stream": false
+      }
+    ]
+  },
+  "phased_array.step": {
+    "subtitle": "subtitles.neropower.phased_array.step",
+    "sounds": [
+      {
+        "name": "neropower:phased_array/step",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "scram_key.turn": {
+    "subtitle": "subtitles.neropower.scram_key.turn",
+    "sounds": [
+      {
+        "name": "neropower:scram_key/turn",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "geiger.click": {
+    "subtitle": "subtitles.neropower.geiger.click",
+    "sounds": [
+      {
+        "name": "neropower:geiger/click_1",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "neropower:geiger/click_2",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "neropower:geiger/click_3",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "geiger.chatter": {
+    "subtitle": "subtitles.neropower.geiger.chatter",
+    "sounds": [
+      {
+        "name": "neropower:geiger/chatter",
+        "attenuation_distance": 16,
+        "stream": false
+      }
+    ]
+  },
+  "decontaminant.spray": {
+    "subtitle": "subtitles.neropower.decontaminant.spray",
+    "sounds": [
+      {
+        "name": "neropower:decontaminant/spray",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "turbine.spool": {
+    "subtitle": "subtitles.neropower.turbine.spool",
+    "sounds": [
+      {
+        "name": "neropower:turbine/spool",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "turbine.run": {
+    "subtitle": "subtitles.neropower.turbine.run",
+    "sounds": [
+      {
+        "name": "neropower:turbine/run",
+        "attenuation_distance": 16,
+        "stream": false
+      }
+    ]
+  },
+  "turbine.coast": {
+    "subtitle": "subtitles.neropower.turbine.coast",
+    "sounds": [
+      {
+        "name": "neropower:turbine/coast",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "turbine.overspeed": {
+    "subtitle": "subtitles.neropower.turbine.overspeed",
+    "sounds": [
+      {
+        "name": "neropower:turbine/overspeed",
+        "attenuation_distance": 16,
+        "stream": false
+      }
+    ]
+  },
+  "turbine.trip": {
+    "subtitle": "subtitles.neropower.turbine.trip",
+    "sounds": [
+      {
+        "name": "neropower:turbine/trip",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "steam.vent": {
+    "subtitle": "subtitles.neropower.steam.vent",
+    "sounds": [
+      {
+        "name": "neropower:steam/vent",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "condenser.drip": {
+    "subtitle": "subtitles.neropower.condenser.drip",
+    "sounds": [
+      {
+        "name": "neropower:condenser/drip",
+        "attenuation_distance": 16,
+        "stream": false
+      }
+    ]
+  },
+  "smes.hum": {
+    "subtitle": "subtitles.neropower.smes.hum",
+    "sounds": [
+      {
+        "name": "neropower:smes/hum",
+        "attenuation_distance": 16,
+        "stream": false
+      }
+    ]
+  },
+  "smes.warn": {
+    "subtitle": "subtitles.neropower.smes.warn",
+    "sounds": [
+      {
+        "name": "neropower:smes/warn",
+        "attenuation_distance": 16,
+        "stream": false
+      }
+    ]
+  },
+  "smes.quench": {
+    "subtitle": "subtitles.neropower.smes.quench",
+    "sounds": [
+      {
+        "name": "neropower:smes/quench",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "momentum_wheel.spin": {
+    "subtitle": "subtitles.neropower.momentum_wheel.spin",
+    "sounds": [
+      {
+        "name": "neropower:momentum_wheel/spin",
+        "attenuation_distance": 16,
+        "stream": false
+      }
+    ]
+  },
+  "surge_bank.snap": {
+    "subtitle": "subtitles.neropower.surge_bank.snap",
+    "sounds": [
+      {
+        "name": "neropower:surge_bank/snap",
+        "attenuation_distance": 16
+      }
+    ]
+  }
+}

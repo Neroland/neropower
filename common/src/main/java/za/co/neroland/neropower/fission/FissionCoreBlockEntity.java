@@ -150,6 +150,8 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
     private ReactorLayout layout = ReactorLayout.EMPTY;
     /** A structure recheck is due (member change, neighbour change, load, menu open). */
     private boolean recheckDue = true;
+    /** Whether the core ran last tick (transient; an idle-to-running edge triggers a shell recheck). */
+    private boolean wasRunning;
 
     /** Burn-up accumulators in permille x1000: Fuel Rods, and Braided Fuel Rods (their own rate). */
     private long burnupAccumulator;
@@ -275,6 +277,10 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
         }
         this.requestedMode = target;
         setChanged();
+        if (target == ReactorMode.STEAM && this.level != null && !this.level.isClientSide()) {
+            this.level.playSound(null, this.worldPosition, za.co.neroland.neropower.registry.ModSounds.REACTOR_STEAM_MODE.get(),
+                    net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
+        }
         return true;
     }
 
@@ -426,6 +432,12 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
         boolean roomToStore = steam || getEnergy().getAmount() < getEnergy().getCapacity();
         boolean stalled = this.poison.stalled();
         boolean running = loaded > 0 && roomToStore && !stalled;
+        if (running && !this.wasRunning) {
+            // Idle to running: re-check the shell next tick (decision 004 "validate on change"; a block
+            // swapped with no neighbour update would otherwise only be caught on load or menu open).
+            this.recheckDue = true;
+        }
+        this.wasRunning = running;
         double reduction = controlRodFactor();
         double crf = reduction * (1.0D + moderatorBonusPermille() / (double) FissionMath.PERMILLE);
         int failurePermille = failureOutputPermille();
@@ -681,6 +693,8 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
         int seen = heat >= failHeat ? heat : Math.max(0, heat - band);
         FailureStage stage = controller.tick(seen, capacity, NeroPowerConfig.overloadEnabled());
         if (stage == FailureStage.FAILURE && controller.justEntered() && level instanceof ServerLevel serverLevel) {
+            // Contamination burst on the core's chunk and its eight neighbours (nothing while radiation is off).
+            za.co.neroland.neropower.radiation.RadiationSources.reactorFailure(serverLevel, pos);
             failureAction().apply(serverLevel, pos, failureContext());
         }
         return stage;

@@ -56,7 +56,12 @@ LANG = os.path.join(ASSETS, "lang", "en_us.json")
 PICKAXE_TAG = os.path.join(RES, "data", "minecraft", "tags", "block", "mineable", "pickaxe.json")
 
 # Items that are only ever produced as by-products of a machine (never crafted).
-ALLOW_NO_RECIPE = {"spent_fuel_rod", "spent_isotope_pellet"}
+ALLOW_NO_RECIPE = {"spent_fuel_rod", "spent_isotope_pellet",
+                   # 0.4.0 machine by-products: burnt rods, the breeder's output, the Vitrifier's log,
+                   # the betavoltaic cell's used capsule.
+                   "hot_spent_fuel_rod", "kindled_pellet", "vitrified_waste", "spent_beta_capsule"}
+# Ids registered from a loop with a computed suffix: the prefix stands for these ids.
+DYNAMIC_IDS = {"power_cell_": ("power_cell_basic", "power_cell_advanced", "power_cell_elite")}
 
 # ---- 0.4.0 content: families, declared block states, machine blocks --------------------------
 FAMILIES = {
@@ -104,6 +109,11 @@ EXTRA_STATES = {
     "smes_coil": {"shape": ("straight_x", "straight_z", "corner_ne", "corner_nw", "corner_se", "corner_sw")},
     "circuit_breaker": {"tripped": _BOOL},
     "load_bank": {"heat": tuple(str(i) for i in range(5))},
+    # Wall machines and BER-less machines with state art carry `status` (decision 012 addendum).
+    "reactor_steam_port": {"status": ("idle", "working", "starved", "tripped")},
+    "reactor_control_computer": {"status": ("idle", "working", "starved", "tripped")},
+    "dry_cask": {"status": ("idle", "working", "starved", "tripped")},
+    "betavoltaic_cell": {"status": ("idle", "working", "starved", "tripped")},
 }
 # Full cubes with no block entity: declared states are exactly EXTRA_STATES (or none).
 PLAIN_BLOCKS = {"graphite_moderator", "moderator_tank", "breeder_blanket", "europium_control_rod_assembly",
@@ -181,6 +191,8 @@ def collect_registrations() -> tuple[set[str], set[str]]:
         # Strip comments so javadoc examples such as MenuScreens.register(...) are ignored.
         text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
         text = re.sub(r"//[^\n]*", "", text)
+        # A register( call whose id is on the next line counts as one line.
+        text = re.sub(r'register\(\s*\n\s*"', 'register("', text)
         for line_no, line in enumerate(text.splitlines(), 1):
             for match in REGISTER_RE.finditer(line):
                 name = match.group(1)
@@ -200,6 +212,10 @@ def collect_registrations() -> tuple[set[str], set[str]]:
         # Helper calls: item("x"), blockItem("x", ...) declared in the same file.
         for match in re.finditer(r'\b(?:item|blockItem)\(\s*"([a-z0-9_]+)"', text):
             items.add(match.group(1))
+    for prefix, ids in DYNAMIC_IDS.items():
+        if prefix in items:
+            items.discard(prefix)
+            items.update(ids)
     return blocks, items
 
 
@@ -413,6 +429,10 @@ def recipe_results() -> set[str]:
 
         def visit(node) -> None:
             if isinstance(node, dict):
+                for entry in node.get("results") or []:
+                    # NeroTech process recipes: "results": [{"item": "...", "count": n}]
+                    if isinstance(entry, dict) and isinstance(entry.get("item"), str):
+                        results.add(entry["item"])
                 result = node.get("result")
                 if isinstance(result, str):
                     results.add(result)
@@ -778,6 +798,11 @@ def main() -> int:
                 report.gap(f"lang: no key with prefix {key} (used by {', '.join(sorted(used[key]))})")
             else:
                 report.ok()
+        elif not key.startswith(("gui.", "block.", "item.", "container.", "message.", "subtitles.",
+                                 "command.", "advancement", "fluid.", "fluid_type.", "death.", "status.",
+                                 "itemGroup.", "neropower.")) or (
+                key.split(".")[1] not in (MOD_ID,) and key.startswith(("block.", "item.", "fluid.", "fluid_type."))):
+            report.ok()  # vanilla's or another mod's key (block.minecraft.water, options.on, fluid.nerotech.*)
         elif key not in lang:
             report.gap(f"lang: key {key} missing (used by {', '.join(sorted(used[key]))})")
         else:

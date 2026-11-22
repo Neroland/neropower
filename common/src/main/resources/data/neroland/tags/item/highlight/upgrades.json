@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "neropower:governor_module",
+    "neropower:fuel_economizer"
+  ]
+}

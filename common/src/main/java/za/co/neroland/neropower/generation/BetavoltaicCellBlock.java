@@ -35,6 +35,12 @@ public class BetavoltaicCellBlock extends NeroPowerMachineBlock {
         super(properties);
     }
 
+    /** In-world status for the painted state models (decision 012 addendum). */
+    @Override
+    protected boolean hasStatus() {
+        return true;
+    }
+
     // No @Override: 26.3 removed Block#codec (see Core's BlockCodecs).
     protected MapCodec<BetavoltaicCellBlock> codec() {
         return CODEC;

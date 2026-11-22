@@ -1,32 +1,122 @@
 {
   "variants": {
-    "alarm=false,facing=north": {
+    "alarm=false,facing=north,status=idle": {
+      "model": "neropower:block/reactor_control_computer_idle"
+    },
+    "alarm=false,facing=north,status=working": {
       "model": "neropower:block/reactor_control_computer"
     },
-    "alarm=false,facing=east": {
+    "alarm=false,facing=north,status=starved": {
+      "model": "neropower:block/reactor_control_computer_idle"
+    },
+    "alarm=false,facing=north,status=tripped": {
+      "model": "neropower:block/reactor_control_computer_tripped"
+    },
+    "alarm=true,facing=north,status=idle": {
+      "model": "neropower:block/reactor_control_computer_alarm"
+    },
+    "alarm=true,facing=north,status=working": {
+      "model": "neropower:block/reactor_control_computer_alarm"
+    },
+    "alarm=true,facing=north,status=starved": {
+      "model": "neropower:block/reactor_control_computer_alarm"
+    },
+    "alarm=true,facing=north,status=tripped": {
+      "model": "neropower:block/reactor_control_computer_alarm"
+    },
+    "alarm=false,facing=east,status=idle": {
+      "model": "neropower:block/reactor_control_computer_idle",
+      "y": 90
+    },
+    "alarm=false,facing=east,status=working": {
       "model": "neropower:block/reactor_control_computer",
       "y": 90
     },
-    "alarm=false,facing=south": {
+    "alarm=false,facing=east,status=starved": {
+      "model": "neropower:block/reactor_control_computer_idle",
+      "y": 90
+    },
+    "alarm=false,facing=east,status=tripped": {
+      "model": "neropower:block/reactor_control_computer_tripped",
+      "y": 90
+    },
+    "alarm=true,facing=east,status=idle": {
+      "model": "neropower:block/reactor_control_computer_alarm",
+      "y": 90
+    },
+    "alarm=true,facing=east,status=working": {
+      "model": "neropower:block/reactor_control_computer_alarm",
+      "y": 90
+    },
+    "alarm=true,facing=east,status=starved": {
+      "model": "neropower:block/reactor_control_computer_alarm",
+      "y": 90
+    },
+    "alarm=true,facing=east,status=tripped": {
+      "model": "neropower:block/reactor_control_computer_alarm",
+      "y": 90
+    },
+    "alarm=false,facing=south,status=idle": {
+      "model": "neropower:block/reactor_control_computer_idle",
+      "y": 180
+    },
+    "alarm=false,facing=south,status=working": {
       "model": "neropower:block/reactor_control_computer",
       "y": 180
     },
-    "alarm=false,facing=west": {
+    "alarm=false,facing=south,status=starved": {
+      "model": "neropower:block/reactor_control_computer_idle",
+      "y": 180
+    },
+    "alarm=false,facing=south,status=tripped": {
+      "model": "neropower:block/reactor_control_computer_tripped",
+      "y": 180
+    },
+    "alarm=true,facing=south,status=idle": {
+      "model": "neropower:block/reactor_control_computer_alarm",
+      "y": 180
+    },
+    "alarm=true,facing=south,status=working": {
+      "model": "neropower:block/reactor_control_computer_alarm",
+      "y": 180
+    },
+    "alarm=true,facing=south,status=starved": {
+      "model": "neropower:block/reactor_control_computer_alarm",
+      "y": 180
+    },
+    "alarm=true,facing=south,status=tripped": {
+      "model": "neropower:block/reactor_control_computer_alarm",
+      "y": 180
+    },
+    "alarm=false,facing=west,status=idle": {
+      "model": "neropower:block/reactor_control_computer_idle",
+      "y": 270
+    },
+    "alarm=false,facing=west,status=working": {
       "model": "neropower:block/reactor_control_computer",
       "y": 270
     },
-    "alarm=true,facing=north": {
-      "model": "neropower:block/reactor_control_computer_alarm"
+    "alarm=false,facing=west,status=starved": {
+      "model": "neropower:block/reactor_control_computer_idle",
+      "y": 270
     },
-    "alarm=true,facing=east": {
+    "alarm=false,facing=west,status=tripped": {
+      "model": "neropower:block/reactor_control_computer_tripped",
+      "y": 270
+    },
+    "alarm=true,facing=west,status=idle": {
       "model": "neropower:block/reactor_control_computer_alarm",
-      "y": 90
+      "y": 270
     },
-    "alarm=true,facing=south": {
+    "alarm=true,facing=west,status=working": {
       "model": "neropower:block/reactor_control_computer_alarm",
-      "y": 180
+      "y": 270
     },
-    "alarm=true,facing=west": {
+    "alarm=true,facing=west,status=starved": {
+      "model": "neropower:block/reactor_control_computer_alarm",
+      "y": 270
+    },
+    "alarm=true,facing=west,status=tripped": {
       "model": "neropower:block/reactor_control_computer_alarm",
       "y": 270
     }

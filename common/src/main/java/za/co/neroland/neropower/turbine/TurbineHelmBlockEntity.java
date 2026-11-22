@@ -9,7 +9,6 @@ import java.util.Set;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -467,8 +466,10 @@ public class TurbineHelmBlockEntity extends NeroPowerMachineBlockEntity implemen
                 port.noteFlow();
                 if (puff) {
                     BlockPos p = port.getBlockPos();
-                    ((ServerLevel) level).sendParticles(ParticleTypes.CLOUD, p.getX() + 0.5D, p.getY() + 1.05D,
-                            p.getZ() + 0.5D, 3, 0.25D, 0.1D, 0.25D, 0.02D);
+                    ((ServerLevel) level).sendParticles(za.co.neroland.neropower.registry.ModParticles.STEAM_PLUME.get(),
+                            p.getX() + 0.5D, p.getY() + 1.05D, p.getZ() + 0.5D, 3, 0.25D, 0.1D, 0.25D, 0.02D);
+                    level.playSound(null, p, za.co.neroland.neropower.registry.ModSounds.STEAM_VENT.get(),
+                            net.minecraft.sounds.SoundSource.BLOCKS, 0.6F, 1.0F);
                 }
             }
         }

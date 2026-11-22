@@ -241,6 +241,7 @@ public class SmesControllerBlockEntity extends StorageBlockEntity implements Mul
             }
             this.core.quench(StorageConfig.smesQuenchLossPermille(), StorageConfig.smesQuenchLockoutTicks());
             setChanged();
+            quenchEffects(level, pos);
         }
         FailureThresholds thresholds = ladder.thresholds();
         this.core.tickLockout(thresholds.warningPermille() - thresholds.hysteresisPermille());
@@ -352,6 +353,25 @@ public class SmesControllerBlockEntity extends StorageBlockEntity implements Mul
     }
 
     /** The formed ring's bounds as offsets from the controller {@code {minDx, minDz, maxDx, maxDz}}; zeros when unformed. */
+    /** The quench, made visible and audible: a vapour puff above every fourth coil of the ring. */
+    private void quenchEffects(Level level, BlockPos pos) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        serverLevel.playSound(null, pos, za.co.neroland.neropower.registry.ModSounds.SMES_QUENCH.get(),
+                net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
+        int n = 0;
+        for (int dx = this.ringMinDx; dx <= this.ringMaxDx; dx++) {
+            for (int dz = this.ringMinDz; dz <= this.ringMaxDz; dz++) {
+                boolean edge = dx == this.ringMinDx || dx == this.ringMaxDx || dz == this.ringMinDz || dz == this.ringMaxDz;
+                if (edge && n++ % 4 == 0) {
+                    serverLevel.sendParticles(za.co.neroland.neropower.registry.ModParticles.QUENCH_VAPOUR.get(),
+                            pos.getX() + dx + 0.5D, pos.getY() + 1.1D, pos.getZ() + dz + 0.5D, 2, 0.2D, 0.1D, 0.2D, 0.01D);
+                }
+            }
+        }
+    }
+
     public int[] ringOffsets() {
         return new int[] {this.ringMinDx, this.ringMinDz, this.ringMaxDx, this.ringMaxDz};
     }

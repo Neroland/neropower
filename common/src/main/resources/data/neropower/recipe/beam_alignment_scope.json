@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "G": "minecraft:spyglass",
+    "L": "#nerotech:focus_lenses",
+    "I": "minecraft:iron_ingot",
+    "R": "minecraft:redstone"
+  },
+  "pattern": [
+    " L ",
+    "IGI",
+    " R "
+  ],
+  "result": {
+    "id": "neropower:beam_alignment_scope"
+  }
+}

@@ -8,6 +8,9 @@
     {
       "id": "nerotech:battery_bank",
       "required": false
-    }
+    },
+    "neropower:surge_bank",
+    "neropower:momentum_wheel",
+    "neropower:smes_controller"
   ]
 }

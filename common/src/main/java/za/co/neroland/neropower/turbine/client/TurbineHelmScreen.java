@@ -214,17 +214,13 @@ public class TurbineHelmScreen extends PowerMachineScreen<TurbineHelmMenu> {
     }
 
     @Override
-    protected List<Component> gaugeTooltip(int mx, int my) {
-        List<Component> lines = super.gaugeTooltip(mx, my);
-        if (lines.isEmpty() && over(mx, my, E[0], E[1], E[2], E[3])) {
-            energyTooltip(lines);
-        }
-        return lines;
-    }
-
-    @Override
     protected void readoutTooltip(List<Component> lines, int mx, int my) {
         TurbineHelmMenu m = this.menu;
+        if (over(mx, my, E[0], E[1], E[2], E[3])) {
+            // This hull's own energy bar (one provider chain: GaugeTooltipOnceTest).
+            energyTooltip(lines);
+            return;
+        }
         if (over(mx, my, T1[0], T1[1], T1[2], T1[3])) {
             tankTooltip(lines, GaugeTooltips.tr("turbine.steam_in"), Component.translatable("fluid.neropower.steam"),
                     m.steamMb(), m.steamCapacityMb(), tankWindow(0).perSecond());

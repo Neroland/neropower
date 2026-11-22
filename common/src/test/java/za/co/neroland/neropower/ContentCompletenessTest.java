@@ -51,7 +51,36 @@ class ContentCompletenessTest {
             "beam_relay",
             "orbital_receiver",
             "radioisotope_generator",
-            "stirling_generator");
+            "stirling_generator",
+            // 0.4.0 (28 new blocks)
+            "graphite_moderator",
+            "moderator_tank",
+            "breeder_blanket",
+            "europium_control_rod_assembly",
+            "reactor_steam_port",
+            "reactor_control_computer",
+            "turbine_helm",
+            "turbine_shroud",
+            "turbine_spindle",
+            "turbine_stator",
+            "turbine_steam_port",
+            "condenser",
+            "spent_fuel_pool",
+            "vitrifier",
+            "dry_cask",
+            "fuel_cell",
+            "betavoltaic_cell",
+            "surge_bank",
+            "momentum_wheel",
+            "smes_controller",
+            "smes_coil",
+            "beam_splitter",
+            "phased_array_emitter",
+            "circuit_breaker",
+            "load_bank",
+            "power_monitor",
+            "shielding_block",
+            "shielding_glass");
 
     /** Every plain (non-block) item id registered through {@code ModItems}. */
     static final List<String> ITEMS = List.of(
@@ -61,10 +90,37 @@ class ContentCompletenessTest {
             "spent_fuel_rod",
             "reprocessed_pellet",
             "isotope_pellet",
-            "spent_isotope_pellet");
+            "spent_isotope_pellet",
+            // 0.4.0 (23 new items)
+            "hot_spent_fuel_rod",
+            "pallurite_dust",
+            "pallurite_pellet",
+            "kindled_pellet",
+            "braided_fuel_rod",
+            "europium_control_rod",
+            "fuel_economizer",
+            "fission_residue",
+            "vitrified_waste",
+            "beta_capsule",
+            "spent_beta_capsule",
+            "power_cell_basic",
+            "power_cell_advanced",
+            "power_cell_elite",
+            "steel_vane_set",
+            "cindersteel_vane_set",
+            "superconducting_vane_set",
+            "governor_module",
+            "geiger_counter",
+            "dosimeter_badge",
+            "decontaminant",
+            "beam_alignment_scope",
+            "scram_key");
 
     /** Items only ever produced by a machine, never crafted (as {@code ALLOW_NO_RECIPE} in {@code tools/check_content.py}). */
-    static final Set<String> NO_RECIPE = Set.of("spent_fuel_rod", "spent_isotope_pellet");
+    static final Set<String> NO_RECIPE = Set.of("spent_fuel_rod", "spent_isotope_pellet",
+            // 0.4.0 machine by-products: the core's burnt rods, the breeder's output, the Vitrifier's log,
+            // the betavoltaic cell's used capsule.
+            "hot_spent_fuel_rod", "kindled_pellet", "vitrified_waste", "spent_beta_capsule");
 
     /**
      * Every recipe file under {@code data/neropower/recipe/}. Hardcoded so the check works from a jar
@@ -76,29 +132,82 @@ class ContentCompletenessTest {
             "battery_cell_advanced",
             "battery_cell_basic",
             "battery_cell_elite",
+            "beam_alignment_scope",
             "beam_receiver",
             "beam_relay",
+            "beam_splitter",
             "beam_transmitter",
+            "betavoltaic_cell",
+            "braided_fuel_rod",
+            "breeder_blanket",
+            "centrifuging_beta_capsule",
+            "centrifuging_heavy_water",
+            "centrifuging_pallurite_dust_from_sources",
+            "centrifuging_pallurite_dust_from_tuff",
+            "centrifuging_spent_fuel_rod",
             "chemical_processing_fuel_rod",
             "chemical_processing_spent_fuel_rod",
+            "cindersteel_vane_set",
+            "circuit_breaker",
+            "condenser",
             "control_rod",
             "control_rod_assembly",
+            "dosimeter_badge",
+            "dosimeter_badge_reset",
+            "dry_cask",
+            "europium_control_rod",
+            "europium_control_rod_assembly",
             "fission_casing",
             "fission_core",
+            "fuel_cell",
+            "fuel_economizer",
             "fuel_rod",
+            "geiger_counter",
+            "governor_module",
+            "graphite_moderator",
             "isotope_pellet",
+            "load_bank",
+            "momentum_wheel",
             "orbital_receiver",
+            "pallurite_pellet",
+            "phased_array_emitter",
+            "power_monitor",
             "radioisotope_generator",
+            "reacting_decontaminant",
+            "reacting_moderator_tank",
+            "reacting_power_cell_advanced",
+            "reacting_power_cell_basic",
+            "reacting_power_cell_elite",
+            "reactor_control_computer",
+            "reactor_steam_port",
+            "scram_key",
+            "shielding_block",
+            "shielding_glass",
+            "smes_coil",
+            "smes_controller",
+            "spent_fuel_pool",
+            "steel_vane_set",
             "stirling_generator",
+            "superconducting_vane_set",
+            "surge_bank",
+            "turbine_helm",
+            "turbine_shroud",
+            "turbine_spindle",
+            "turbine_stator",
+            "turbine_steam_port",
             "uranium_pellet",
             "uranium_pellet_from_ore",
-            "uranium_pellet_from_reprocessed");
+            "uranium_pellet_from_reprocessed",
+            "vitrifier");
 
     private static final String RECIPE_DIR = "data/neropower/recipe/";
 
     /** {@code "result": {"id": "..."}} or {@code "result": "..."} — the first result id in a recipe. */
     private static final Pattern RESULT = Pattern.compile(
             "\"result\"\\s*:\\s*(?:\\{[^}]*?\"id\"\\s*:\\s*)?\"([^\"]+)\"");
+
+    /** An output of a NeroTech process recipe ({@code "results": [{"item": "..."}]}). */
+    private static final Pattern PROCESS_RESULT = Pattern.compile("\"item\"\\s*:\\s*\"([^\"]+)\"");
 
     /** A block model reference in a blockstate (variants or multipart). */
     private static final Pattern BLOCK_MODEL = Pattern.compile("\"model\"\\s*:\\s*\"neropower:block/([^\"]+)\"");
@@ -181,10 +290,24 @@ class ContentCompletenessTest {
                 unreadable.add(path);
                 continue;
             }
-            Matcher matcher = RESULT.matcher(resourceText(path));
+            String text = resourceText(path);
+            Matcher matcher = RESULT.matcher(text);
+            boolean found = false;
             if (matcher.find()) {
                 results.add(matcher.group(1));
-            } else {
+                found = true;
+            }
+            if (text.contains("\"results\"")) {
+                // NeroTech process recipes: every "item" in the results list is produced.
+                Matcher item = PROCESS_RESULT.matcher(text.substring(text.indexOf("\"results\"")));
+                while (item.find()) {
+                    results.add(item.group(1));
+                    found = true;
+                }
+            }
+            // A fluid- or gas-only process recipe (heavy water) has no item result to list.
+            found |= text.contains("\"fluid_out\"") || text.contains("\"gas_out\"");
+            if (!found) {
                 unreadable.add(path + " (no result id)");
             }
         }

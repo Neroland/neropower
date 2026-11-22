@@ -2,7 +2,7 @@ package za.co.neroland.neropower.backend;
 
 /**
  * The synced {@code readout} (0–5) and {@code stallCause} (0–15) codes the back-end blocks report
- * (BLOCK-CONTRACT render inputs; meanings from the shared screen gauge kit), and the pure rules that
+ * (the frozen render inputs; meanings from the shared screen gauge kit), and the pure rules that
  * pick them. No Minecraft types, unit-tested.
  */
 public final class BackEndReadout {

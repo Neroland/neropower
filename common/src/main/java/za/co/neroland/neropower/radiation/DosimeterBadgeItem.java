@@ -13,7 +13,7 @@ import za.co.neroland.neropower.registry.content.RadiationContent;
 /**
  * The Dosimeter Badge: while it sits in a player's inventory in a contaminated chunk it adds level / 10
  * to its own {@code neropower:dosimeter_reading} every {@value RadiationMath#DOSIMETER_INTERVAL} ticks
- * (capped at {@value RadiationMath#DOSIMETER_CAP}). The reading lives on the item only: no UUID, no
+ * (capped at {@value RadiationMath#DOSIMETER_CAP}). The reading lives on the item only: no player id, no
  * name, nothing on the player. Crafting the badge alone gives a fresh one (reset).
  */
 public class DosimeterBadgeItem extends Item {
