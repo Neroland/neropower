@@ -7,8 +7,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 
+import za.co.neroland.nerotech.api.MachineSettings;
 import za.co.neroland.nerotech.client.MachineScreen;
-import za.co.neroland.nerotech.config.NeroTechConfig;
 
 import za.co.neroland.neropower.backend.BackEndReadout;
 import za.co.neroland.neropower.backend.CaskMath;
@@ -81,7 +81,7 @@ public class VitrifierScreen extends MachineScreen<VitrifierMenu> {
         extractor.text(this.font, Component.translatable("gui.neropower.vitrifier.cost", this.menu.nePerTick(),
                 this.menu.ticksPerOp()), x + COST_X, y + COST_Y, BackEndHud.SUBTLE, false);
         BackEndHud.stallLine(extractor, this.font, x + 8, y + STALL_Y, stallText(), this.menu.readout(),
-                gaugeTick(), NeroTechConfig.renderAnimationsEnabled());
+                gaugeTick(), MachineSettings.renderAnimationsEnabled());
     }
 
     private long ticksLeft() {

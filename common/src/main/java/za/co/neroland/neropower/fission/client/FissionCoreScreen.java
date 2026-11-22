@@ -165,7 +165,7 @@ public class FissionCoreScreen extends PowerMachineScreen<FissionCoreMenu> {
         }
         int readout = this.menu.readout();
         boolean blinkOff = readout == FissionCoreBlockEntity.READOUT_FAIL
-                && za.co.neroland.nerotech.config.NeroTechConfig.renderAnimationsEnabled() && (gameTick() / 5) % 2 == 1;
+                && za.co.neroland.nerotech.api.MachineSettings.renderAnimationsEnabled() && (gameTick() / 5) % 2 == 1;
         if (!blinkOff) {
             g.text(this.font, stallLine(), x + 8, y + S_Y, stallColor(), false);
         }

@@ -19,9 +19,9 @@ import za.co.neroland.nerolandcore.sideconfig.SideConfig;
 import za.co.neroland.nerolandcore.sideconfig.SidePreset;
 import za.co.neroland.nerolandcore.upgrade.UpgradeModifiers;
 
+import za.co.neroland.nerotech.api.MachineSettings;
 import za.co.neroland.nerotech.api.PlanetApi;
 import za.co.neroland.nerotech.api.PowerMachine;
-import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.machine.MachineEnergy;
 import za.co.neroland.nerotech.machine.MachineStatus;
 import za.co.neroland.neropower.registry.ForeignBlocks;
@@ -129,7 +129,7 @@ public class StirlingGeneratorBlockEntity extends NeroPowerMachineBlockEntity {
         this.drawnLastTick = drawn;
 
         setActive(drawn > 0);
-        MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer(), sideConfig());
+        MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), MachineSettings.machineMaxTransfer(), sideConfig());
     }
 
     /** Local ambient through NeroTech's public planet api, refreshed every {@value #AMBIENT_REFRESH_TICKS} ticks. */

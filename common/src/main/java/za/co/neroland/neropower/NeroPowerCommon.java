@@ -91,6 +91,8 @@ public final class NeroPowerCommon {
         // the NeroLink module (snapshots, scoped actions, targeted failure events) — last, so every
         // machine type it enumerates is registered first.
         NeroPowerDataErasure.register();
+        za.co.neroland.neropower.data.NeroPowerDataExport.register(); // Core data export, the twin of erasure
+        za.co.neroland.neropower.energy.PortableEnergyProvider.register(); // Power Cells on Core's item-energy seam
         NeroPowerLinkModule.register();
         za.co.neroland.neropower.map.NeroPowerMapLayers.register(); // Core map layers (NeroMaps); additive, swallows failure
         // Quest-pack hook gates (Core progression events only; no quest-mod dependency). The loaders

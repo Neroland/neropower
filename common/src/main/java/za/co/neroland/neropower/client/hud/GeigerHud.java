@@ -12,7 +12,7 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.HumanoidArm;
 
 import za.co.neroland.neropower.radiation.client.GeigerReadModel;
-import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.api.MachineSettings;
 
 /**
  * The Geiger Counter HUD: a small plate with an arc dial, the holder's level in pall, a 3 x 3 chunk
@@ -103,7 +103,7 @@ public final class GeigerHud {
         boolean banner = off && GeigerReadModel.heldTicks() < OFF_BANNER_TICKS;
         boolean badge = !banner && GeigerReadModel.badgeCarried();
         boolean live = !off && !waiting;
-        boolean animate = NeroTechConfig.renderAnimationsEnabled();
+        boolean animate = MachineSettings.renderAnimationsEnabled();
         int height = banner || badge ? HEIGHT_TALL : HEIGHT;
         int screenW = g.guiWidth();
         int screenH = g.guiHeight();

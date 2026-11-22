@@ -16,7 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.api.MachineSettings;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlock;
 
 import za.co.neroland.neropower.turbine.CondenserBlockEntity;
@@ -94,7 +94,7 @@ public class CondenserRenderer implements BlockEntityRenderer<CondenserBlockEnti
         boolean working = readout == PowerRenderHelper.READOUT_WORK;
         state.overlay = readout == PowerRenderHelper.READOUT_HOT ? OVERLAY_GLOW
                 : working && sink == TurbineMath.SINK_CRYO ? OVERLAY_FROST : OVERLAY_NONE;
-        boolean animate = NeroTechConfig.renderAnimationsEnabled();
+        boolean animate = MachineSettings.renderAnimationsEnabled();
         state.drips = working && animate;
         // Explicit null check (not folded into a flag) so ecj's null-flow analysis can track it.
         if (level == null || !animate) {

@@ -177,7 +177,7 @@ class ConfigBoundsTest {
     void aNotANumberBeamDamageReadsAsTheDefault() {
         try {
             ConfigProbe.set("beamDamage", "NaN");
-            assertTrue(Double.isFinite(BeamConfig.beamDamage()), "NaN slips through Core's clamp; the getter must not");
+            assertTrue(Double.isFinite(BeamConfig.beamDamage()), "Core's clamp reads NaN as the default");
             assertEquals(0.5D, BeamConfig.beamDamage());
         } finally {
             ConfigProbe.reset("beamDamage");

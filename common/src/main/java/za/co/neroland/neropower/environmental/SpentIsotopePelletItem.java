@@ -4,13 +4,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 
-import za.co.neroland.nerotech.pollution.PollutionManager;
+import za.co.neroland.nerotech.api.Pollution;
 
 /**
  * The Spent Isotope Pellet the RTG ejects. Handled in a chest it is harmless; destroyed as a
  * dropped item — burnt, thrown in lava, dropped on a cactus, caught in an explosion — it vents a
  * {@code rtgSpentPelletPollution} burst per pellet into NeroTech's regional pollution map at that
- * spot ({@link PollutionManager#record}), the way NeroTech's fusion containment breach vents one.
+ * spot ({@link Pollution#record}), the way NeroTech's fusion containment breach vents one.
  * Disposal means storage, not the lava pit.
  *
  * <p>The burst fires from vanilla's item-entity destruction hook, so it follows vanilla's rules for
@@ -34,7 +34,7 @@ public class SpentIsotopePelletItem extends Item {
         int burst = RtgMath.spentPelletBurst(EnvironmentalConfig.rtgSpentPelletPollution(),
                 itemEntity.getItem().getCount());
         if (burst > 0) {
-            PollutionManager.record(serverLevel, itemEntity.blockPosition(), burst, null);
+            Pollution.record(serverLevel, itemEntity.blockPosition(), burst);
         }
     }
 }

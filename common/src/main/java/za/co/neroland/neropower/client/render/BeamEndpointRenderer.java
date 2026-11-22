@@ -19,7 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.api.MachineSettings;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlock;
 
 import za.co.neroland.neropower.beam.BeamConfig;
@@ -175,7 +175,7 @@ public class BeamEndpointRenderer
         Direction facing = endpoint.getBlockState().getValue(NeroTechMachineBlock.FACING);
         BeamStatus status = endpoint.renderStatus();
         boolean moving = status == BeamStatus.TRANSMITTING || status == BeamStatus.RECEIVING;
-        boolean animate = NeroTechConfig.renderAnimationsEnabled();
+        boolean animate = MachineSettings.renderAnimationsEnabled();
         state.ray.off();
         state.scope.off();
 

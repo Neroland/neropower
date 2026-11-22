@@ -18,7 +18,7 @@ import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.api.MachineSettings;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlock;
 
 import za.co.neroland.neropower.multiblock.Bounds;
@@ -205,7 +205,7 @@ public class TurbineRenderer implements BlockEntityRenderer<TurbineHelmBlockEnti
             state.slices = Math.max(0, slices);
         }
 
-        boolean animate = NeroTechConfig.renderAnimationsEnabled();
+        boolean animate = MachineSettings.renderAnimationsEnabled();
         if (!animate) {
             state.angle = (float) helm.displayPos; // parked: the last pose, or 0
             state.shudder = 0.0F;

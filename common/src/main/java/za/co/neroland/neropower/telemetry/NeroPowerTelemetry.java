@@ -10,9 +10,14 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 
 import io.sentry.Breadcrumb;
-import io.sentry.Sentry;
+import io.sentry.IScopes;
+import io.sentry.Scope;
+import io.sentry.Scopes;
+import io.sentry.SentryClient;
 import io.sentry.SentryEvent;
 import io.sentry.SentryLevel;
+import io.sentry.SentryOptions;
+import io.sentry.UncaughtExceptionHandlerIntegration;
 import io.sentry.protocol.Message;
 import io.sentry.protocol.SentryException;
 import io.sentry.protocol.SentryStackFrame;
@@ -39,6 +44,11 @@ import za.co.neroland.neropower.platform.Services;
  *   <li><b>Bounded volume:</b> per-session de-duplication + a hard cap of
  *       {@value #MAX_EVENTS_PER_SESSION} events per session.</li>
  * </ul>
+ *
+ * <p><b>Isolated client:</b> every Nero mod ships the same Sentry jar, which the loaders share, so the
+ * static {@code Sentry} API is one global hub that the last mod to call {@code Sentry.init} would own.
+ * NeroPower never touches it: it builds its own options, client and scopes and reports only through
+ * {@link #scopes}, so other mods (Nero or not) cannot silence it and it cannot silence them.</p>
  *
  * <p>{@link #init()} is called once from {@code NeroPowerCommon.init()} after the config is loaded, and
  * reads loader facts through the {@link IPlatformHelper} service. Full disclosure text: {@code PRIVACY.md}.
@@ -74,6 +84,10 @@ public final class NeroPowerTelemetry {
     private static final Pattern LEVEL_NAME_TEXT = Pattern.compile("l='[^']*'");
 
     private static volatile boolean active;
+    /** NeroPower's own Sentry scopes; null until {@link #start()} succeeds. Never the global hub. */
+    private static volatile IScopes scopes;
+    /** Kept for the process lifetime (never closed); a field so the compiler sees it is not leaked. */
+    private static UncaughtExceptionHandlerIntegration uncaughtHandler;
     private static final AtomicInteger eventsSent = new AtomicInteger();
     private static final Set<String> seenFingerprints = ConcurrentHashMap.newKeySet();
     private static SentryLogAppender appender;
@@ -110,17 +124,11 @@ public final class NeroPowerTelemetry {
         platform = Services.load(IPlatformHelper.class);
         String modVersion = platform.getModVersion();
         boolean dev = platform.isDevelopmentEnvironment();
-        Sentry.init(options -> {
-            options.setDsn(DSN);
-            options.setRelease("neropower@" + modVersion);
-            options.setEnvironment(dev ? "development" : environmentOf(modVersion));
-            options.setSendDefaultPii(false);          // POPIA/GDPR: never the sender's IP/identity
-            options.setAttachServerName(false);        // hostname is identifying
-            options.setEnableUncaughtExceptionHandler(true);
-            options.setEnableAutoSessionTracking(false);
-            options.setBeforeSend((event, hint) -> ForeignMixinFailure.matches(event) ? null : filterAndScrub(event));
-        });
-        Sentry.configureScope(scope -> {
+        SentryOptions options = baseOptions(modVersion, dev ? "development" : environmentOf(modVersion));
+        options.setBeforeSend((event, hint) -> ForeignMixinFailure.matches(event) ? null : filterAndScrub(event));
+        IScopes own = isolatedScopes(options, "neropower");
+        scopes = own;
+        own.configureScope(scope -> {
             scope.setTag("loader", platform.getPlatformName().toLowerCase(Locale.ROOT));
             scope.setTag("dist", platform.isClient() ? "client" : "dedicated_server");
             scope.setTag("runtime", dev ? "development" : "production");
@@ -144,11 +152,11 @@ public final class NeroPowerTelemetry {
                 // mod list not available this early — skip it
             }
         });
-        Sentry.startSession();
+        own.startSession();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
-                Sentry.endSession();
-                Sentry.flush(2000L);
+                own.endSession();
+                own.flush(2000L);
             } catch (RuntimeException ignored) {
                 // best-effort flush on shutdown
             }
@@ -163,9 +171,40 @@ public final class NeroPowerTelemetry {
                 + "opt out via telemetryEnabled=false in config/neropower.properties).");
     }
 
+    /** NeroPower's Sentry options; nothing identifying is ever sent (no PII, no server name). */
+    static SentryOptions baseOptions(String modVersion, String environment) {
+        SentryOptions options = new SentryOptions();
+        options.setDsn(DSN);
+        options.setRelease("neropower@" + modVersion);
+        options.setEnvironment(environment);
+        options.setSendDefaultPii(false);          // POPIA/GDPR: never the sender's IP/identity
+        options.setAttachServerName(false);        // hostname is identifying
+        options.setEnableUncaughtExceptionHandler(true);
+        options.setEnableShutdownHook(false);      // flushed by our own hook; never close the global hub
+        options.setEnableAutoSessionTracking(false);
+        return options;
+    }
+
+    /**
+     * Scopes bound to a client of NeroPower's own, independent of the global {@code Sentry} hub. The
+     * options are activated here (what {@code Sentry.init} would otherwise do), and the uncaught-exception
+     * handler chains to whichever handler was installed before it.
+     */
+    static IScopes isolatedScopes(SentryOptions options, String creator) {
+        options.activate();
+        Scopes own = new Scopes(new Scope(options), new Scope(options), new Scope(options), creator);
+        own.bindClient(new SentryClient(options));
+        if (options.isEnableUncaughtExceptionHandler()) {
+            uncaughtHandler = new UncaughtExceptionHandlerIntegration();
+            uncaughtHandler.register(own, options);
+        }
+        return own;
+    }
+
     /** A non-identifying breadcrumb that rides along with the next error report. No-op when off. */
     public static void breadcrumb(String category, String message) {
-        if (!active) {
+        IScopes s = scopes;
+        if (!active || s == null) {
             return;
         }
         Breadcrumb crumb = new Breadcrumb();
@@ -173,7 +212,7 @@ public final class NeroPowerTelemetry {
         crumb.setCategory(category);
         crumb.setLevel(SentryLevel.INFO);
         crumb.setMessage(scrub(message));
-        Sentry.addBreadcrumb(crumb);
+        s.addBreadcrumb(crumb);
     }
 
     private static String environmentOf(String version) {
@@ -224,10 +263,11 @@ public final class NeroPowerTelemetry {
     }
 
     static void capture(Throwable t) {
-        if (!active || t == null) {
+        IScopes s = scopes;
+        if (!active || s == null || t == null) {
             return;
         }
-        Sentry.captureException(t);
+        s.captureException(t);
     }
 
     /** Capture a handled exception if it is still clearly from NeroPower code. */
@@ -239,19 +279,21 @@ public final class NeroPowerTelemetry {
 
     /** Capture a handled exception with a non-identifying source label for triage. */
     public static void captureHandledException(Throwable t, String source, String operation) {
-        if (!active || t == null || !touchesNeroPower(t)) {
+        IScopes s = scopes;
+        if (!active || s == null || t == null || !touchesNeroPower(t)) {
             return;
         }
-        Sentry.withScope(scope -> {
+        // The ScopeCallback overload: tags set inside withScope never reach the event in Sentry 8.x.
+        s.captureException(t, scope -> {
             scope.setTag("handled", "true");
             scope.setTag("source", source);
             scope.setExtra("operation", operation);
-            Sentry.captureException(t);
         });
     }
 
     static void captureMessage(String message) {
-        if (!active) {
+        IScopes s = scopes;
+        if (!active || s == null) {
             return;
         }
         String scrubbed = scrub(message);
@@ -263,7 +305,7 @@ public final class NeroPowerTelemetry {
         Message msg = new Message();
         msg.setFormatted(scrubbed);
         event.setMessage(msg);
-        Sentry.captureEvent(event);
+        s.captureEvent(event);
     }
 
     private static SentryEvent filterAndScrub(SentryEvent event) {

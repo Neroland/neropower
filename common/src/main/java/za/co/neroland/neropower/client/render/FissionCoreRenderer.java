@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.api.MachineSettings;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlock;
 
 import za.co.neroland.neropower.failure.FailureStage;
@@ -153,7 +153,7 @@ public class FissionCoreRenderer
             return;
         }
         state.active = core.renderActive();
-        if (NeroTechConfig.renderAnimationsEnabled()) {
+        if (MachineSettings.renderAnimationsEnabled()) {
             float now = level.getGameTime() + partialTick;
             state.pulse = 0.5F + 0.5F * Mth.sin(now * PULSE_SPEED);
             state.spin = state.active ? (now * SPIN_SPEED) % 360.0F : 0.0F;

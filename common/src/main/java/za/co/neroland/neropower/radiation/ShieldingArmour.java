@@ -14,7 +14,10 @@ import za.co.neroland.neropower.registry.ModTags;
  * in {@code #neropower:radiation_shielding}; if it is also in {@code #neropower:radiation_shielding_lined}
  * it counts only while it carries the component registered as {@code nerospace:rad_lining}. That
  * component is resolved once by id through the data-component registry: no Nerospace class, no
- * reflection, and when Nerospace is absent nothing in the lined tag ever counts.
+ * reflection, and when Nerospace is absent nothing in the lined tag ever counts. Both NeroPower tags
+ * take Nerospace's own {@code #nerospace:suits/radiation_capable} (optional), so new Nerospace suits
+ * join without a NeroPower change; the component check is the same one Nerospace's
+ * {@code NerospaceSuits.isRadLined} makes, done here without a compile dependency on Nerospace.
  */
 public final class ShieldingArmour {
 

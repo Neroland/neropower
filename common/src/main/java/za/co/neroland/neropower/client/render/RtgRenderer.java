@@ -15,7 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.api.MachineSettings;
 
 import za.co.neroland.neropower.environmental.RadioisotopeGeneratorBlockEntity;
 
@@ -67,7 +67,7 @@ public class RtgRenderer
         Level level = rtg.getLevel();
         state.output = rtg.outputFraction();
         // Explicit null check (not folded into a flag) so ecj's null-flow analysis can track it.
-        if (level == null || !NeroTechConfig.renderAnimationsEnabled()) {
+        if (level == null || !MachineSettings.renderAnimationsEnabled()) {
             state.shimmer = 1.0F; // static frame
             return;
         }

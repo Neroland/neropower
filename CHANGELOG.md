@@ -5,6 +5,26 @@ All notable changes to **NeroPower** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.5.0] - 2026-11-22
+
+### Added
+
+- Power Cells work with any Neroland charger or tool through Neroland Core's item-energy lookup.
+- Land claimed through Neroland Core's claim checks (for example by NeroColonies or NeroSecurity) is now protected from NeroPower: radiation and reactor blasts leave it alone, and players can only link, configure or decontaminate there where the claim allows.
+- `/neroland data exportme` now includes NeroPower's part of your data.
+- Every Nerospace suit in `#nerospace:suits/radiation_capable` now shields from radiation, and every item in `#nerospace:radioactive` counts as a fertile source, so new Nerospace items join without a NeroPower update.
+
+### Changed
+
+- Requires Neroland Core 1.20.1 and NeroTech 0.8.1.
+- NeroPower now reads NeroTech's settings, Configurator, pollution and privacy choices through NeroTech's public API instead of its internals.
+
+### Fixed
+
+- Crash reports now use NeroPower's own Sentry client. Before, whichever Neroland mod started last took over the shared one and NeroPower's reports could be dropped.
+
 ## [0.4.0] - 2026-11-22
 
 The "Power Station" release: a steam plant, a second fuel line, a waste back end, new storage tiers, beam grids, optional radiation, link schema 2 and a gallery power station. Existing reactors, banks and beam links from 0.3.x load unchanged, and no block, item, fluid, recipe or tag id was removed or renamed.

@@ -12,7 +12,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 
-import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.api.MachineSettings;
 
 import za.co.neroland.neropower.NeroPowerCommon;
 
@@ -376,7 +376,7 @@ public final class PowerRenderHelper {
     public static void lampExtract(Lamp lamp, int readout, boolean peak, Level level, float partialTick) {
         lamp.readout = Mth.clamp(readout, READOUT_REST, READOUT_FAIL);
         lamp.peak = peak;
-        lamp.animate = NeroTechConfig.renderAnimationsEnabled();
+        lamp.animate = MachineSettings.renderAnimationsEnabled();
         if (level == null) {
             lamp.tick = 0L;
             lamp.time = 0.0F;

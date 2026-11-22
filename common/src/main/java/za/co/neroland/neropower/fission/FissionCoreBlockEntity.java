@@ -27,7 +27,7 @@ import za.co.neroland.nerolandcore.sideconfig.SideConfig;
 import za.co.neroland.nerolandcore.sideconfig.SidePreset;
 import za.co.neroland.nerolandcore.sideconfig.SlotGroup;
 
-import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.api.MachineSettings;
 import za.co.neroland.nerotech.machine.MachineEnergy;
 import za.co.neroland.nerotech.machine.MachineStatus;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlock;
@@ -424,7 +424,7 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
             this.readout = READOUT_STALL;
             this.renderMode = ReactorMode.DIRECT.code();
             this.poison.tick(false, 0, FissionConfig.poisonDecayPerTick(), FissionConfig.poisonStallPermille());
-            MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer(),
+            MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), MachineSettings.machineMaxTransfer(),
                     sideConfig());
             return;
         }
@@ -605,7 +605,7 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
 
         feedComputer(level, usable, loaded, worstBurnup, rate, steam, stage);
 
-        MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer(),
+        MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), MachineSettings.machineMaxTransfer(),
                 sideConfig());
     }
 

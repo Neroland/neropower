@@ -29,7 +29,7 @@ import za.co.neroland.nerolandcore.sideconfig.Channel;
 import za.co.neroland.nerolandcore.sideconfig.SideConfig;
 import za.co.neroland.nerolandcore.sideconfig.SidePreset;
 
-import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.api.MachineSettings;
 import za.co.neroland.nerotech.machine.MachineEnergy;
 import za.co.neroland.nerotech.machine.MachineStatus;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlock;
@@ -459,7 +459,7 @@ public class TurbineHelmBlockEntity extends NeroPowerMachineBlockEntity implemen
 
         updateReadout(steam, rotor, plan, output, stage);
         setActive(this.rpm > 0);
-        MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), Math.max(IO_NE, NeroTechConfig.machineMaxTransfer()),
+        MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), Math.max(IO_NE, MachineSettings.machineMaxTransfer()),
                 sideConfig());
     }
 

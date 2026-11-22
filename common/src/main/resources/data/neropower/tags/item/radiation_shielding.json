@@ -48,6 +48,10 @@
     {
       "id": "nerospace:oxygen_suit_cold_boots",
       "required": false
+    },
+    {
+      "id": "#nerospace:suits/radiation_capable",
+      "required": false
     }
   ]
 }

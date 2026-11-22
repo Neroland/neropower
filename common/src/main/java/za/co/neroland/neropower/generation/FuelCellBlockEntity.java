@@ -28,8 +28,8 @@ import za.co.neroland.nerolandcore.sideconfig.SideConfigComponent;
 import za.co.neroland.nerolandcore.sideconfig.SidePreset;
 
 import za.co.neroland.nerotech.api.Atmosphere;
+import za.co.neroland.nerotech.api.MachineSettings;
 import za.co.neroland.nerotech.api.PlanetApi;
-import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.machine.MachineEnergy;
 import za.co.neroland.nerotech.machine.MachineStatus;
 import za.co.neroland.nerotech.machine.MediumExchange;
@@ -238,7 +238,7 @@ public class FuelCellBlockEntity extends NeroPowerMachineBlockEntity {
             }
         }
         setActive(step.working());
-        MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer(), sideConfig());
+        MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), MachineSettings.machineMaxTransfer(), sideConfig());
     }
 
     // --- read surface ---------------------------------------------------------------------------------

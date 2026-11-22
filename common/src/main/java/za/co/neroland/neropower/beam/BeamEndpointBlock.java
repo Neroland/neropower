@@ -11,9 +11,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
-import za.co.neroland.nerotech.item.ConfiguratorItem;
-import za.co.neroland.nerotech.item.ConfiguratorState;
-import za.co.neroland.nerotech.registry.ModDataComponents;
+import za.co.neroland.nerotech.api.Configurator;
 
 import za.co.neroland.neropower.machine.NeroPowerMachineBlock;
 
@@ -46,7 +44,7 @@ public abstract class BeamEndpointBlock extends NeroPowerMachineBlock {
     protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level,
             BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
     *///?}
-        if (stack.getItem() instanceof ConfiguratorItem && !copyPasteMode(stack)) {
+        if (Configurator.isConfigurator(stack) && !Configurator.isCopyPasteMode(stack)) {
             if (level instanceof ServerLevel serverLevel && player instanceof ServerPlayer serverPlayer
                     && level.getBlockEntity(pos) instanceof BeamEndpointBlockEntity endpoint) {
                 BeamLinking.handle(serverLevel, serverPlayer, pos, endpoint);
@@ -58,11 +56,5 @@ public abstract class BeamEndpointBlock extends NeroPowerMachineBlock {
             *///?}
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hit);
-    }
-
-    /** Whether the wrench is in copy/paste mode (NeroTech's {@code configurator_state} component). */
-    private static boolean copyPasteMode(ItemStack stack) {
-        ConfiguratorState configuratorState = stack.get(ModDataComponents.CONFIGURATOR_STATE.get());
-        return configuratorState != null && configuratorState.copyPaste();
     }
 }

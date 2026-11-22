@@ -17,7 +17,7 @@ import za.co.neroland.nerolandcore.sideconfig.SidePreset;
 import za.co.neroland.nerolandcore.sideconfig.SlotGroup;
 import za.co.neroland.nerolandcore.upgrade.UpgradeModifiers;
 
-import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.api.MachineSettings;
 import za.co.neroland.nerotech.machine.MachineEnergy;
 import za.co.neroland.nerotech.machine.MachineStatus;
 
@@ -137,7 +137,7 @@ public class RadioisotopeGeneratorBlockEntity extends NeroPowerMachineBlockEntit
         }
 
         setActive(this.outputPermille > 0);
-        MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer(), sideConfig());
+        MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), MachineSettings.machineMaxTransfer(), sideConfig());
     }
 
     /** Put one spent pellet in the output slot; false when the slot cannot take it. */

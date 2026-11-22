@@ -16,6 +16,10 @@
     {
       "id": "nerospace:meteor_core",
       "required": false
+    },
+    {
+      "id": "#nerospace:radioactive",
+      "required": false
     }
   ]
 }

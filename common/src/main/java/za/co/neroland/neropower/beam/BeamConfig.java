@@ -87,9 +87,8 @@ public final class BeamConfig {
 
     /** Damage per pass to entities in the beam (0..10, default 0.5; 0 disables). */
     public static double beamDamage() {
-        // A hand-edited "NaN" passes Core's range clamp (Math.max/min keep NaN): read it as the default.
-        double damage = DAMAGE.get();
-        return Double.isFinite(damage) ? damage : DAMAGE.defaultValue();
+        // Core (1.20.1+) clamps a hand-edited "NaN" or infinity to the range, so the value is always finite.
+        return DAMAGE.get();
     }
 
     /** Relay chain depth guard (1..32, default 8). */

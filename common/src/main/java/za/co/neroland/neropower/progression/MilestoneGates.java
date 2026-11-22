@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import za.co.neroland.nerolandcore.progression.ProgressionGates;
 
-import za.co.neroland.nerotech.pollution.PollutionAttributionPrefs;
+import za.co.neroland.nerotech.api.PrivacyPrefs;
 
 import za.co.neroland.neropower.NeroPowerCommon;
 import za.co.neroland.neropower.backend.BackEndHooks;
@@ -27,7 +27,7 @@ import za.co.neroland.neropower.backend.BackEndHooks;
  * (NeroTech's {@code ownerId}, captured at placement; see {@code PRIVACY.md}) or the online player
  * who performed the action, or the online operator of the machine at the moment of the event
  * ({@link #credit}; transient, nothing persisted about them). An unowned machine records nothing, and an owner who has opted out of
- * attribution ({@link PollutionAttributionPrefs}, the NeroLink own-data control) is skipped too. The
+ * attribution ({@link PrivacyPrefs}, the NeroLink own-data control) is skipped too. The
  * UUID goes only into {@link ProgressionGates#open(MinecraftServer, UUID, Identifier)}; it is never
  * logged or broadcast. The gate rows live in Core's progression store and are erased through Core's
  * shared erasure hook.
@@ -93,7 +93,7 @@ public final class MilestoneGates {
         if (operator == null || server == null || server.getPlayerList().getPlayer(operator) == null) {
             return false;
         }
-        if (PollutionAttributionPrefs.get(server).isOptedOut(operator)
+        if (PrivacyPrefs.ownDataOptedOut(server, operator)
                 || ProgressionGates.isOpen(server, operator, gate)) {
             return false;
         }
@@ -112,7 +112,7 @@ public final class MilestoneGates {
             return false;
         }
         MinecraftServer server = level.getServer();
-        if (server == null || PollutionAttributionPrefs.get(server).isOptedOut(ownerId)) {
+        if (server == null || PrivacyPrefs.ownDataOptedOut(server, ownerId)) {
             return false;
         }
         if (ProgressionGates.isOpen(server, ownerId, gate)) {

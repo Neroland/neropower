@@ -18,7 +18,7 @@ import za.co.neroland.nerolandcore.sideconfig.SideConfig;
 import za.co.neroland.nerolandcore.sideconfig.SidePreset;
 import za.co.neroland.nerolandcore.sideconfig.SlotGroup;
 
-import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.api.MachineSettings;
 import za.co.neroland.nerotech.machine.MachineEnergy;
 import za.co.neroland.nerotech.machine.MachineStatus;
 
@@ -122,7 +122,7 @@ public class BetavoltaicCellBlockEntity extends NeroPowerMachineBlockEntity {
             reportStatus(MachineStatus.BLOCKED);
         }
         setActive(step.working());
-        MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer(), sideConfig());
+        MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), MachineSettings.machineMaxTransfer(), sideConfig());
     }
 
     /** The live capsule becomes a spent one in place (a stray extra capsule in the stack is kept). */

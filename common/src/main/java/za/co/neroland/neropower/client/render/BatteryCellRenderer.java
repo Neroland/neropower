@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.api.MachineSettings;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlock;
 
 import za.co.neroland.neropower.storage.BatteryCellBlock;
@@ -77,7 +77,7 @@ public class BatteryCellRenderer
                 ? blockState.getValue(BatteryCellBlock.CHARGE) : 0;
         state.charge = Mth.clamp(bucket / (float) PoolMath.CHARGE_LEVELS, 0.0F, 1.0F);
         // Explicit null check (not folded into a flag) so ecj's null-flow analysis can track it.
-        if (level == null || !NeroTechConfig.renderAnimationsEnabled()) {
+        if (level == null || !MachineSettings.renderAnimationsEnabled()) {
             state.brightness = 1.0F; // static frame
             return;
         }

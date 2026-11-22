@@ -16,7 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.api.MachineSettings;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlock;
 
 import za.co.neroland.neropower.environmental.StirlingGeneratorBlockEntity;
@@ -83,7 +83,7 @@ public class StirlingRenderer
         // A working wheel warms toward amber with the draw; idle stays plain.
         state.tint = running ? PowerRenderHelper.powerColor(0.3F + 0.5F * drawn) : 0xFFFFFF;
         // Explicit null check (not folded into a flag) so ecj's null-flow analysis can track it.
-        if (level == null || !NeroTechConfig.renderAnimationsEnabled()) {
+        if (level == null || !MachineSettings.renderAnimationsEnabled()) {
             state.angle = (float) stirling.displayPos; // static parked frame (last angle, or 0)
             return;
         }

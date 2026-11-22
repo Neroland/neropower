@@ -1,14 +1,15 @@
 package za.co.neroland.neropower.protection;
 
 /**
- * Holder of the active {@link ProtectionCheck}. Defaults to {@link VanillaProtection}; a future
- * Core claim API (or an integration mod) installs its own with {@link #set} during mod construction,
- * before any world loads. Main / mod-loading thread only — the field is read on the server thread
+ * Holder of the active {@link ProtectionCheck}. Defaults to {@link VanillaProtection} with Neroland
+ * Core's claim checks added ({@link CoreClaimsProtection}), so any claims mod that registers with Core's
+ * {@code ClaimChecks} protects its land from NeroPower too. An integration mod can install a richer base
+ * check with {@link #set} during mod construction, before any world loads; Core's claims stay on top. Main / mod-loading thread only — the field is read on the server thread
  * and written once at startup, so no synchronisation is needed.
  */
 public final class Protection {
 
-    private static ProtectionCheck check = VanillaProtection.INSTANCE;
+    private static ProtectionCheck check = new CoreClaimsProtection(VanillaProtection.INSTANCE);
 
     private Protection() {
     }
@@ -32,8 +33,8 @@ public final class Protection {
                 && check.mayInteract(serverPlayer, level, be.getBlockPos());
     }
 
-    /** Install a richer check; {@code null} restores {@link VanillaProtection}. */
+    /** Install a richer base check; {@code null} restores {@link VanillaProtection}. Core's claims still apply. */
     public static void set(ProtectionCheck newCheck) {
-        check = newCheck == null ? VanillaProtection.INSTANCE : newCheck;
+        check = new CoreClaimsProtection(newCheck == null ? VanillaProtection.INSTANCE : newCheck);
     }
 }

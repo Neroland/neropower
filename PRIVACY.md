@@ -134,7 +134,9 @@ Radiation is world data. NeroPower keeps **no per-player dose, exposure history 
 NeroPower bundles the Sentry SDK and sends **anonymous error reports** to NeroPower's own Sentry
 project, hosted in the **EU** (`ingest.de.sentry.io`), so crashes in NeroPower code can be found and
 fixed. It is **on by default and opt-out**, the same as Neroland Core, NeroTech and the rest of the
-Neroland family.
+Neroland family. NeroPower uses its own Sentry client rather than the shared global one, so another
+mod's crash reporting can neither read NeroPower's reports nor switch them off, and NeroPower never
+receives another mod's.
 
 | | |
 |---|---|
@@ -181,8 +183,18 @@ held by Neroland Core and erased by Core in the same request.
 
 The only personal data NeroPower holds is your UUID on a beam you linked. In the NeroLink app, a
 transmitter or relay you linked is marked as yours (`owned`) in your own snapshot, and no one else
-can see it. Neroland Core 1.20.0 has no shared export command, so a full copy is made by the
-server's operator on request. They read the `LinkOwnerMost` / `LinkOwnerLeast` keys of the
+can see it. NeroPower also takes part in Neroland Core's shared data export (Core 1.20.1 or later):
+
+```
+/neroland data exportme           # a copy of your own data (any player)
+/neroland data export <uuid>      # a player's data (operators, permission level 2+)
+```
+
+NeroPower's section says that the beams you linked keep your player id on the block itself (NeroPower
+keeps no list of them, so it cannot list where they are), and shows the first endpoint of a beam link
+you are making right now, if any: its dimension and block position, and how long before it lapses. The
+export is handed to you in chat; it is never logged or written to a file. To find every beam you
+linked, the server's operator can read the `LinkOwnerMost` / `LinkOwnerLeast` keys of the
 transmitters and relays in the world save.
 
 ## NeroLink companion-app exposure

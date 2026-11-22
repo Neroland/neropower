@@ -9,7 +9,7 @@ import za.co.neroland.nerolandcore.sideconfig.Channel;
 import za.co.neroland.nerolandcore.sideconfig.SideConfig;
 import za.co.neroland.nerolandcore.sideconfig.SidePreset;
 
-import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.api.MachineSettings;
 import za.co.neroland.nerotech.machine.MachineEnergy;
 
 /**
@@ -46,6 +46,6 @@ public class BeamReceiverBlockEntity extends BeamEndpointBlockEntity {
         }
         setStatus(receiving ? BeamStatus.RECEIVING : BeamStatus.IDLE);
         setActive(receiving);
-        MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer(), sideConfig());
+        MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), MachineSettings.machineMaxTransfer(), sideConfig());
     }
 }

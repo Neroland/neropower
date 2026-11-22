@@ -13,7 +13,7 @@ import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.RandomSource;
 
-import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.api.MachineSettings;
 
 /**
  * NeroPower's five sprite-set particles, one class tuned per {@link Kind}: the sprite follows the age, the
@@ -134,7 +134,7 @@ public class PowerParticle extends SingleQuadParticle {
         /*public Particle createParticle(SimpleParticleType options, ClientLevel level, double x, double y, double z,
                 double xd, double yd, double zd) {
         *///?}
-            if (!NeroTechConfig.renderAnimationsEnabled()) {
+            if (!MachineSettings.renderAnimationsEnabled()) {
                 return null;
             }
             return new PowerParticle(level, x, y, z, xd, yd, zd, this.sprites, this.kind);

@@ -63,7 +63,8 @@ class RadiationRulesTest {
             String json = read("data/neropower/tags/item/" + tag + ".json");
             int ids = count(json, "\"nerospace:");
             assertEquals(12, ids, tag + ": the 12 T2/heat/cold suit pieces");
-            assertEquals(ids, count(json, "\"required\": false"), tag + ": every Nerospace entry is optional");
+            assertEquals(1, count(json, "\"#nerospace:suits/radiation_capable\""), tag + ": and Nerospace's own suit tag");
+            assertEquals(ids + 1, count(json, "\"required\": false"), tag + ": every Nerospace entry is optional");
         }
     }
 

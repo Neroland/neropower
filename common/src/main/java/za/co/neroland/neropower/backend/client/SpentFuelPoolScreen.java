@@ -6,8 +6,8 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
+import za.co.neroland.nerotech.api.MachineSettings;
 import za.co.neroland.nerotech.client.MachineScreen;
-import za.co.neroland.nerotech.config.NeroTechConfig;
 
 import za.co.neroland.neropower.backend.PoolMath;
 import za.co.neroland.neropower.backend.SpentFuelPoolMenu;
@@ -83,7 +83,7 @@ public class SpentFuelPoolScreen extends MachineScreen<SpentFuelPoolMenu> {
 
         BackEndHud.stageBlock(extractor, this.font, x + STAGE_X, y + STAGE_Y, this.menu.stageCode());
         BackEndHud.stallLine(extractor, this.font, x + 8, y + STALL_Y, stallText(), this.menu.readout(),
-                gaugeTick(), NeroTechConfig.renderAnimationsEnabled());
+                gaugeTick(), MachineSettings.renderAnimationsEnabled());
     }
 
     /** Rods' decay heat minus the water's share, per tick (signed). */

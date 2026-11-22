@@ -7,8 +7,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 
+import za.co.neroland.nerotech.api.MachineSettings;
 import za.co.neroland.nerotech.client.MachineScreen;
-import za.co.neroland.nerotech.config.NeroTechConfig;
 
 import za.co.neroland.neropower.backend.CaskMath;
 import za.co.neroland.neropower.backend.DryCaskMenu;
@@ -76,7 +76,7 @@ public class DryCaskScreen extends MachineScreen<DryCaskMenu> {
         extractor.text(this.font, Component.translatable("gui.neropower.dry_cask.trace", this.menu.traceHeat(),
                 this.menu.heatInterval()), x + CHIP_X, y + TRACE_Y, BackEndHud.SUBTLE, false);
         BackEndHud.stallLine(extractor, this.font, x + 8, y + STALL_Y, stallText(), this.menu.readout(),
-                gaugeTick(), NeroTechConfig.renderAnimationsEnabled());
+                gaugeTick(), MachineSettings.renderAnimationsEnabled());
     }
 
     private Component stallText() {
