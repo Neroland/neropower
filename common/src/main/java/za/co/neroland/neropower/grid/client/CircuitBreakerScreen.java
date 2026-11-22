@@ -14,7 +14,7 @@ import za.co.neroland.neropower.grid.CircuitBreakerMenu;
 import za.co.neroland.neropower.storage.client.StorageScreenKit;
 
 /**
- * Circuit Breaker screen (tall hull 176 × 222, screens/circuit_breaker.md): state word / trip flag, Reset,
+ * Circuit Breaker screen (tall hull 176 × 222): state word / trip flag, Reset,
  * load bar with the 100 % tick, stage block, the limit (1-2-5 log slider, scroll one notch), the redstone
  * reset checkbox and the stall line. No default gauges. Every number is the breaker's own.
  */
@@ -124,6 +124,7 @@ public class CircuitBreakerScreen extends PowerMachineScreen<CircuitBreakerMenu>
         } else if (GridScreenKit.in(mx, my, 8, 116, 160, 9)) {
             lines.add(GaugeTooltips.tr("status"));
             lines.add(stall());
+            GaugeTooltips.stallFix(lines, this.menu.readout(), this.menu.stallCause());
         }
     }
 

@@ -1,0 +1,48 @@
+{
+  "chapter": "storage",
+  "title": "gui.neropower.power_guide.chapter.storage",
+  "steps": [
+    {
+      "id": "battery_cells",
+      "icon": "neropower:battery_cell_basic",
+      "title": "gui.neropower.power_guide.step.battery_cells",
+      "text": "gui.neropower.power_guide.step.battery_cells.text",
+      "completed_by_item": "neropower:battery_cell_basic"
+    },
+    {
+      "id": "surge_bank",
+      "icon": "neropower:surge_bank",
+      "title": "gui.neropower.power_guide.step.surge_bank",
+      "text": "gui.neropower.power_guide.step.surge_bank.text",
+      "completed_by_item": "neropower:surge_bank"
+    },
+    {
+      "id": "momentum_wheel",
+      "icon": "neropower:momentum_wheel",
+      "title": "gui.neropower.power_guide.step.momentum_wheel",
+      "text": "gui.neropower.power_guide.step.momentum_wheel.text",
+      "completed_by_item": "neropower:momentum_wheel"
+    },
+    {
+      "id": "storage_ring",
+      "icon": "neropower:smes_controller",
+      "title": "gui.neropower.power_guide.step.storage_ring",
+      "text": "gui.neropower.power_guide.step.storage_ring.text",
+      "completed_by_item": "neropower:smes_controller"
+    },
+    {
+      "id": "storage_ring_coolant",
+      "icon": "neropower:smes_coil",
+      "title": "gui.neropower.power_guide.step.storage_ring_coolant",
+      "text": "gui.neropower.power_guide.step.storage_ring_coolant.text",
+      "completed_by_item": "neropower:smes_coil"
+    },
+    {
+      "id": "power_cells",
+      "icon": "neropower:power_cell_basic",
+      "title": "gui.neropower.power_guide.step.power_cells",
+      "text": "gui.neropower.power_guide.step.power_cells.text",
+      "completed_by_item": "neropower:power_cell_basic"
+    }
+  ]
+}

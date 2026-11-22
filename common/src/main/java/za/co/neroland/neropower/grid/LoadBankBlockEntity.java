@@ -24,7 +24,7 @@ import za.co.neroland.neropower.menu.GaugeTail;
 import za.co.neroland.neropower.registry.content.GridContent;
 
 /**
- * Load Bank (0.4.0, decision 008 annex; screens/load_bank.md): a dummy load. It burns up to its set
+ * Load Bank (0.4.0): a dummy load. It burns up to its set
  * rate ({@code Rate}, 0..{@code loadBankMaxRate} NE/t) from its buffer and turns it into NeroTech heat —
  * {@link LoadBankMath#nePerHeat} NE per unit — and makes nothing else. The heat is ordinary machine heat
  * (NeroTech's thermal model), so a Stirling Generator or a coolant loop beside it draws it through the

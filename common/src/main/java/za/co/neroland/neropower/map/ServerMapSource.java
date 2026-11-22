@@ -20,6 +20,7 @@ import za.co.neroland.neropower.beam.BeamEndpointBlockEntity;
 import za.co.neroland.neropower.beam.BeamTransmitterBlockEntity;
 import za.co.neroland.neropower.fission.FissionCoreBlockEntity;
 import za.co.neroland.neropower.fission.ScorchZones;
+import za.co.neroland.neropower.link.LinkScope;
 import za.co.neroland.neropower.machine.NeroPowerMachineBlockEntity;
 
 /** The live source: block entities in chunks that are already loaded, and the scorch-zone store. */
@@ -75,10 +76,8 @@ final class ServerMapSource implements NeroPowerMapSource {
      * NeroTech machine owner (only set when per-player attribution was on at placement).
      */
     private static Optional<UUID> ownerOf(NeroPowerMachineBlockEntity machine) {
-        if (machine instanceof BeamTransmitterBlockEntity transmitter) {
-            return transmitter.linkOwner();
-        }
-        return machine.owner();
+        return LinkScope.ownerOf(machine instanceof BeamTransmitterBlockEntity transmitter
+                ? transmitter.linkOwner() : Optional.empty(), machine.owner());
     }
 
     @Override

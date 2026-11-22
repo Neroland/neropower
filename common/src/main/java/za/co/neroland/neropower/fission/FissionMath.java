@@ -171,6 +171,15 @@ public final class FissionMath {
         return Math.max(0, Math.min(MAX_BURNUP, burnup));
     }
 
+    /**
+     * Whether a fuel rod ({@code rod}: a Fuel or Braided Fuel Rod) leaving a core by any
+     * path (hand, automation, breaking the core) leaves as a Hot Spent Fuel Rod: any burn-up at all does.
+     * Fresh rods leave unchanged, so a partly used rod always goes through the rack, cooling and the waste.
+     */
+    public static boolean leavesSpent(boolean rod, int burnup) {
+        return rod && burnup > 0;
+    }
+
     /** Whether a rod at {@code burnup} is spent. */
     public static boolean spent(int burnup) {
         return burnup >= MAX_BURNUP;
@@ -298,6 +307,51 @@ public final class FissionMath {
         }
         double value = heatPerRod * rodHeatSum * controlRodFactor;
         return Math.max(1, (int) Math.min(Integer.MAX_VALUE, Math.round(value)));
+    }
+
+    /**
+     * Heat per tick a core in <b>steam mode</b> turns into steam: {@link #heatPerTick} with the work-rate
+     * {@code speed} (preset x Speed modules) folded into the factor. Burn-up already scales with speed, so
+     * the steam a rod raises over its whole life is the same at Eco, Balanced and Overdrive, as its direct
+     * output is; without it an Eco core would raise a third more steam per rod (Stage 3 balance fix).
+     */
+    public static int steamModeHeat(int heatPerRod, double rodHeatSum, double controlRodFactor, double speed) {
+        return heatPerTick(heatPerRod, rodHeatSum, controlRodFactor * Math.max(0.0D, speed));
+    }
+
+    /**
+     * One rod's whole life at Balanced with no absorbers or moderators, summed over its burn-up
+     * permille steps (each step lasts the same ticks): {@code [direct NE, heat]}, with the core's own
+     * per-tick rounding. Steam mode raises {@code heat x steamPerHeat} mB from the second number.
+     */
+    public static long[] rodLife(Curve curve, int nePerRod, int heatPerRod) {
+        long out = 0L;
+        long heat = 0L;
+        for (int burnup = 0; burnup < MAX_BURNUP; burnup++) {
+            int factor = outputFactor(curve, burnup);
+            out += outputPerTick(nePerRod, factor / (double) PERMILLE, 1.0D, 1.0D, PERMILLE);
+            heat += heatPerTick(heatPerRod, heatFactor(curve, burnup) / (double) PERMILLE, 1.0D);
+        }
+        return new long[] {out, heat};
+    }
+
+    /** Most steam mode may yield per rod, as a multiple of direct mode. */
+    public static final int MAX_STEAM_TO_DIRECT = 2;
+
+    /**
+     * The highest turbine NE per mB of steam that keeps a rod's steam-mode yield, at the best possible
+     * vanes (1000 permille) and a condensed exhaust, at or under {@link #MAX_STEAM_TO_DIRECT} times its
+     * direct-mode yield: {@code floor(2 x directNE / (heat x steamPerHeat))}. With the defaults that is 8,
+     * exactly the shipped {@code turbineNePerSteamMb}, so the cap only binds on configs that would let
+     * steam outrun direct mode by more than double. A rod that makes no heat raises no steam: no cap.
+     */
+    public static int steamNePerMbCap(Curve curve, int nePerRod, int heatPerRod, int steamPerHeat) {
+        long[] life = rodLife(curve, nePerRod, heatPerRod);
+        long steam = life[1] * Math.max(0, steamPerHeat);
+        if (steam <= 0L) {
+            return Integer.MAX_VALUE;
+        }
+        return (int) Math.min(Integer.MAX_VALUE, MAX_STEAM_TO_DIRECT * life[0] / steam);
     }
 
     // --- poison ----------------------------------------------------------------------

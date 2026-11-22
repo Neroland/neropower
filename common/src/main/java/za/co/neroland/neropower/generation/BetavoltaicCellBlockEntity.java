@@ -76,6 +76,21 @@ public class BetavoltaicCellBlockEntity extends NeroPowerMachineBlockEntity {
         return stack.is(BackEndContent.SPENT_BETA_CAPSULE.get()) ? BetavoltaicCore.STATE_SPENT : BetavoltaicCore.STATE_NONE;
     }
 
+    /**
+     * The in-world {@code status}: {@code working} while the capsule gives power, {@code starved} once it is
+     * spent (the art shows the spent model, tab raised and window dark), {@code idle} otherwise (no capsule,
+     * or a live one waiting on a full buffer, which must not look spent).
+     */
+    static za.co.neroland.neropower.machine.NeroPowerMachineBlock.VisualStatus visualStatus(int capsuleState,
+            boolean working) {
+        if (working) {
+            return za.co.neroland.neropower.machine.NeroPowerMachineBlock.VisualStatus.WORKING;
+        }
+        return capsuleState == BetavoltaicCore.STATE_SPENT
+                ? za.co.neroland.neropower.machine.NeroPowerMachineBlock.VisualStatus.STARVED
+                : za.co.neroland.neropower.machine.NeroPowerMachineBlock.VisualStatus.IDLE;
+    }
+
     /** A generator is never load-shed. */
     @Override
     public boolean shedable() {
@@ -100,7 +115,7 @@ public class BetavoltaicCellBlockEntity extends NeroPowerMachineBlockEntity {
         this.stallCause = step.cause();
         this.readout = GenerationReadout.readout(step.working(), step.cause());
         za.co.neroland.neropower.machine.NeroPowerMachineBlock.applyStatus(level, pos,
-                za.co.neroland.neropower.machine.NeroPowerMachineBlock.VisualStatus.fromReadout(this.readout));
+                visualStatus(capsuleState(), step.working()));
         if (step.cause() == GenerationReadout.CAUSE_NO_FUEL) {
             reportStatus(MachineStatus.STARVED);
         } else if (step.cause() == GenerationReadout.CAUSE_BUFFER_FULL) {

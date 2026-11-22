@@ -123,5 +123,23 @@ public final class GaugeTooltips {
         return GaugeMath.rate(permillePerTick * GaugeMath.TICKS_PER_SECOND * 60D / 10D);
     }
 
+    // --- stall line ---------------------------------------------------------------------------------
+
+    /** The shared stall-cause table (gauge kit 5.2), by {@code stallCause} 0..15. */
+    private static final String[] STALL_KEYS = {"none", "not_formed", "no_fuel", "no_steam", "no_water",
+        "exhaust_blocked", "no_heat_sink", "output_full", "buffer_full", "no_power", "no_lens", "no_link",
+        "beam_blocked", "no_coolant", "nothing_to_do", "locked_out"};
+
+    /**
+     * The stall line's fix ({@code gui.neropower.stall.fix.<cause>}), appended when the readout is STALL
+     * (2) with a cause; nothing otherwise.
+     */
+    public static void stallFix(List<Component> out, int readout, int cause) {
+        if (readout == 2 && cause > 0 && cause < STALL_KEYS.length) {
+            out.add(Component.translatable("gui.neropower.stall.fix." + STALL_KEYS[cause]));
+            out.add(Component.translatable("gui.neropower.guide.see_guide").withStyle(net.minecraft.ChatFormatting.GRAY));
+        }
+    }
+
     // Emission is NeroTech's: MachineScreen is the single tooltip emitter for every NeroPower screen.
 }

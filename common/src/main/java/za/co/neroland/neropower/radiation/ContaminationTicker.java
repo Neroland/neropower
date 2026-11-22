@@ -14,6 +14,7 @@ public final class ContaminationTicker {
     }
 
     public static void tick(MinecraftServer server) {
+        za.co.neroland.neropower.command.GalleryTasks.tick(server); // the gallery's delayed setup steps
         if (RadiationConfig.enabled(server.isDedicatedServer())) {
             int permille = RadiationConfig.decayPermillePerMinute();
             int budget = RadiationConfig.decayBudgetPerTick();

@@ -200,6 +200,9 @@ public final class RadiationTicker {
                 if (entity instanceof Player player && (player.isCreative() || player.isSpectator())) {
                     continue;
                 }
+                if (za.co.neroland.neropower.protection.Protection.get().isProtected(level, entity.blockPosition())) {
+                    continue; // nothing living on protected ground is harmed
+                }
                 int tier = RadiationMath.effectTier(true, chunkLevel, ShieldingArmour.pieces(entity));
                 if (tier >= 1) {
                     entity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, RadiationMath.EFFECT_TICKS, 0));
@@ -253,7 +256,7 @@ public final class RadiationTicker {
                 perChunk.merge(RadiationMath.chunkKeyOfBlock(pos.getX(), pos.getZ()), amount, Integer::sum);
             }
         }
-        perChunk.forEach((chunk, amount) -> RadiationSources.contaminate(level, chunk, amount));
+        perChunk.forEach((chunk, amount) -> RadiationSources.contaminate(level, chunk, RadiationMath.droppedCap(amount)));
     }
 
     /** Per item entity: a hot rod {@code hot}, a cooled rod or residue {@code spent}, anything else 0. */

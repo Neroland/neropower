@@ -1,0 +1,55 @@
+{
+  "chapter": "waste",
+  "title": "gui.neropower.power_guide.chapter.waste",
+  "steps": [
+    {
+      "id": "hot_spent_fuel_rod",
+      "icon": "neropower:hot_spent_fuel_rod",
+      "title": "gui.neropower.power_guide.step.hot_spent_fuel_rod",
+      "text": "gui.neropower.power_guide.step.hot_spent_fuel_rod.text",
+      "completed_by_item": "neropower:hot_spent_fuel_rod"
+    },
+    {
+      "id": "spent_fuel_pool",
+      "icon": "neropower:spent_fuel_pool",
+      "title": "gui.neropower.power_guide.step.spent_fuel_pool",
+      "text": "gui.neropower.power_guide.step.spent_fuel_pool.text",
+      "completed_by_item": "neropower:spent_fuel_pool"
+    },
+    {
+      "id": "reprocessing",
+      "icon": "neropower:reprocessed_pellet",
+      "title": "gui.neropower.power_guide.step.reprocessing",
+      "text": "gui.neropower.power_guide.step.reprocessing.text",
+      "completed_by_item": "neropower:spent_fuel_rod"
+    },
+    {
+      "id": "fission_residue",
+      "icon": "neropower:fission_residue",
+      "title": "gui.neropower.power_guide.step.fission_residue",
+      "text": "gui.neropower.power_guide.step.fission_residue.text",
+      "completed_by_item": "neropower:fission_residue"
+    },
+    {
+      "id": "betavoltaic_cell",
+      "icon": "neropower:betavoltaic_cell",
+      "title": "gui.neropower.power_guide.step.betavoltaic_cell",
+      "text": "gui.neropower.power_guide.step.betavoltaic_cell.text",
+      "completed_by_item": "neropower:betavoltaic_cell"
+    },
+    {
+      "id": "vitrifier",
+      "icon": "neropower:vitrifier",
+      "title": "gui.neropower.power_guide.step.vitrifier",
+      "text": "gui.neropower.power_guide.step.vitrifier.text",
+      "completed_by_item": "neropower:vitrifier"
+    },
+    {
+      "id": "dry_cask",
+      "icon": "neropower:dry_cask",
+      "title": "gui.neropower.power_guide.step.dry_cask",
+      "text": "gui.neropower.power_guide.step.dry_cask.text",
+      "completed_by_item": "neropower:dry_cask"
+    }
+  ]
+}

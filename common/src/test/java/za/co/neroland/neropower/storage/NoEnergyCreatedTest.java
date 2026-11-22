@@ -8,7 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /**
- * Adversarial accounting (decision 008): joining or leaving a bank pool moves no energy, and breaking and
+ * Adversarial accounting: joining or leaving a bank pool moves no energy, and breaking and
  * rebuilding a Storage Ring never yields more than it held (a smaller ring loses the excess). Pure JVM.
  */
 class NoEnergyCreatedTest {

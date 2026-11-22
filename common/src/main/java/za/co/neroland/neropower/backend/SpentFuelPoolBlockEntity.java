@@ -276,7 +276,7 @@ public class SpentFuelPoolBlockEntity extends NeroPowerMachineBlockEntity implem
         return slot >= 0 && slot < PoolMath.SLOTS ? this.cooling[slot] : 0;
     }
 
-    // --- menu sync (spec: screens/spent_fuel_pool.md) ----------------------------------------------
+    // --- menu sync ----------------------------------------------
 
     /** Extra-data layout; read only through {@code SpentFuelPoolMenu}'s getters. */
     static final int D_COOLING = 0;          // 4: cooling permille per slot

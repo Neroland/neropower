@@ -1,7 +1,7 @@
 package za.co.neroland.neropower.grid;
 
 /**
- * The Power Monitor's 60-sample history (decision 008 annex): one sample every 20 ticks of NE/t in, NE/t
+ * The Power Monitor's 60-sample history: one sample every 20 ticks of NE/t in, NE/t
  * out and stored permille. In memory only, never saved. Synced compactly as one int array of
  * {@code 1 + 3 × size} entries (newest last), clamped to int; machine numbers only, nothing personal.
  */

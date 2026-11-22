@@ -16,7 +16,7 @@ import za.co.neroland.neropower.energy.PortableEnergy;
 
 /**
  * Power cells (any {@code energy.PortableEnergyItem}) on Forge's item energy capability (Forge Energy,
- * int-clamped), delegating to the common {@link PortableEnergy} seam (decision 008).
+ * int-clamped), delegating to the common {@link PortableEnergy} seam.
  */
 final class ForgeItemEnergy {
 

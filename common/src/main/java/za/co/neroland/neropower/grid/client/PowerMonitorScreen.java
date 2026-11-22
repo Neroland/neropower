@@ -20,7 +20,7 @@ import za.co.neroland.neropower.grid.PowerMonitorMenu;
 import za.co.neroland.neropower.storage.client.StorageScreenKit;
 
 /**
- * Power Monitor screen (wide hull 248 × 200, screens/power_monitor.md): the source's name, the 60-sample
+ * Power Monitor screen (wide hull 248 × 200): the source's name, the 60-sample
  * trace graph (in solid amber, out dashed blue, stored dotted white; in/out share a scale, stored is
  * 0–100 %), the three line toggles (client-only, kept for the session), the current values and the stall
  * line. No serverbound intent. Reads the monitor block entity's synced ring; no player data.

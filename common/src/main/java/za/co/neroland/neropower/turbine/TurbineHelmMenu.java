@@ -77,7 +77,8 @@ public class TurbineHelmMenu extends MachineMenu implements GaugeTailMenu {
     public boolean clickMenuButton(Player player, int id) {
         int action = MenuButtons.action(id);
         if (action != ACTION_RESET || !stillValid(player)
-                || !(this.container instanceof TurbineHelmBlockEntity helm)) {
+                || !(this.container instanceof TurbineHelmBlockEntity helm)
+                || !za.co.neroland.neropower.protection.Protection.mayUse(player, helm)) {
             return false;
         }
         helm.setLastOperator(player.getUUID());

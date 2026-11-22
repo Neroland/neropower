@@ -20,7 +20,7 @@ import za.co.neroland.nerolandcore.fluid.NeroFluidStorage;
  */
 public final class CoolantTank implements NeroFluidStorage {
 
-    /** NeroTech's cryo coolant fluid tag (decision 002, row 9). */
+    /** NeroTech's cryo coolant fluid tag . */
     public static final TagKey<Fluid> CRYO_COOLANT =
             TagKey.create(Registries.FLUID, Identifier.fromNamespaceAndPath("nerotech", "cryo_coolant"));
 

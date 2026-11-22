@@ -7,7 +7,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /**
- * Rule test for the Surge Bank (decision 008): it pools as the bank's fast tier. Its I/O adds on top of the
+ * Rule test for the Surge Bank: it pools as the bank's fast tier. Its I/O adds on top of the
  * cells' {@code min x count} (each tier under its own cap), and a transfer is filled into and drained from
  * the surge banks first. Pure JVM (fake members, explicit caps).
  */

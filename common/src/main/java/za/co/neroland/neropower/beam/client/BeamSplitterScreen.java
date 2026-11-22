@@ -16,7 +16,7 @@ import za.co.neroland.neropower.menu.MenuButtons;
 import za.co.neroland.neropower.storage.client.StorageScreenKit;
 
 /**
- * Beam Splitter screen (wide tall hull 248 × 222, screens/beam_splitter.md): solo energy bar, incoming
+ * Beam Splitter screen (wide tall hull 248 × 222): solo energy bar, incoming
  * pass, lens slot, the link list (letter handle, distance, share bar slider, percentage), Unlink and the
  * stall line. Links are named by letter only: no position, dimension or owner is ever shown.
  */
@@ -189,6 +189,7 @@ public class BeamSplitterScreen extends PowerMachineScreen<BeamSplitterMenu> {
         } else if (GridScreenKit.in(mx, my, 8, 116, 232, 9)) {
             lines.add(GaugeTooltips.tr("status"));
             lines.add(stall());
+            GaugeTooltips.stallFix(lines, this.menu.readout(), this.menu.stallCause());
         }
     }
 

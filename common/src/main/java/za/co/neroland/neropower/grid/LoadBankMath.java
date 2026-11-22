@@ -1,7 +1,7 @@
 package za.co.neroland.neropower.grid;
 
 /**
- * Load Bank rules (decision 008 annex), Minecraft-free. It burns NE and makes heat and nothing else. The
+ * Load Bank rules, Minecraft-free. It burns NE and makes heat and nothing else. The
  * NE-per-heat divisor is clamped so a Stirling Generator drawing that heat can never return half of what
  * was burned, under <i>any</i> config: the clamp covers the Stirling's largest possible multiplier, the
  * configured cold-face bonus doubled by the coldest planet ({@code StirlingMath.coldFaceBonusPermille}

@@ -11,7 +11,7 @@ import za.co.neroland.neropower.failure.FailureStage;
 import za.co.neroland.neropower.failure.FailureThresholds;
 
 /**
- * Rule test for the Storage Ring (decision 008): starved of cryo coolant its warmth climbs the shared failure
+ * Rule test for the Storage Ring: starved of cryo coolant its warmth climbs the shared failure
  * ladder one rung at a time (WARNING, UNSTABLE halves the I/O, FAILURE), the quench loses half the charge
  * (drain default), locks the ring out, and it re-arms only after the lockout and once cold again. No blast:
  * the core has no terrain path at all. Pure JVM, driven the way the controller drives it.

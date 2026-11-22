@@ -1,0 +1,20 @@
+{
+  "chapter": "generation",
+  "title": "gui.neropower.power_guide.chapter.generation",
+  "steps": [
+    {
+      "id": "fuel_cell",
+      "icon": "neropower:fuel_cell",
+      "title": "gui.neropower.power_guide.step.fuel_cell",
+      "text": "gui.neropower.power_guide.step.fuel_cell.text",
+      "completed_by_item": "neropower:fuel_cell"
+    },
+    {
+      "id": "betavoltaic_power",
+      "icon": "neropower:betavoltaic_cell",
+      "title": "gui.neropower.power_guide.step.betavoltaic_power",
+      "text": "gui.neropower.power_guide.step.betavoltaic_power.text",
+      "completed_by_item": "neropower:betavoltaic_cell"
+    }
+  ]
+}

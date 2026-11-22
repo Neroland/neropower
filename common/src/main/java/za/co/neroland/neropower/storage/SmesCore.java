@@ -1,7 +1,7 @@
 package za.co.neroland.neropower.storage;
 
 /**
- * The Storage Ring's state and rules, Minecraft-free so they are unit-testable (decision 008). The
+ * The Storage Ring's state and rules, Minecraft-free so they are unit-testable. The
  * controller block entity owns one, feeds it the ring shape, the coolant draw and the failure ladder's
  * verdict, and exposes {@link #insert}/{@link #extract} as its energy surface.
  *

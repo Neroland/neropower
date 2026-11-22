@@ -3,7 +3,9 @@
 Every NeroPower reactor owns a **staged failure ladder** driven by its heat. Nothing ever fails
 silently: a reactor climbs one rung at a time, each rung is announced with a sound, particles, an
 alarm state on the block and (for owned machines) a NeroLink alert, and there is always time to act
-before the top. In 0.1.0 the [Fission Reactor](Fission-Reactor.md) is the machine on the ladder.
+before the top. The [Fission Reactor](Fission-Reactor.md) is the main machine on the ladder; since
+0.4.0 the steam turbine, the Storage Ring, the Spent Fuel Rack and the Circuit Breaker use it too (see
+[Other machines on the ladder](#other-machines-on-the-ladder)).
 
 ## How it works
 
@@ -28,6 +30,8 @@ The thresholds are server config; the defaults are above.
   threshold that entered it, so a reactor hovering on a line does not flap between stages.
 - **Cooling is immediate.** No dwell applies on the way down — cool it and it recovers rung by
   rung, with a soft chime when it reaches *Stable* again.
+- **Saved stages.** A machine's stage is saved with the world. A machine saved at *Failure* loads one
+  step back, at *Unstable*, so a world never runs a failure action on its first tick after loading.
 
 ### What happens at Failure
 
@@ -54,17 +58,31 @@ Set `overloadEnabled=false` and the ladder is **pinned at Unstable**: a neglecte
 to 60 % and alarms forever, but never runs its failure action. A reactor that was already at
 *Failure* when the setting changes drops back to *Unstable* at once.
 
+### Other machines on the ladder
+
+| Machine | What drives it | What the top does |
+| --- | --- | --- |
+| Steam turbine | Overspeed: rotor speed above rated, up to `turbineTripRpm` (2,100) | `turbineFailureAction`: `trip` (default; inlets close, the rotor coasts), `shed_blades` or `blast` |
+| Storage Ring | Warming while starved of cryo coolant | A **quench**: `smesQuenchMode=drain` (default) loses half the charge and goes offline; `blast` explodes |
+| Spent Fuel Rack | Decay heat of the hot rods it holds | Cooling stops; with [radiation](Radiation.md) on, its chunk is contaminated |
+| Circuit Breaker | Load against its limit (warns above 60 %) | It **trips** open; nothing is damaged. Reset from its screen, its front or redstone |
+
+All of them telegraph each rung in the world and in their screens, follow the same dwell and
+hysteresis rules, and follow `overloadEnabled`, `failureRadiusCap` and `terrainDamageMode` for any
+blast.
+
 ### Alerts and the ecosystem bus
 
 Every transition is published on NeroTech's machine-failure event channel, so NeroEvents, NeroLink
-and other mods can react (interlocks, sirens, dashboards). If the reactor has a recorded owner (only
-when the server turned on NeroTech's per-player attribution), that player gets a NeroLink alert on
-entering *Unstable* and *Failure*. NeroLink `failure` events go to the owner only; an unowned
-machine's events go only to online players within 128 blocks of it — never to everyone. A NeroLink
-`failure` event names the machine type and dimension only, never its position or a player (as does
-the channel event with NeroTech 0.6.0 or later). The NeroLink app also lets the owner (or, on an
-unowned reactor, a nearby player allowed to use it)
-acknowledge an alarm or [SCRAM](Fission-Reactor.md#scram) the reactor.
+and other mods can react (interlocks, sirens, dashboards). If the machine has a recorded owner (only
+when the server turned on NeroTech's per-player attribution), that player gets a NeroLink inbox alert
+on entering *Unstable* and *Failure*. The alert names the machine type and stage only, never a place.
+
+NeroLink failure notices go to online players in that dimension within 8 chunks of the machine, and an
+owned machine's to its owner only — never to everyone, and never pushed. Only the recorded owner can
+get a push. Event bodies name the machine type and stage, never a place or a player. The NeroLink app
+lets the owner acknowledge an alarm, [SCRAM](Fission-Reactor.md#scram) a reactor or trip a turbine
+remotely; an unowned machine is used in person. See [Link Module](Link-Module.md).
 
 ## Recipes
 

@@ -1,0 +1,41 @@
+{
+  "chapter": "beam_grids",
+  "title": "gui.neropower.power_guide.chapter.beam_grids",
+  "steps": [
+    {
+      "id": "beam_transmitter",
+      "icon": "neropower:beam_transmitter",
+      "title": "gui.neropower.power_guide.step.beam_transmitter",
+      "text": "gui.neropower.power_guide.step.beam_transmitter.text",
+      "completed_by_item": "neropower:beam_transmitter"
+    },
+    {
+      "id": "beam_relay",
+      "icon": "neropower:beam_relay",
+      "title": "gui.neropower.power_guide.step.beam_relay",
+      "text": "gui.neropower.power_guide.step.beam_relay.text",
+      "completed_by_item": "neropower:beam_relay"
+    },
+    {
+      "id": "beam_splitter",
+      "icon": "neropower:beam_splitter",
+      "title": "gui.neropower.power_guide.step.beam_splitter",
+      "text": "gui.neropower.power_guide.step.beam_splitter.text",
+      "completed_by_item": "neropower:beam_splitter"
+    },
+    {
+      "id": "phased_array_emitter",
+      "icon": "neropower:phased_array_emitter",
+      "title": "gui.neropower.power_guide.step.phased_array_emitter",
+      "text": "gui.neropower.power_guide.step.phased_array_emitter.text",
+      "completed_by_item": "neropower:phased_array_emitter"
+    },
+    {
+      "id": "beam_alignment_scope",
+      "icon": "neropower:beam_alignment_scope",
+      "title": "gui.neropower.power_guide.step.beam_alignment_scope",
+      "text": "gui.neropower.power_guide.step.beam_alignment_scope.text",
+      "completed_by_item": "neropower:beam_alignment_scope"
+    }
+  ]
+}

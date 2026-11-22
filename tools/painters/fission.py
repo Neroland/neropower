@@ -428,9 +428,40 @@ def gen_reactor_control_computer():
 
 # ---------------- fission core, steam mode ----------------
 
+def _steam_clamps():
+    """The steam-mode mark: two square clamp brackets gripping the viewport, one each side. Straight
+    bars with square returns, so the mark is a pair of brackets and never a ring round the orb.
+    Returns {(x, y): colour}; every texel lies inside the panel window (x 4..27, y 8..27)."""
+    out = {}
+    for mirror in (False, True):
+        pts = {}
+        for y in range(10, 22):                         # the upright bar, 3 px
+            pts[(4, y)] = STEAM_W
+            pts[(5, y)] = STEAM_W
+            pts[(6, y)] = STEAM_X
+        for x in range(4, 10):                          # two square returns, 6 px long
+            pts[(x, 10)] = STEAM_W
+            pts[(x, 11)] = STEAM_X
+            pts[(x, 20)] = STEAM_W
+            pts[(x, 21)] = STEAM_X
+        for y in (15, 16):                              # the clamp bolt
+            pts[(5, y)] = A_DARK
+        for (x, y), col in pts.items():
+            out[(31 - x if mirror else x, y)] = col
+    edge = {}
+    for (x, y) in out:                                  # one dark pixel round each bracket
+        for (dx, dy) in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            p = (x + dx, y + dy)
+            if p not in out and 4 <= p[0] <= 27 and 8 <= p[1] <= 27:
+                edge[p] = A_DARK
+    out.update(edge)
+    return out
+
+
 def gen_fission_core_steam():
-    """The shipped core front with its viewport collar turned steam white, and the same collar alone
-    on a clear tile for the renderer to lay over the baked front while the core runs in steam mode."""
+    """The shipped core front with a steam-white clamp bracket either side of the viewport, and the
+    same brackets alone on a clear tile for the renderer to lay over the baked front while the core
+    runs in steam mode. The viewport collar itself stays alloy, as shipped."""
     img = machine_base("fission_core_front")            # same seed: the shipped face, unchanged
     px = img.load()
     _old._fission_viewport(px, POWER_RAMP, ALLOY[3])
@@ -439,20 +470,9 @@ def gen_fission_core_steam():
     tell(px, 15, 3)
     ring = new_img()
     rp = ring.load()
-    for y in range(S):
-        for x in range(S):
-            d = math.hypot(x - 15.5, y - 15.5)
-            if 9.8 < d < 11.2:
-                col = STEAM_W if (x + y) < 31 else STEAM_X
-                px[x, y] = col
-                rp[x, y] = col
-            elif 11.2 <= d <= 12.0:
-                rp[x, y] = A_DARK
-    for k in range(8):                                  # the collar bolts stay
-        ang = k * math.pi / 4
-        bx, by = int(round(15.5 + 10.5 * math.cos(ang))), int(round(15.5 + 10.5 * math.sin(ang)))
-        px[bx, by] = A_DARK
-        rp[bx, by] = A_DARK
+    for (x, y), col in _steam_clamps().items():
+        px[x, y] = col
+        rp[x, y] = col
     save(img, "block", "fission_core_front_steam")
     save(ring, "block", "fission_core_steam_ring")
 

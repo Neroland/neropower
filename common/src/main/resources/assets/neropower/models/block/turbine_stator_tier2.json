@@ -116,23 +116,59 @@
       "faces": {
         "down": {
           "texture": "#winding",
+          "uv": [
+            3,
+            2,
+            7,
+            14
+          ],
           "rotation": 90
         },
         "up": {
           "texture": "#winding",
+          "uv": [
+            3,
+            2,
+            7,
+            14
+          ],
           "rotation": 90
         },
         "north": {
-          "texture": "#winding"
+          "texture": "#winding",
+          "uv": [
+            3,
+            2,
+            7,
+            14
+          ]
         },
         "south": {
-          "texture": "#winding"
+          "texture": "#winding",
+          "uv": [
+            3,
+            2,
+            7,
+            14
+          ]
         },
         "west": {
-          "texture": "#winding"
+          "texture": "#winding",
+          "uv": [
+            3,
+            2,
+            7,
+            14
+          ]
         },
         "east": {
-          "texture": "#winding"
+          "texture": "#winding",
+          "uv": [
+            3,
+            2,
+            7,
+            14
+          ]
         }
       }
     },
@@ -150,23 +186,59 @@
       "faces": {
         "down": {
           "texture": "#winding",
+          "uv": [
+            9,
+            2,
+            13,
+            14
+          ],
           "rotation": 90
         },
         "up": {
           "texture": "#winding",
+          "uv": [
+            9,
+            2,
+            13,
+            14
+          ],
           "rotation": 90
         },
         "north": {
-          "texture": "#winding"
+          "texture": "#winding",
+          "uv": [
+            9,
+            2,
+            13,
+            14
+          ]
         },
         "south": {
-          "texture": "#winding"
+          "texture": "#winding",
+          "uv": [
+            9,
+            2,
+            13,
+            14
+          ]
         },
         "west": {
-          "texture": "#winding"
+          "texture": "#winding",
+          "uv": [
+            9,
+            2,
+            13,
+            14
+          ]
         },
         "east": {
-          "texture": "#winding"
+          "texture": "#winding",
+          "uv": [
+            9,
+            2,
+            13,
+            14
+          ]
         }
       }
     }

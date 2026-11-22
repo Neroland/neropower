@@ -83,7 +83,8 @@ every 200 ticks. With the key off the bonus is flat everywhere.
 Because it removes heat from its neighbour, a Stirling Generator is also a **passive coolant with
 a dividend**: parked against a running [Fission Reactor](Fission-Reactor.md) it lowers the
 reactor's heat and pays you for it. It has no slots, no fuel, no heat of its own and no failure
-ladder; presets and Speed modules scale the output.
+ladder. Overdrive presets and Speed modules make it draw heat faster; they do not change how much NE
+it makes from each unit of heat, so a Load Bank feeding a Stirling always loses energy.
 
 ### Recipes
 

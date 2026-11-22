@@ -36,6 +36,14 @@ public final class RadiationMath {
     private RadiationMath() {
     }
 
+    /** The most dropped rods and residue may add to one chunk in one pass, however many lie there. */
+    public static final int DROPPED_CHUNK_CAP = 40;
+
+    /** What the dropped items in one chunk add this pass: their sum, capped at {@link #DROPPED_CHUNK_CAP}. */
+    public static int droppedCap(int sum) {
+        return Math.max(0, Math.min(DROPPED_CHUNK_CAP, sum));
+    }
+
     /** {@code ChunkPos.toLong()} for chunk coordinates (same packing, no Minecraft class needed). */
     public static long chunkKey(int chunkX, int chunkZ) {
         return (chunkX & 0xFFFFFFFFL) | ((chunkZ & 0xFFFFFFFFL) << 32);

@@ -26,7 +26,7 @@ import za.co.neroland.neropower.machine.NeroPowerMachineBlockEntity;
 import za.co.neroland.neropower.registry.content.GridContent;
 
 /**
- * Power Monitor (0.4.0, decision 008 annex; screens/power_monitor.md): a wall display for the block it is
+ * Power Monitor (0.4.0): a wall display for the block it is
  * mounted on (behind its face) — a NeroPower bank controller, Surge Bank, Momentum Wheel, Storage Ring or
  * any {@link PowerMachine}. Every 20 ticks it samples that block's stored energy and the change since the
  * last sample (split into "in" for a rise and "out" for a fall: a foreign store reports no separate flows)

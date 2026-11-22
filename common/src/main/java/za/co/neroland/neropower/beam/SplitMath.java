@@ -3,7 +3,7 @@ package za.co.neroland.neropower.beam;
 import java.util.Locale;
 
 /**
- * Beam Splitter arithmetic (decision 008 annex), Minecraft-free so every rule is unit-tested: the lens
+ * Beam Splitter arithmetic, Minecraft-free so every rule is unit-tested: the lens
  * loss on what arrives, each link's share of what is left, and the cap that keeps the shares at or under
  * 1000 permille. Splitting never creates energy: the lens loss is rounded <b>up</b>, every allocation is
  * rounded <b>down</b>, and the shares can never add up to more than the whole.

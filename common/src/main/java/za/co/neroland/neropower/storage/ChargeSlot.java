@@ -7,7 +7,7 @@ import za.co.neroland.nerolandcore.energy.NeroEnergyStorage;
 import za.co.neroland.neropower.energy.PortableEnergy;
 
 /**
- * The one charge slot a Battery Cell and a Surge Bank carry (decision 008; appended slot, so a save
+ * The one charge slot a Battery Cell and a Surge Bank carry (appended slot, so a save
  * from before 0.4.0 loads with it empty). Each tick it moves energy from the block's own buffer into the
  * portable energy item in the slot: never more than the block's rate, the item's rate, what the buffer
  * holds or the room on the item. Exactly the NE the item accepted leaves the buffer, so nothing is made.

@@ -1,19 +1,19 @@
 {
   "variants": {
     "facing=north,status=idle": {
-      "model": "neropower:block/betavoltaic_cell"
+      "model": "neropower:block/betavoltaic_cell_idle"
     },
     "facing=north,status=working": {
       "model": "neropower:block/betavoltaic_cell"
     },
     "facing=north,status=starved": {
-      "model": "neropower:block/betavoltaic_cell"
+      "model": "neropower:block/betavoltaic_cell_spent"
     },
     "facing=north,status=tripped": {
-      "model": "neropower:block/betavoltaic_cell"
+      "model": "neropower:block/betavoltaic_cell_spent"
     },
     "facing=east,status=idle": {
-      "model": "neropower:block/betavoltaic_cell",
+      "model": "neropower:block/betavoltaic_cell_idle",
       "y": 90
     },
     "facing=east,status=working": {
@@ -21,15 +21,15 @@
       "y": 90
     },
     "facing=east,status=starved": {
-      "model": "neropower:block/betavoltaic_cell",
+      "model": "neropower:block/betavoltaic_cell_spent",
       "y": 90
     },
     "facing=east,status=tripped": {
-      "model": "neropower:block/betavoltaic_cell",
+      "model": "neropower:block/betavoltaic_cell_spent",
       "y": 90
     },
     "facing=south,status=idle": {
-      "model": "neropower:block/betavoltaic_cell",
+      "model": "neropower:block/betavoltaic_cell_idle",
       "y": 180
     },
     "facing=south,status=working": {
@@ -37,15 +37,15 @@
       "y": 180
     },
     "facing=south,status=starved": {
-      "model": "neropower:block/betavoltaic_cell",
+      "model": "neropower:block/betavoltaic_cell_spent",
       "y": 180
     },
     "facing=south,status=tripped": {
-      "model": "neropower:block/betavoltaic_cell",
+      "model": "neropower:block/betavoltaic_cell_spent",
       "y": 180
     },
     "facing=west,status=idle": {
-      "model": "neropower:block/betavoltaic_cell",
+      "model": "neropower:block/betavoltaic_cell_idle",
       "y": 270
     },
     "facing=west,status=working": {
@@ -53,11 +53,11 @@
       "y": 270
     },
     "facing=west,status=starved": {
-      "model": "neropower:block/betavoltaic_cell",
+      "model": "neropower:block/betavoltaic_cell_spent",
       "y": 270
     },
     "facing=west,status=tripped": {
-      "model": "neropower:block/betavoltaic_cell",
+      "model": "neropower:block/betavoltaic_cell_spent",
       "y": 270
     }
   }

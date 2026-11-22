@@ -1,0 +1,14 @@
+{
+  "title": "quest.neropower.reactor_log.first_vitrified.title",
+  "description": "quest.neropower.reactor_log.first_vitrified.desc",
+  "icon": "neropower:vitrified_waste",
+  "prerequisites": ["neropower:reactor_log/first_burn"],
+  "objectives": [
+    { "type": "neroquests:gate_open", "gate": "neropower:first_vitrified" }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 300 },
+    { "type": "neroquests:currency", "amount": 250 }
+  ],
+  "scope": "player"
+}

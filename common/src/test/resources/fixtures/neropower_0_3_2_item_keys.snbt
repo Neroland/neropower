@@ -1,0 +1,18 @@
+// NeroPower 0.3.2 Fission Core save in the key layout NeroTech's machine base actually writes: one
+// "Item<n>" entry per container slot (ItemStack codec: id, count, components), empty slots as {}.
+// Hand-authored from the 0.3.2 writers; the six-slot rod container is 0..5. Never edit these values;
+// add a new fixture instead.
+{
+  fission_core: {
+    id: "neropower:fission_core", x: 10, y: 64, z: -20,
+    Progress: 0, MaxProgress: 0, Heat: 4120, Preset: 2, Active: 1b, Pulse: 0,
+    OwnerMost: 0L, OwnerLeast: 0L,
+    ShellSize: 5, RodCount: 2, BurnupAcc: 731552L, Poison: 140, Stalled: 0b, ScramTicks: 300,
+    Item0: {id: "neropower:fuel_rod", count: 1, components: {"neropower:burnup": 420}},
+    Item1: {id: "neropower:fuel_rod", count: 1, components: {"neropower:burnup": 415}},
+    Item2: {},
+    Item3: {id: "neropower:spent_fuel_rod", count: 1},
+    Item4: {},
+    Item5: {}
+  }
+}

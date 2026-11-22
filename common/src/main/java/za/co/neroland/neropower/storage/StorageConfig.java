@@ -53,7 +53,7 @@ public final class StorageConfig {
             "pooled capacity (NE) at which a Battery Bank opens its owner's neropower:bank_capacity milestone "
             + "record gate (a quest signal; it gates nothing)");
 
-    // --- 0.4.0: Surge Bank (fast tier of the bank pool; decision 008, ids per decision 011) ----------
+    // --- 0.4.0: Surge Bank (fast tier of the bank pool) ----------
     private static final ConfigValue<Integer> SURGE_BANK_CAPACITY = NeroPowerConfig.schema().intRange(
             "surgeBankCapacity", 200_000, 1_000, 100_000_000, true,
             "Surge Bank capacity (NE): small, but it moves energy fast");

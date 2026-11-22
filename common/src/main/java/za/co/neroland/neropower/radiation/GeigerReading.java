@@ -11,7 +11,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
 /**
- * What the server tells one Geiger Counter (decision 007): the nine chunk levels around its holder,
+ * What the server tells one Geiger Counter: the nine chunk levels around its holder,
  * north-west to south-east in rows, the count of registered sources within 16 blocks (0..99) and
  * whether radiation runs on this server. It rides the held stack as the
  * {@code neropower:geiger_reading} component, so it reaches only the holder's client through vanilla

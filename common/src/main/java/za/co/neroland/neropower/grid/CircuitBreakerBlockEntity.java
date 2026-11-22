@@ -32,7 +32,7 @@ import za.co.neroland.neropower.menu.GaugeTail;
 import za.co.neroland.neropower.registry.content.GridContent;
 
 /**
- * Circuit Breaker (0.4.0, decision 008 annex; screens/circuit_breaker.md). Inline: power enters at the
+ * Circuit Breaker (0.4.0). Inline: power enters at the
  * back, leaves at the front. While closed it passes up to {@code min(demand, 125 % of its limit)} a tick;
  * load (demand × 1000 / limit) climbs its own failure ladder ({@link BreakerLogic#thresholds}, dwell
  * {@code breakerMinDwellTicks}) with the usual telegraph — amber at 60 %, unstable at 80 %, and at 100 %

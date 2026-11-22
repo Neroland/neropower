@@ -36,7 +36,7 @@ import za.co.neroland.neropower.registry.ModMenuTypes;
 import za.co.neroland.neropower.registry.RegistrationProvider.RegistryEntry;
 
 /**
- * Registrations of the 0.4.0 beam and grid package (WP-Grid): Beam Splitter, Phased Array Emitter,
+ * Registrations of the 0.4.0 beam and grid package: Beam Splitter, Phased Array Emitter,
  * Circuit Breaker, Load Bank and Power Monitor — blocks, block items, block-entity types and menus, in the
  * order the eager (Fabric) loader needs.
  *

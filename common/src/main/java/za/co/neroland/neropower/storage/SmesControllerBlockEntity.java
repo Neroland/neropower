@@ -1,6 +1,7 @@
 package za.co.neroland.neropower.storage;
 
 import java.util.List;
+import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -40,10 +41,12 @@ import za.co.neroland.neropower.multiblock.MultiblockHost;
 import za.co.neroland.neropower.multiblock.MultiblockIndex;
 import za.co.neroland.neropower.multiblock.ShapeResult;
 import za.co.neroland.neropower.multiblock.SmesRingShape;
+import za.co.neroland.neropower.progression.MilestoneGates;
+import za.co.neroland.neropower.progression.OperatorCredit;
 import za.co.neroland.neropower.registry.content.StorageContent;
 
 /**
- * Storage Ring Controller (0.4.0, decision 008; shape in decision 004): the largest store in the
+ * Storage Ring Controller (0.4.0): the largest store in the
  * ecosystem. The ring of {@code smes_coil} it sits in sets the capacity (coils x
  * {@code smesCapacityPerCoil}) and I/O; the energy itself is one {@code long} here ({@link SmesCore}), so
  * breaking a coil unforms the ring but loses nothing, and a smaller re-formed ring caps the charge (the
@@ -108,6 +111,11 @@ public class SmesControllerBlockEntity extends StorageBlockEntity implements Mul
 
     private boolean recheckDue = true;
     private boolean starved;
+    /** The ring-charged owner record has been offered by this loaded controller (transient). */
+    private boolean chargeRecorded;
+    /** The operator this loaded controller last tried to credit with a full ring. Transient, equality only; never log it. */
+    @Nullable
+    private UUID chargeTried;
     private long ioLimit;
     private long lastIn;
     private long lastOut;
@@ -234,7 +242,7 @@ public class SmesControllerBlockEntity extends StorageBlockEntity implements Mul
         FailureStage stage = ladder.tick(this.core.warmth(), SmesCore.MAX_WARMTH,
                 !blast || NeroPowerConfig.overloadEnabled());
         if (stage == FailureStage.FAILURE && ladder.justEntered()) {
-            if (blast && level instanceof ServerLevel serverLevel) {
+            if (blast && !isGalleryExhibit() && level instanceof ServerLevel serverLevel) {
                 FailureContext ctx = failureContext();
                 new Explode(ctx.boundsRadius()).apply(serverLevel, pos, ctx);
                 return; // the controller is gone, and its charge with it
@@ -259,6 +267,27 @@ public class SmesControllerBlockEntity extends StorageBlockEntity implements Mul
         updateReadout(stage);
         updateBuckets(this.lastIn + this.lastOut);
         setActive(this.core.online() && this.core.energy() > 0);
+        creditCharge(level);
+    }
+
+    /**
+     * First full ring: records the owner once per load and credits the online operator in the moment
+     * (NeroTech's transient {@code lastOperator}). Persists nothing about the player.
+     */
+    private void creditCharge(Level level) {
+        if (!(level instanceof ServerLevel serverLevel)
+                || !OperatorCredit.ringCharged(this.core.formed(), this.core.energy(), this.core.capacity())) {
+            return;
+        }
+        if (!this.chargeRecorded) {
+            this.chargeRecorded = true;
+            MilestoneGates.record(serverLevel, ownerId(), MilestoneGates.SMES_CHARGED);
+        }
+        UUID operator = lastOperator().orElse(null);
+        if (OperatorCredit.shouldTry(true, operator, this.chargeTried) && MilestoneGates.online(serverLevel, operator)) {
+            this.chargeTried = operator;
+            MilestoneGates.credit(serverLevel, operator, MilestoneGates.SMES_CHARGED);
+        }
     }
 
     private void updateReadout(FailureStage stage) {

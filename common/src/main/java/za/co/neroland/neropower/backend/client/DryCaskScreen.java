@@ -15,7 +15,7 @@ import za.co.neroland.neropower.backend.DryCaskMenu;
 import za.co.neroland.neropower.client.GaugeTooltips;
 
 /**
- * Dry Cask screen (spec {@code screens/dry_cask.md}): tall 176 × 222 hull, the 27-slot store at the
+ * Dry Cask screen: tall 176 × 222 hull, the 27-slot store at the
  * top, a solo heat bar below it (NeroTech's heat tooltip), the shielding chip, the stored and
  * trace-heat lines, the upgrade row and preset pill moved beside them, and the stall line. Empty store
  * slots say hot rods are refused; empty upgrade slots say what they take.
@@ -136,5 +136,13 @@ public class DryCaskScreen extends MachineScreen<DryCaskMenu> {
             }
         }
         return null;
+    }
+
+    /** The Guide button (opens the Power Guide at this block's chapter). */
+    @Override
+    protected void init() {
+        super.init();
+        addRenderableWidget(za.co.neroland.neropower.client.guide.PowerGuideLinks.button(this, this.menu,
+                this.leftPos, this.topPos, this.imageWidth));
     }
 }

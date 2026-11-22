@@ -5,7 +5,9 @@ All notable changes to **NeroPower** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.4.0] - Unreleased (work from 2026-11-21; set the date on release)
+
+The "Power Station" release: a steam plant, a second fuel line, a waste back end, new storage tiers, beam grids, optional radiation, link schema 2 and a gallery power station. Existing reactors, banks and beam links from 0.3.x load unchanged, and no block, item, fluid, recipe or tag id was removed or renamed.
 
 ### Added
 
@@ -22,6 +24,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Tools:** the Beam Alignment Scope shows a beam's line of sight and the first block in its way while you hold it and look at an emitter. The SCRAM Key SCRAMs a reactor when you use it on the core or its shell. It only works within reach.
 - Sounds with subtitles and particles for the new machines (steam, quench vapour, fuel rack bubbles, radiation motes). Recipe-book unlocks for every new recipe.
 - Chunk contamination storage for the coming radiation system, behind the new `radiationMode` setting (`auto` by default: on in singleplayer and LAN, off on dedicated servers). It records only a level per chunk, decays over time and is capped per dimension (`radiationDecayPermillePerMinute`, `radiationMaxChunksPerDimension`, `radiationDecayBudgetPerTick`). No player data.
+- **NeroLink (link schema 2):** a new `turbines` section, a public `catalogue` section (every block by family and role, the fuel lines as step lists, and the storage tiers with this server's capacity and I/O, the same for every player), and a `turbine_trip` action that latches a turbine's trip like an overspeed would. Plant entries carry more readings (reactor mode, size, rods and output; turbine speed, output and steam; stored energy and I/O for every store kind). Failure events go to online players near the machine as live notices; only a recorded owner under NeroTech's per-player attribution can get a push, and only when a machine becomes unstable or starts to fail. At most five events per machine a minute.
+- **Power Guide:** an in-game guide to the steam plant, both fuel lines, waste, storage, beam grids, grid tools, generation (Hydrogen Fuel Cell and Betavoltaic Cell) and radiation, each step naming the next. Open it with the Guide button above any NeroPower machine screen; it opens at that block's chapter. Status-line fix hovers point to it. No new item, block or key binding.
+- Steam plants run with no pipe mod: Reactor Steam Ports and Turbine Steam Ports are faces onto their structure's shared tanks, and every 10 ticks they move fluid into the block they touch. A reactor port pushes steam into an abutting Turbine Steam Port inlet and draws water or cryo coolant from what it touches; an exhaust port pushes exhaust steam into an abutting Steam Condenser; the condenser pushes water into an abutting Reactor Steam Port or tank. Faces follow the side configuration (default I/O with auto-eject and auto-input on); set a face to Push to force it.
+- Config `portTransferInterval` (default 10 ticks, 1–200): how often ports and condensers exchange fluid with the blocks they touch.
+- **Gallery power station:** `/neropower gallery` now builds a walkable station with every NeroPower block running: a 7×7×7 reactor in steam mode feeding a turbine and condenser, a breeder reactor, the waste line ending in a cask yard behind shielding, a storage hall (Surge Bank, Momentum Wheel, Storage Ring), a breaker and monitor wall, a Load Bank test bench and a beam yard with a splitter and a phased array. `/neropower gallery tour [stop]` steps through 16 stops with captions; `/neropower gallery clear` removes everything, including any contamination in the chunks it covers. Creative only. Gallery machines are exhibits: they record no owner or operator, credit no milestone, quest or trophy, send no alert or NeroLink event, give off no radiation and never run a destructive failure action.
+- **Reactor Log quests:** Turbine Spin-up, First Breed, Into Glass (first Vitrified Waste) and Full Ring (a fully charged Storage Ring), with new milestone records `neropower:turbine_spinup`, `neropower:first_breed`, `neropower:first_vitrified` and `neropower:smes_charged`.
 
 ### Changed
 
@@ -32,9 +40,72 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - NeroPower no longer reads NeroTech's internal block registry: the Stirling Generator's cold face and the gallery find NeroTech's blocks by id, and the storage push guard uses the `neropower:energy_storages` block tag (NeroTech's Battery Bank is an optional entry).
 - The Chemical Processor's spent-rod reprocessing still yields only the reprocessed pellet, because its recipe format allows a single result. The Centrifuge route gives 2 pellets plus 1 Fission Residue.
 - Fluid names show in other mods' tank and pipe screens on Fabric too.
+- **NeroLink (link schema 2):** no section entry carries a coordinate, a dimension or a beam's length any more, and no event names a dimension. Every entry carries an opaque handle `h` instead, valid for 30 seconds for the player who asked. Actions take that handle and nothing else; an older app that still sends a position gets `update_required`. Actions are limited to 10 a minute per player on top of the bridge's own limit, and the target must still be in reach when the action runs. Handles and rate windows are kept in memory only and are dropped when a player is erased.
+- A reactor's steam ports share one coolant tank and one steam tank (capacity = ports × `reactorSteamPortTankMb`): water piped into any port can be boiled and leave as steam through any other. A turbine's inlet ports share one steam tank and its exhaust ports one exhaust tank.
+- On an automatic face, steam and exhaust steam are pushed only into blocks that do not also take water, so a relay tank between a condenser and a reactor port is never filled with steam.
+- Balance: a reactor in steam mode now raises steam in step with its burn rate, so Eco, Overdrive and Speed modules no longer change how much steam a rod makes over its life (Eco used to give a third more).
+- Balance: the turbine's NE per mB of steam is capped so steam mode can never yield more than twice direct mode per rod, whatever the config. The default (8) is unchanged.
+- Balance: Speed modules and the Overdrive preset make the Stirling Generator draw heat faster; they no longer multiply the NE it makes from that heat. (A Load Bank feeding a Stirling could make energy from nothing.)
+- Balance: standalone Pallurite Dust from tuff now takes 80 NE/t (was 160), four times the offworld route's energy and time per pellet.
+- Balance: the Hydrogen Fuel Cell now gives 60 NE per unit of hydrogen (was 200), and `fuelCellNePerHydrogenUnit` is capped at 70. Splitting water in NeroTech's Electrolyzer and burning the hydrogen always loses energy, even with the Electrolyzer fully upgraded.
+- A Fuel Rod or Braided Fuel Rod that has burnt at all now leaves the core as a Hot Spent Fuel Rod, however it leaves (taken by hand, shift-clicked, swapped or dropped from the screen, or the core broken). Pull rods only when spent: a partly used rod comes out spent and goes through the rack, cooling and the waste route. Fresh rods come out unchanged, and rods already in inventories are left as they are.
+- Machines now say what they are doing in the world: the Turbine Steam Port shows when it is flowing and when it is starved or blocked, a leaking Dry Cask (radioactive waste with a face not shielded) opens its vents, and a Betavoltaic Cell with a spent capsule shows it (a full energy buffer no longer looks spent).
+- Turbine, reactor, storage ring, breaker, load bank, beam, fuel cell, condenser, vitrifier and cask sounds now play: the turbine spools up, hums by speed, overspeeds, trips and winds down; the Reactor Control Computer sounds its alarm while lit; the Storage Ring hums and warns while warming. Loops follow the machine and stop when it stops or is removed; nothing extra is sent from the server.
+- The twelve parts with no screen (moderators, Breeder Blanket, Europium Control Rod Assembly, Reactor and Turbine Steam Ports, Turbine Shroud, Spindle and Stator, Storage Ring Coil, Shielding Block and Glass) say what they do, or what to use on them, in their item tooltip.
+- Screens: a Fission Core at warning or unstable says "Running hot" or "Failing" instead of "Idle"; the Fission Core and Reactor Control Computer status lines explain themselves and their fix on hover, as do the storage, grid and beam screens; a Turbine Helm with the right shape but no working vane slice or no wound stators says which, instead of "Turbine not formed"; a hot Spent Fuel Rack says cooling is paused; a half-loaded Vitrifier says it needs waste and sand; a Storage Ring warming for lack of coolant says so.
+- **NeroLink:** plant sections no longer say how far away a machine is. Each entry carries only a band: `near` (about two chunks) or `in_range`. Each player gets at most 6 fresh answers per section a minute; a faster read gets the last answer again. Acknowledge, SCRAM and turbine trip work remotely only on machines you own; any other machine answers `NOT_OWNER` and is used in person.
+- Version label: `0.4.0`, a stable version with no pre-release suffix.
+- Documentation: new wiki pages Steam Plant, Fuel Lines, Waste, Storage, Beam Grids, Radiation, Tools, Commands and Link Module; Configuration now lists every key; Fission Reactor, Failure Stages, Battery Banks, Beamed Power, RTG and Stirling, Quest Chapter, Privacy and Home brought up to date.
+- Milestone records (`criticality`, `bank_capacity`, `first_breed`, `turbine_spinup`, `smes_charged`, `first_vitrified`) now also go to the player operating the machine at that moment, if they are online, so trophies and quests work without a recorded owner. Criticality is recorded when a formed reactor actually burns fuel. Nothing about that player is saved.
+
+### Privacy
+
+- Privacy: the NeroLink inbox alert for an unstable or failed reactor no longer contains the machine's coordinates. It names the machine type and stage, and its id no longer encodes the position.
+- Privacy: crash reports now mask UUIDs and block positions in error text, including text from other mods and from Minecraft itself.
+- Privacy: `PRIVACY.md` covers radiation (no dose stored, contamination per chunk, Geiger and dosimeter readings on the item only), operator credit at the moment, link schema 2 (no coordinates, opaque handles, rate limit, catalogue) and how to access the beam link owner.
+- Privacy: NeroMaps no longer shows other players' or unowned reactors and beam endpoints. The "Power nearby" layer is removed and only your own machines are drawn.
+- Privacy: beam link owner erasure now finishes in chunks unloaded for any length of time. Tombstones are salted hashes and never the UUID, and links made after an erasure keep their owner (new `LinkDay` save key).
+- Privacy: NeroLink plant sections decide reach on the chunk grid, show only a coarse `band` (`near` / `in_range`), and allow 6 fresh reads per section a minute.
+- Privacy: remote SCRAM, turbine trip and alarm acknowledge now need a machine you own. Use unowned machines in person.
+- Privacy: an unlinked Beam Transmitter / Relay is scoped to its NeroTech owner.
+- Privacy: nearby clients no longer receive a beam's absolute target beyond 64 blocks or in another dimension.
+- Privacy: the Geiger Counter ignores fully shielded sources, and only your own held counter animates.
+- Privacy: crash-report scrubbing now also masks player and world names and decimal positions.
+- Privacy: `/neropower gallery` beams record no player.
+
+### Fixed
+
+- Beam damage now hits only what stands on the line between the two endpoints (half a block either side), at most 16 creatures a pass, for the Beam Transmitter, Relay, Beam Splitter and Phased Array Emitter alike. It used to hit everything inside the box the two ends span, which for a long diagonal beam was a large area.
+- The Hydrogen Fuel Cell now pushes its water into touching blocks that take water and pulls hydrogen and oxygen from touching blocks that hold them (every `portTransferInterval` ticks, by its side config). It used to stop for good after 80 units unless a water-using machine touched it.
+- Every reactor failure now adds the radiation burst (with radiation on), not only a cryo-cooled one.
+- Radiation no longer contaminates a protected chunk or harms anything standing on protected ground (NeroPower's protection check; vanilla spawn protection until a claims mod implements it). Dropped rods and residue add at most 40 to one chunk per pass.
+- `/neropower gallery clear` no longer clears around the player when the server does not remember the gallery (after a restart): it finds the gallery from its own machines or refuses. It removes only the blocks and labels the gallery placed, leaves blocks and machines built there since, and no longer clears contamination. Only one gallery per dimension; a remembered gallery from another world is never used, and the build message gives the box size.
+- The Fission Core, Reactor Control Computer and Turbine Helm screens now check protection before acting on a button, as the grid and beam screens do.
+- A steam-mode reactor no longer stalls once its port's water is used up when no pipe mod is installed (the port could not take water and give steam on its one face).
+- A `beamDamage` of `NaN` in the config reads as the default.
+- The Turbine Steam Port's model now loads in game (its block state was missing the `status` property its art names).
+
+### Not in this release
+
+- **Rad Cloak:** not added. Nerospace suits already protect once lined, and any armour can join the `neropower:radiation_shielding` tag.
+- **Loss-free beam relay upgrade:** declined. Superconducting parts go into the Phased Array Emitter instead, which loses a third as much per block.
+- **Reprocessing residue from the Chemical Processor:** its spent-rod recipe is unchanged (one Reprocessed Pellet, no residue), because the recipe format allows one result. Use the Centrifuge route for residue.
+- **Helium-3:** no fission use; it stays NeroTech's fusion fuel.
+
+### Seams (built locally until a sibling offers a shared version)
+
+- **Item energy:** Power Cells use NeroPower's own portable-energy seam, with standard item energy on NeoForge and Forge only. Fabric gets item energy when Neroland Core ships a shared item-energy lookup.
+- **Multiblocks:** the reactor, turbine and Storage Ring use NeroPower's own multiblock base; NeroTech has no public one yet.
+- **Guide:** the Power Guide has its own viewer until NeroTech's guide accepts chapters from other mods.
+- **Gauges:** large values (past one billion NE) use NeroPower's own wide gauge data on top of NeroTech's gauge tail.
+- **Data export:** Neroland Core has no shared export command yet, so a copy of a player's beam link owner records is made by the server operator on request.
+- **Radiation-capable suits and Pallurite sources:** Nerospace items are listed by id as optional tag entries until Nerospace ships tags for them.
+- **Fluid tags:** NeroPower declares `c:steam` and `c:heavy_water` itself.
+- **NeroTech classes:** NeroPower still compiles against a few NeroTech machine classes outside its public API (the machine base, its configuration, the Configurator and pollution); these follow NeroTech's 0.8.x line.
 
 ### Dependencies
 
+- Updated NeroTech from 0.7.1-beta.1 to 0.8.0 (NeroTech 0.8.0 must be published before this release can be).
 - Updated Neroland Core from 1.19.0 to 1.20.0.
 
 ## [0.3.2] - 2026-11-21

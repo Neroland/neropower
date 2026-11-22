@@ -1,0 +1,13 @@
+{
+  "title": "gui.neropower.power_guide.title",
+  "chapters": [
+    "steam_plant",
+    "fuel_lines",
+    "waste",
+    "storage",
+    "beam_grids",
+    "grid_tools",
+    "generation",
+    "radiation"
+  ]
+}

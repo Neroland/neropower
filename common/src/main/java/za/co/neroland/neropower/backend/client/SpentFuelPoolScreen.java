@@ -16,7 +16,7 @@ import za.co.neroland.neropower.client.GaugeTooltips;
 import za.co.neroland.neropower.failure.FailureStage;
 
 /**
- * Spent Fuel Rack screen (spec {@code screens/spent_fuel_pool.md}): tall 176 × 206 hull, a solo heat
+ * Spent Fuel Rack screen: tall 176 × 206 hull, a solo heat
  * bar (NeroTech's heat tooltip), the four rod slots in a 2 × 2 block, each with a cooling ring, the
  * water column (pips, count, net heat), the stage block and the stall line. NeroTech's screen stays the
  * single tooltip emitter; this screen only answers {@link #gaugeTooltip} for its own parts.
@@ -99,6 +99,10 @@ public class SpentFuelPoolScreen extends MachineScreen<SpentFuelPoolMenu> {
         int hot = this.menu.hotRods();
         Component idle = Component.translatable(anyRod() ? "gui.neropower.spent_fuel_pool.all_cooled"
                 : "gui.neropower.spent_fuel_pool.empty");
+        if (this.menu.readout() == za.co.neroland.neropower.backend.BackEndReadout.HOT) {
+            // Rods do not cool while the rack is hot: say the timer stopped, not just "running hot".
+            return Component.translatable("gui.neropower.spent_fuel_pool.paused");
+        }
         return BackEndHud.stallText(this.menu.readout(), this.menu.stallCause(),
                 Component.translatable("gui.neropower.spent_fuel_pool.running", hot), idle);
     }
@@ -165,5 +169,13 @@ public class SpentFuelPoolScreen extends MachineScreen<SpentFuelPoolMenu> {
             case 2 -> lines.add(GaugeTooltips.tr("pool.rod.cooled"));
             default -> lines.add(GaugeTooltips.tr("pool.rod.empty"));
         }
+    }
+
+    /** The Guide button (opens the Power Guide at this block's chapter). */
+    @Override
+    protected void init() {
+        super.init();
+        addRenderableWidget(za.co.neroland.neropower.client.guide.PowerGuideLinks.button(this, this.menu,
+                this.leftPos, this.topPos, this.imageWidth));
     }
 }

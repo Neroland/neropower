@@ -18,7 +18,7 @@ import za.co.neroland.nerolandcore.fluid.NeroFluidStorage;
  * allows. Both directions stay open on the raw tank so a loader's transactional handler can always undo
  * a transfer; one-way faces come from the views the port hands out. World data only.
  */
-public final class ReactorPortTank implements NeroFluidStorage {
+public final class ReactorPortTank implements NeroFluidStorage, za.co.neroland.neropower.turbine.PortPool.Slot<Fluid> {
 
     private final FluidBuffer buffer;
     private final Predicate<Fluid> accepts;
@@ -71,6 +71,43 @@ public final class ReactorPortTank implements NeroFluidStorage {
         return this.buffer.drain(amount, simulate);
     }
 
+    // --- shared-tank slot --------------------------------------------------------
+
+    @Override
+    public Fluid slotFluid() {
+        return getFluid();
+    }
+
+    @Override
+    public boolean slotEmpty() {
+        return getAmount() <= 0L || getFluid() == Fluids.EMPTY;
+    }
+
+    @Override
+    public long slotAmount() {
+        return getAmount();
+    }
+
+    @Override
+    public long slotCapacity() {
+        return getCapacity();
+    }
+
+    @Override
+    public boolean slotAccepts(Fluid fluid) {
+        return accepts(fluid);
+    }
+
+    @Override
+    public long slotFill(Fluid fluid, long amount, boolean simulate) {
+        return fill(fluid, amount, simulate);
+    }
+
+    @Override
+    public long slotDrain(long amount, boolean simulate) {
+        return drain(amount, simulate);
+    }
+
     /** Follow a config change of the tank size (clamps the contents). */
     public void resize(long capacity) {
         if (capacity != this.buffer.getCapacity()) {
@@ -85,14 +122,14 @@ public final class ReactorPortTank implements NeroFluidStorage {
             return;
         }
         Identifier id = BuiltInRegistries.FLUID.getKey(fluid);
-        output.putString(key + "Fluid", id.toString());
-        output.putInt(key + "Amount", this.buffer.getRawAmount());
+        output.putString(key + za.co.neroland.neropower.turbine.PortTankSave.FLUID, id.toString());
+        output.putInt(key + za.co.neroland.neropower.turbine.PortTankSave.AMOUNT, this.buffer.getRawAmount());
     }
 
     /** Read what {@link #save} wrote; an unknown or no-longer-accepted fluid loads as empty. */
     public void load(ValueInput input, String key) {
-        String raw = input.getStringOr(key + "Fluid", "");
-        int amount = input.getIntOr(key + "Amount", 0);
+        String raw = input.getStringOr(key + za.co.neroland.neropower.turbine.PortTankSave.FLUID, "");
+        int amount = input.getIntOr(key + za.co.neroland.neropower.turbine.PortTankSave.AMOUNT, 0);
         Identifier id = raw.isEmpty() ? null : Identifier.tryParse(raw);
         Fluid fluid = id == null ? Fluids.EMPTY : BuiltInRegistries.FLUID.getValue(id);
         if (fluid == null || !accepts(fluid) || amount <= 0) {

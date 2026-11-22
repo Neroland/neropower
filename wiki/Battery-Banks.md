@@ -17,7 +17,8 @@ in/out limit and a switchable mode.
 
 A cell accepts and gives energy on every face (the Storage preset — reconfigure faces with the
 Configurator as usual). Its model shows the stored charge in five steps from empty to full, so a
-wall of cells reads at a glance.
+wall of cells reads at a glance. Each cell has one **charge slot** that tops up a
+[Power Cell](Storage.md#power-cells).
 
 **No sloshing.** A cell never pushes energy into another storage block — another cell, a
 controller or a NeroTech Battery Bank — so a wall of half-full cells does not shuffle charge
@@ -34,6 +35,9 @@ on each axis — 2 by default, a 5×5×5 region) and pools every cell it finds:
   `bankMaxIoCap` (64,000 NE/t by default). Mixing tiers therefore drags the whole bank down to the
   weakest cell's rate — keep a bank to one tier.
 - Energy is spread across the members round-robin, so every cell charges and drains together.
+- A **Surge Bank** touching the bank joins it as the **fast tier**: it fills first and empties first,
+  with its own I/O cap (`bankFastTierIoCap`). See [Storage](Storage.md#surge-bank).
+- The Momentum Wheel and the Storage Ring never join a bank; see [Storage](Storage.md).
 
 The controller itself stores nothing; its GUI and NeroTech's Analytics Terminal show the pooled
 figures — cells pooled, stored / capacity, bank I/O and the current mode. Members are rediscovered

@@ -37,7 +37,7 @@ public abstract class NeroPowerMachineBlock extends NeroTechMachineBlock {
     public static final BooleanProperty ALARM = BooleanProperty.create("alarm");
 
     /**
-     * In-world state for machines whose art has states but no renderer (decision 012 addendum): set by the
+     * In-world state for machines whose art has states but no renderer: set by the
      * block entity from its readout only when the bucket changes, never per tick.
      */
     public enum VisualStatus implements net.minecraft.util.StringRepresentable {
@@ -116,13 +116,28 @@ public abstract class NeroPowerMachineBlock extends NeroTechMachineBlock {
 
     /**
      * NeroTech's server ticker, timed for {@code /neropower budget} while a sampling window is open
-     * (one volatile read otherwise). Client tickers are returned unchanged.
+     * (one volatile read otherwise). On the client, NeroTech's ticker (if any) followed by NeroPower's
+     * sound effects ({@link PowerClientHook}), when the client installed them.
      */
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state,
             BlockEntityType<T> type) {
         BlockEntityTicker<T> inner = super.getTicker(level, state, type);
-        if (inner == null || level.isClientSide()) {
+        if (level.isClientSide()) {
+            PowerClientHook.Handler effects = PowerClientHook.handler();
+            if (effects == null || type != machineType()) {
+                return inner;
+            }
+            return (lvl, pos, st, be) -> {
+                if (inner != null) {
+                    inner.tick(lvl, pos, st, be);
+                }
+                if (be instanceof NeroPowerMachineBlockEntity machine) {
+                    effects.tick(machine);
+                }
+            };
+        }
+        if (inner == null) {
             return inner;
         }
         return (lvl, pos, st, be) -> {

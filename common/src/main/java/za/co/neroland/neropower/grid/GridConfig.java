@@ -5,7 +5,7 @@ import za.co.neroland.nerolandcore.config.ConfigValue;
 import za.co.neroland.neropower.config.NeroPowerConfig;
 
 /**
- * Grid balance keys (0.4.0, decision 008 annex) for the Circuit Breaker and the Load Bank, declared on
+ * Grid balance keys (0.4.0) for the Circuit Breaker and the Load Bank, declared on
  * NeroPower's shared {@code neropower} schema. {@code NeroPowerCommon.init()} must class-load this
  * ({@link #init()}) <b>before</b> {@code NeroPowerConfig.load()}. Server-authoritative; no player data.
  */

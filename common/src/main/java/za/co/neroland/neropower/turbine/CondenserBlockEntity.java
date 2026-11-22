@@ -45,7 +45,12 @@ import za.co.neroland.neropower.registry.content.TurbineContent;
  * NeroTech's {@link PlanetApi#atmosphereAt} reports here (Nerospace planet, else NeroTech's config, else
  * Earth-like; a vacuum carries no heat away); then each face-adjacent NeroTech Radiator; then
  * {@code #nerotech:cryo_coolant} from its coolant tank. With none of them it stops and says "no heat
- * sink" rather than failing silently. No player data.
+ * sink" rather than failing silently.
+ *
+ * <p><b>Pipe-less return.</b> Every {@code portTransferInterval} ticks the condenser pushes
+ * its water into the blocks it touches that take water (a Reactor Steam Port, whose shared coolant tank
+ * feeds the core; a Core or NeroTech tank), by its FLUID side configuration (STORAGE preset, auto-eject on).
+ * Exhaust arrives pushed by an abutting Turbine Steam Port in exhaust mode. No player data.
  */
 public class CondenserBlockEntity extends NeroPowerMachineBlockEntity {
 
@@ -96,6 +101,9 @@ public class CondenserBlockEntity extends NeroPowerMachineBlockEntity {
     private int rateBucket;
     private int stallCause;
     private int readout;
+
+    /** Exchange phase seed (transient). */
+    private final int phaseSeed = System.identityHashCode(this);
 
     private int syncedRate = -1;
     private int syncedSink = -1;
@@ -209,6 +217,19 @@ public class CondenserBlockEntity extends NeroPowerMachineBlockEntity {
         this.stallCause = cause;
         this.readout = done > 0L ? TurbineReadout.WORK : cause != STALL_NONE ? TurbineReadout.STALL : TurbineReadout.REST;
         setActive(done > 0L);
+    }
+
+    // --- pipe-less exchange ------------------------------------------------------------
+
+    @Override
+    protected void exchangeMedia(Level level, BlockPos pos) {
+        if (level.isClientSide() || this.water.getAmount() <= 0L) {
+            return;
+        }
+        int interval = TurbineConfig.portTransferInterval();
+        if (PortTransfer.due(level.getGameTime(), PortTransfer.phase(this.phaseSeed, interval), interval)) {
+            PortExchange.push(level, pos, sideConfig(), this.water, false, interval);
+        }
     }
 
     // --- read surface ---------------------------------------------------------------------------------

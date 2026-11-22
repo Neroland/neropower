@@ -3,7 +3,7 @@ package za.co.neroland.neropower.beam;
 import java.util.function.IntPredicate;
 
 /**
- * Phased Array Emitter serving order (decision 008 annex), Minecraft-free: one target per pass, in list
+ * Phased Array Emitter serving order, Minecraft-free: one target per pass, in list
  * order, round-robin. A target that cannot take the beam this pass (blocked, out of range, full, asleep)
  * is skipped and the next one is tried, at most once each, so one bad target never starves the rest.
  */

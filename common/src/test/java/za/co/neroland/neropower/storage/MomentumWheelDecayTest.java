@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 /**
- * Rule test for the Momentum Wheel (decision 008): it loses {@code lossPermillePerSecond} of its charge
+ * Rule test for the Momentum Wheel: it loses {@code lossPermillePerSecond} of its charge
  * every second, at least 1 NE so it always comes to rest, never below zero; nothing is added; the renderer
  * bucket is fill / 50 permille. Pure JVM.
  */

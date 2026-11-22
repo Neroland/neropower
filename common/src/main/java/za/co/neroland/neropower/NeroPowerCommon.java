@@ -96,5 +96,7 @@ public final class NeroPowerCommon {
         // Quest-pack hook gates (Core progression events only; no quest-mod dependency). The loaders
         // feed QuestHooks.tick from the server tick for offline-to-online delivery.
         QuestHooks.init();
+        // Event-driven milestone gates (first vitrified log) credited to the operator in the moment.
+        za.co.neroland.neropower.progression.MilestoneGates.init();
     }
 }

@@ -52,9 +52,10 @@ public final class NeroPowerClient {
     private NeroPowerClient() {
     }
 
-    /** Client setup that needs no event: item-model properties. */
+    /** Client setup that needs no event: item-model properties and the machine sound loops. */
     public static void init() {
         PowerItemProperties.register();
+        PowerSoundEffects.install();
     }
 
     /** The 0.4.0 screens. */

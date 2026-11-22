@@ -10,7 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import za.co.neroland.neropower.registry.ModTags;
 
 /**
- * Counts the worn armour pieces that shield from radiation (decision 007). A piece counts when it is
+ * Counts the worn armour pieces that shield from radiation. A piece counts when it is
  * in {@code #neropower:radiation_shielding}; if it is also in {@code #neropower:radiation_shielding_lined}
  * it counts only while it carries the component registered as {@code nerospace:rad_lining}. That
  * component is resolved once by id through the data-component registry: no Nerospace class, no

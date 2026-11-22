@@ -12,7 +12,7 @@ import za.co.neroland.neropower.radiation.RadiationMath;
 import za.co.neroland.neropower.registry.content.RadiationContent;
 
 /**
- * Client-side read model of the Geiger Counter HUD ({@code screens/hud-geiger.md} is the art package's
+ * Client-side read model of the Geiger Counter HUD (the art package's
  * spec; the renderer draws from here and owns nothing else). Everything is read from the local
  * player's own copy of the held counter's {@code neropower:geiger_reading} component and from the
  * badges in their own inventory; nothing is requested or sent. Also plays the clicks:
@@ -136,8 +136,16 @@ public final class GeigerReadModel {
         return needlePrev + (needle - needlePrev) * partialTick;
     }
 
-    /** The Geiger item-model frame 0..2 for a stack (by its own reading). */
+    /**
+     * The Geiger item-model frame 0..2 for a stack, by its own reading, but only for a counter in the local
+     * player's own hand: another player's counter, a dropped one or a stored one draws idle, whatever reading
+     * it may still carry.
+     */
     public static int frame(ItemStack stack) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null || (stack != player.getMainHandItem() && stack != player.getOffhandItem())) {
+            return 0;
+        }
         GeigerReading r = stack.get(RadiationContent.GEIGER_READING.get());
         return r == null || !r.hasData() ? 0 : RadiationMath.geigerFrame(r.centre());
     }

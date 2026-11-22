@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
 /**
- * Radiation's rules (decision 007): shielding stops emission, decay is deterministic, nothing is kept
+ * Radiation's rules: shielding stops emission, decay is deterministic, nothing is kept
  * per player, the dosimeter stores no identity, and with radiation off nothing happens.
  */
 class RadiationRulesTest {

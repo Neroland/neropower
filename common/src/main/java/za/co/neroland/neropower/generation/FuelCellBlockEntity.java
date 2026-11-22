@@ -32,10 +32,14 @@ import za.co.neroland.nerotech.api.PlanetApi;
 import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.machine.MachineEnergy;
 import za.co.neroland.nerotech.machine.MachineStatus;
+import za.co.neroland.nerotech.machine.MediumExchange;
 
 import za.co.neroland.neropower.machine.NeroPowerMachineBlockEntity;
 import za.co.neroland.neropower.menu.GaugeTail;
 import za.co.neroland.neropower.registry.content.GenerationContent;
+import za.co.neroland.neropower.turbine.PortExchange;
+import za.co.neroland.neropower.turbine.PortTransfer;
+import za.co.neroland.neropower.turbine.TurbineConfig;
 
 /**
  * Hydrogen Fuel Cell: hydrogen and oxygen in (Core gases, or their transport fluids from a pipe), a
@@ -87,6 +91,8 @@ public class FuelCellBlockEntity extends NeroPowerMachineBlockEntity {
     private int syncedStall = -1;
     private int syncedMode = -1;
 
+    private final int phaseSeed = System.identityHashCode(this);
+
     public FuelCellBlockEntity(BlockPos pos, BlockState state) {
         super(GenerationContent.FUEL_CELL_TYPE.get(), pos, state, 0);
         long capacity = GenerationConfig.fuelCellTankMb();
@@ -99,8 +105,9 @@ public class FuelCellBlockEntity extends NeroPowerMachineBlockEntity {
                 FuelCellGases.HYDROGEN_FLUID, FuelCellGases.HYDROGEN);
         this.oxygenFluid = new FuelCellGases.FluidView(this.oxygen, FuelCellGases.OXYGEN_FLUIDS,
                 FuelCellGases.OXYGEN_FLUID, FuelCellGases.OXYGEN);
-        // Energy out of every face; gas in on every face (pulled from neighbours); water out of every
-        // face, pushed to neighbours.
+        // Energy out of every face; gas in on every face, pulled from neighbours that hold hydrogen or
+        // oxygen; water out of every face, pushed to neighbours that take it (exchangeMedia, every
+        // portTransferInterval ticks). The side config decides which faces do either.
         setupSideConfig(SideConfig.builder()
                 .channel(Channel.ENERGY)
                 .channel(Channel.GAS)
@@ -146,6 +153,40 @@ public class FuelCellBlockEntity extends NeroPowerMachineBlockEntity {
     @Override
     public boolean shedable() {
         return false;
+    }
+
+    /**
+     * Pipe-less exchange, every {@code portTransferInterval} ticks at this block's own phase: push the
+     * water tank out of every face whose FLUID mode lets it out (auto-eject or PUSH), and pull hydrogen
+     * and oxygen in through every face whose GAS mode takes input automatically. Every move goes through
+     * NeroTech's conserving transfer, so nothing is created or lost.
+     */
+    @Override
+    protected void exchangeMedia(Level level, BlockPos pos) {
+        if (level.isClientSide()) {
+            return;
+        }
+        int interval = TurbineConfig.portTransferInterval();
+        if (!PortTransfer.due(level.getGameTime(), PortTransfer.phase(this.phaseSeed, interval), interval)) {
+            return;
+        }
+        SideConfigComponent config = sideConfig();
+        if (this.water.getAmount() > 0L) {
+            PortExchange.push(level, pos, config, this.water, false, interval);
+        }
+        boolean autoInput = config != null && config.config().has(Channel.GAS)
+                && config.config().get(Channel.GAS).autoInput();
+        if (!autoInput) {
+            return;
+        }
+        if (this.hydrogen.getAmount() < this.hydrogen.getCapacity()) {
+            MediumExchange.pullGas(level, pos, config, this.hydrogen, mode -> PortTransfer.pulls(mode, true),
+                    FuelCellGases::isHydrogen, neighbour -> neighbour instanceof FuelCellBlockEntity);
+        }
+        if (this.oxygen.getAmount() < this.oxygen.getCapacity()) {
+            MediumExchange.pullGas(level, pos, config, this.oxygen, mode -> PortTransfer.pulls(mode, true),
+                    FuelCellGases::isOxygen, neighbour -> neighbour instanceof FuelCellBlockEntity);
+        }
     }
 
     private boolean breathable(Level level, BlockPos pos) {

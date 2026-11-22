@@ -37,7 +37,7 @@ public final class BeamConfig {
             "beamOrbitalHopLossPermille", 300, 0, 1_000, true, "fixed loss (permille) of a cross-dimension "
             + "orbital hop, in place of distance loss (300 = 70% delivered)");
 
-    // --- 0.4.0: Beam Splitter and Phased Array Emitter (decision 008 annex) ----------------------
+    // --- 0.4.0: Beam Splitter and Phased Array Emitter ----------------------
     private static final ConfigValue<Integer> SPLITTER_MAX_LINKS = NeroPowerConfig.schema().intRange(
             "beamSplitterMaxLinks", 4, 1, 8, true, "outgoing links a Beam Splitter may hold; each gets a share "
             + "(permille) of what arrives after the lens, and the shares never add up to more than 100%");
@@ -87,7 +87,9 @@ public final class BeamConfig {
 
     /** Damage per pass to entities in the beam (0..10, default 0.5; 0 disables). */
     public static double beamDamage() {
-        return DAMAGE.get();
+        // A hand-edited "NaN" passes Core's range clamp (Math.max/min keep NaN): read it as the default.
+        double damage = DAMAGE.get();
+        return Double.isFinite(damage) ? damage : DAMAGE.defaultValue();
     }
 
     /** Relay chain depth guard (1..32, default 8). */

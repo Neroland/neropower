@@ -41,7 +41,7 @@ import za.co.neroland.neropower.storage.SurgeBankBlockEntity;
 import za.co.neroland.neropower.storage.SurgeBankMenu;
 
 /**
- * Registrations of the 0.4.0 storage package (WP-Storage): Surge Bank, Momentum Wheel, Storage Ring
+ * Registrations of the 0.4.0 storage package: Surge Bank, Momentum Wheel, Storage Ring
  * Controller and Coil, the three portable Power Cells and the {@code neropower:cell_energy} component, in
  * the order the eager (Fabric) loader needs: component, blocks, items, block-entity types, menus.
  *
@@ -80,7 +80,7 @@ public final class StorageContent {
     public static final RegistryEntry<BlockItem> SURGE_BANK_ITEM = blockItem("surge_bank", SURGE_BANK_BLOCK);
     public static final RegistryEntry<BlockItem> MOMENTUM_WHEEL_ITEM = blockItem("momentum_wheel", MOMENTUM_WHEEL_BLOCK);
     public static final RegistryEntry<BlockItem> SMES_CONTROLLER_ITEM = blockItem("smes_controller", SMES_CONTROLLER_BLOCK);
-    public static final RegistryEntry<BlockItem> SMES_COIL_ITEM = blockItem("smes_coil", SMES_COIL_BLOCK);
+    public static final RegistryEntry<BlockItem> SMES_COIL_ITEM = hintItem("smes_coil", SMES_COIL_BLOCK);
 
     public static final RegistryEntry<PowerCellItem> POWER_CELL_BASIC = powerCell(PowerCellTier.BASIC);
     public static final RegistryEntry<PowerCellItem> POWER_CELL_ADVANCED = powerCell(PowerCellTier.ADVANCED);
@@ -109,6 +109,11 @@ public final class StorageContent {
     private static boolean chargerRegistered;
 
     private StorageContent() {
+    }
+
+    private static RegistryEntry<BlockItem> hintItem(String name, RegistryEntry<? extends Block> block) {
+        return ModItems.ITEMS.register(name, key -> new za.co.neroland.neropower.machine.HintBlockItem(block.get(),
+                new Item.Properties().setId(key), za.co.neroland.neropower.machine.HintBlockItem.keyFor(name)));
     }
 
     private static RegistryEntry<BlockItem> blockItem(String name, RegistryEntry<? extends Block> block) {
@@ -147,7 +152,7 @@ public final class StorageContent {
         return List.of(SMES_CONTROLLER::get);
     }
 
-    /** Creative-tab order (decision 001 family order: Storage, then cells with the other cells and blades). */
+    /** Creative-tab order (family order: Storage, then cells with the other cells and blades). */
     public static List<RegistryEntry<? extends ItemLike>> creativeItems() {
         return List.of(SURGE_BANK_ITEM, MOMENTUM_WHEEL_ITEM, SMES_CONTROLLER_ITEM, SMES_COIL_ITEM);
     }

@@ -21,7 +21,7 @@ import za.co.neroland.neropower.registry.content.FissionContent;
  * {@code 210,18}, the player inventory at x 43, plus the computer's
  * {@value ReactorControlComputerBlockEntity#EXTRA_DATA} synced ints and the output rate as the gauge
  * tail's wide value. Controls arrive through {@link #clickMenuButton} as {@link MenuButtons} ids
- * (decision 012).
+ *.
  */
 public class ReactorControlComputerMenu extends MachineMenu implements GaugeTailMenu {
 
@@ -76,7 +76,8 @@ public class ReactorControlComputerMenu extends MachineMenu implements GaugeTail
 
     @Override
     public boolean clickMenuButton(Player player, int id) {
-        if (!(this.container instanceof ReactorControlComputerBlockEntity computer) || !stillValid(player)) {
+        if (!(this.container instanceof ReactorControlComputerBlockEntity computer) || !stillValid(player)
+                || !za.co.neroland.neropower.protection.Protection.mayUse(player, computer)) {
             return false;
         }
         int value = MenuButtons.value(id);

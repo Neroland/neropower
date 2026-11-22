@@ -1,0 +1,55 @@
+{
+  "chapter": "fuel_lines",
+  "title": "gui.neropower.power_guide.chapter.fuel_lines",
+  "steps": [
+    {
+      "id": "standard_fuel",
+      "icon": "neropower:fuel_rod",
+      "title": "gui.neropower.power_guide.step.standard_fuel",
+      "text": "gui.neropower.power_guide.step.standard_fuel.text",
+      "completed_by_item": "neropower:fuel_rod"
+    },
+    {
+      "id": "moderators",
+      "icon": "neropower:graphite_moderator",
+      "title": "gui.neropower.power_guide.step.moderators",
+      "text": "gui.neropower.power_guide.step.moderators.text",
+      "completed_by_item": "neropower:graphite_moderator"
+    },
+    {
+      "id": "reactor_control",
+      "icon": "neropower:europium_control_rod_assembly",
+      "title": "gui.neropower.power_guide.step.reactor_control",
+      "text": "gui.neropower.power_guide.step.reactor_control.text",
+      "completed_by_item": "neropower:europium_control_rod_assembly"
+    },
+    {
+      "id": "pallurite",
+      "icon": "neropower:pallurite_dust",
+      "title": "gui.neropower.power_guide.step.pallurite",
+      "text": "gui.neropower.power_guide.step.pallurite.text",
+      "completed_by_item": "neropower:pallurite_dust"
+    },
+    {
+      "id": "breeder_blanket",
+      "icon": "neropower:breeder_blanket",
+      "title": "gui.neropower.power_guide.step.breeder_blanket",
+      "text": "gui.neropower.power_guide.step.breeder_blanket.text",
+      "completed_by_item": "neropower:breeder_blanket"
+    },
+    {
+      "id": "braided_fuel_rod",
+      "icon": "neropower:braided_fuel_rod",
+      "title": "gui.neropower.power_guide.step.braided_fuel_rod",
+      "text": "gui.neropower.power_guide.step.braided_fuel_rod.text",
+      "completed_by_item": "neropower:kindled_pellet"
+    },
+    {
+      "id": "fuel_economizer",
+      "icon": "neropower:fuel_economizer",
+      "title": "gui.neropower.power_guide.step.fuel_economizer",
+      "text": "gui.neropower.power_guide.step.fuel_economizer.text",
+      "completed_by_item": "neropower:fuel_economizer"
+    }
+  ]
+}

@@ -102,6 +102,23 @@ public final class SaveKeys {
         return most == 0L && least == 0L ? null : new UUID(most, least);
     }
 
+    /**
+     * NBT key of the UTC epoch day the current link was made (non-personal on its own). Erasure compares it
+     * with the tombstone day, so a player's links made after their erasure keep their owner. Absent in
+     * pre-0.4.0 saves: reads as {@link NeroPowerErasureState#UNKNOWN_LINK_DAY} (older than any erasure).
+     */
+    public static final String LINK_DAY = "LinkDay";
+
+    /** The saved link day, or {@link NeroPowerErasureState#UNKNOWN_LINK_DAY}. */
+    public static long readLinkDay(Reader in) {
+        return in.getLong(LINK_DAY, NeroPowerErasureState.UNKNOWN_LINK_DAY);
+    }
+
+    /** Write the link day. */
+    public static void writeLinkDay(Writer out, long day) {
+        out.putLong(LINK_DAY, day);
+    }
+
     /** Write the link owner (zeros when none). */
     public static void writeLinkOwner(Writer out, UUID owner) {
         out.putLong(LINK_OWNER_MOST, owner == null ? 0L : owner.getMostSignificantBits());

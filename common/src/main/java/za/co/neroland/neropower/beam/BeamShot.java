@@ -1,5 +1,6 @@
 package za.co.neroland.neropower.beam;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -134,21 +135,56 @@ public final class BeamShot {
         });
     }
 
-    /** The transmitter's hazard: {@code beamDamage} magic damage to anything alive in the beam's box. */
-    static void hurtEntitiesInBeam(Level level, BlockPos from, BlockPos to) {
+    /**
+     * The beam hazard, shared by every beam source: {@code beamDamage} magic damage to each living
+     * entity whose box the line between the two block centres passes through (thickened by
+     * {@link BeamMath#BEAM_RADIUS}). Only called once the path is clear, so a wall between the ends
+     * already stops the beam. The segment is walked in {@link BeamMath#HAZARD_STEP}-block steps with a
+     * thin box per step, entities are hurt at most once a pass, and no more than
+     * {@link BeamMath#HAZARD_CAP} per shot. {@code 0} damage disables it.
+     */
+    public static void hurtEntitiesInBeam(Level level, BlockPos from, BlockPos to) {
         double damage = BeamConfig.beamDamage();
         if (damage <= 0.0 || !(level instanceof ServerLevel serverLevel)) {
             return;
         }
-        AABB box = new AABB(Math.min(from.getX(), to.getX()) + 0.5, Math.min(from.getY(), to.getY()) + 0.5,
-                Math.min(from.getZ(), to.getZ()) + 0.5, Math.max(from.getX(), to.getX()) + 0.5,
-                Math.max(from.getY(), to.getY()) + 0.5, Math.max(from.getZ(), to.getZ()) + 0.5).inflate(0.5);
-        for (LivingEntity entity : serverLevel.getEntitiesOfClass(LivingEntity.class, box, LivingEntity::isAlive)) {
-            //? if >=1.21.2 {
-            entity.hurtServer(serverLevel, serverLevel.damageSources().magic(), (float) damage);
-            //?} else {
-            /*entity.hurt(serverLevel.damageSources().magic(), (float) damage);
-            *///?}
+        double ax = from.getX() + 0.5;
+        double ay = from.getY() + 0.5;
+        double az = from.getZ() + 0.5;
+        double bx = to.getX() + 0.5;
+        double by = to.getY() + 0.5;
+        double bz = to.getZ() + 0.5;
+        double length = Math.sqrt((bx - ax) * (bx - ax) + (by - ay) * (by - ay) + (bz - az) * (bz - az));
+        int steps = BeamMath.hazardSteps(length);
+        Set<Integer> hit = new HashSet<>();
+        double pad = BeamMath.BEAM_RADIUS + 0.5;
+        for (int s = 0; s < steps && hit.size() < BeamMath.HAZARD_CAP; s++) {
+            double t0 = (double) s / steps;
+            double t1 = (double) (s + 1) / steps;
+            double x0 = ax + (bx - ax) * t0;
+            double y0 = ay + (by - ay) * t0;
+            double z0 = az + (bz - az) * t0;
+            double x1 = ax + (bx - ax) * t1;
+            double y1 = ay + (by - ay) * t1;
+            double z1 = az + (bz - az) * t1;
+            AABB step = new AABB(Math.min(x0, x1), Math.min(y0, y1), Math.min(z0, z1),
+                    Math.max(x0, x1), Math.max(y0, y1), Math.max(z0, z1)).inflate(pad);
+            for (LivingEntity entity : serverLevel.getEntitiesOfClass(LivingEntity.class, step, LivingEntity::isAlive)) {
+                if (hit.size() >= BeamMath.HAZARD_CAP || hit.contains(entity.getId())) {
+                    continue;
+                }
+                AABB b = entity.getBoundingBox();
+                if (!BeamMath.segmentHitsBox(ax, ay, az, bx, by, bz, b.minX, b.minY, b.minZ, b.maxX, b.maxY, b.maxZ,
+                        BeamMath.BEAM_RADIUS)) {
+                    continue;
+                }
+                hit.add(entity.getId());
+                //? if >=1.21.2 {
+                entity.hurtServer(serverLevel, serverLevel.damageSources().magic(), (float) damage);
+                //?} else {
+                /*entity.hurt(serverLevel.damageSources().magic(), (float) damage);
+                *///?}
+            }
         }
     }
 }

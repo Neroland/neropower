@@ -18,7 +18,7 @@ import za.co.neroland.neropower.client.GaugeMath;
 import za.co.neroland.neropower.client.GaugeTooltips;
 
 /**
- * Vitrifier screen (spec {@code screens/vitrifier.md}): tall 176 × 186 hull, NeroTech's energy and
+ * Vitrifier screen: tall 176 × 186 hull, NeroTech's energy and
  * heat pair, the waste and sand slots, a mould that fills with the progress (answered by NeroTech's
  * progress tooltip), the output slot, the cost line and the stall line. Empty input slots explain what
  * goes in them.
@@ -90,6 +90,10 @@ public class VitrifierScreen extends MachineScreen<VitrifierMenu> {
     }
 
     private Component stallText() {
+        if (this.menu.readout() == BackEndReadout.STALL
+                && this.menu.stallCause() == BackEndReadout.CAUSE_NOTHING_TO_DO) {
+            return Component.translatable("gui.neropower.vitrifier.needs", CaskMath.SAND_PER_OP);
+        }
         return BackEndHud.stallText(this.menu.readout(), this.menu.stallCause(),
                 Component.translatable("gui.neropower.vitrifier.running", GaugeMath.duration(ticksLeft())),
                 Component.translatable("gui.neropower.stall.idle"));
@@ -133,5 +137,13 @@ public class VitrifierScreen extends MachineScreen<VitrifierMenu> {
         }
         Slot slot = this.menu.getSlot(index);
         return !slot.hasItem();
+    }
+
+    /** The Guide button (opens the Power Guide at this block's chapter). */
+    @Override
+    protected void init() {
+        super.init();
+        addRenderableWidget(za.co.neroland.neropower.client.guide.PowerGuideLinks.button(this, this.menu,
+                this.leftPos, this.topPos, this.imageWidth));
     }
 }

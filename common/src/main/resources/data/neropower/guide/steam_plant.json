@@ -1,0 +1,69 @@
+{
+  "chapter": "steam_plant",
+  "title": "gui.neropower.power_guide.chapter.steam_plant",
+  "steps": [
+    {
+      "id": "steam_mode",
+      "icon": "neropower:reactor_steam_port",
+      "title": "gui.neropower.power_guide.step.steam_mode",
+      "text": "gui.neropower.power_guide.step.steam_mode.text",
+      "completed_by_item": "neropower:reactor_steam_port"
+    },
+    {
+      "id": "turbine_helm",
+      "icon": "neropower:turbine_helm",
+      "title": "gui.neropower.power_guide.step.turbine_helm",
+      "text": "gui.neropower.power_guide.step.turbine_helm.text",
+      "completed_by_item": "neropower:turbine_helm"
+    },
+    {
+      "id": "turbine_spindle",
+      "icon": "neropower:turbine_spindle",
+      "title": "gui.neropower.power_guide.step.turbine_spindle",
+      "text": "gui.neropower.power_guide.step.turbine_spindle.text",
+      "completed_by_item": "neropower:turbine_spindle"
+    },
+    {
+      "id": "vane_sets",
+      "icon": "neropower:steel_vane_set",
+      "title": "gui.neropower.power_guide.step.vane_sets",
+      "text": "gui.neropower.power_guide.step.vane_sets.text",
+      "completed_by_item": "neropower:steel_vane_set"
+    },
+    {
+      "id": "turbine_stator",
+      "icon": "neropower:turbine_stator",
+      "title": "gui.neropower.power_guide.step.turbine_stator",
+      "text": "gui.neropower.power_guide.step.turbine_stator.text",
+      "completed_by_item": "neropower:turbine_stator"
+    },
+    {
+      "id": "turbine_steam_port",
+      "icon": "neropower:turbine_steam_port",
+      "title": "gui.neropower.power_guide.step.turbine_steam_port",
+      "text": "gui.neropower.power_guide.step.turbine_steam_port.text",
+      "completed_by_item": "neropower:turbine_steam_port"
+    },
+    {
+      "id": "rotor_speed",
+      "icon": "neropower:governor_module",
+      "title": "gui.neropower.power_guide.step.rotor_speed",
+      "text": "gui.neropower.power_guide.step.rotor_speed.text",
+      "completed_by_item": "neropower:governor_module"
+    },
+    {
+      "id": "condenser",
+      "icon": "neropower:condenser",
+      "title": "gui.neropower.power_guide.step.condenser",
+      "text": "gui.neropower.power_guide.step.condenser.text",
+      "completed_by_item": "neropower:condenser"
+    },
+    {
+      "id": "steam_yield",
+      "icon": "neropower:superconducting_vane_set",
+      "title": "gui.neropower.power_guide.step.steam_yield",
+      "text": "gui.neropower.power_guide.step.steam_yield.text",
+      "completed_by_item": "neropower:superconducting_vane_set"
+    }
+  ]
+}

@@ -44,7 +44,9 @@ class BackEndRulesTest {
 
     private static final Pattern RESULT_BLOCK = Pattern.compile(
             "\"(?:result|results)\"\\s*:\\s*(\\{[^}]*\\}|\\[[^\\]]*\\])", Pattern.DOTALL);
-    private static final Pattern INGREDIENT = Pattern.compile("\"ingredient\"\\s*:\\s*\"([^\"]+)\"");
+    // Short form, or the pre-1.21.2 object form the 1.21.1 build rewrites it to ({"item": "..."}).
+    private static final Pattern INGREDIENT = Pattern.compile(
+            "\"ingredient\"\\s*:\\s*(?:\\{\\s*\"(?:item|tag)\"\\s*:\\s*)?\"([^\"]+)\"");
     private static final Pattern COUNT = Pattern.compile("\"count\"\\s*:\\s*(\\d+)");
 
     @Test

@@ -34,23 +34,21 @@ import za.co.neroland.neropower.link.LinkScope;
  *   <li>{@code power} (OWNER): reactors and beam endpoints whose recorded owner is the viewer, among the
  *       machines already loaded within 128 blocks of the online viewer (NeroPower keeps no machine index).
  *       Another player's owned machine is never shown, near or far.</li>
- *   <li>{@code power_nearby} (PROXIMITY, 64): reactors and beam endpoints with <b>no</b> recorded owner,
- *       within 64 blocks of the online viewer.</li>
+ *   <li>There is no layer for other players' or unowned machines (removed in 0.4.0):
+ *       a marker carries an exact position, so a machine appears on the map only for its recorded owner.</li>
  *   <li>{@code scorch_zones} (PROXIMITY, 128): live fission scorch zones (a hazard with no owner) as areas,
  *       within 128 blocks of the online viewer.</li>
  * </ul>
- * The ownership rule is {@link LinkScope}'s, so the map and the link module cannot drift; a parity test holds
- * them together. POPIA/GDPR: owners are compared, never shown; no label carries a player's name or UUID.
+ * The ownership rule is {@link LinkScope}'s ({@link LinkScope#ownerOf}), so the map and the link module cannot
+ * drift; a parity test holds them together. POPIA/GDPR: owners are compared, never shown; no label carries a player's name or UUID.
  */
 public final class NeroPowerMapLayers implements MapLayerProvider {
 
     public static final Identifier POWER = id("power");
-    public static final Identifier POWER_NEARBY = id("power_nearby");
     public static final Identifier SCORCH_ZONES = id("scorch_zones");
 
     /** How far the owned-machine walk reaches: the link module's proximity radius. */
     static final int OWNED_REACH = MapLayerInfo.MAX_PROXIMITY;
-    static final int NEAR = MapLayerInfo.BUILT_PROXIMITY;
     static final int HAZARD = MapLayerInfo.HAZARD_PROXIMITY;
 
     private static final Identifier REACTOR_ICON = id("reactor");
@@ -61,7 +59,6 @@ public final class NeroPowerMapLayers implements MapLayerProvider {
     private static final List<MapLayerInfo> LAYERS = List.of(
             MapLayerInfo.of(POWER, "map.layer.neropower.power", BEAM_ICON, MapScope.OWNER)
                     .withDefaults(true, true),
-            MapLayerInfo.proximityBuilt(POWER_NEARBY, "map.layer.neropower.power_nearby", BEAM_ICON),
             MapLayerInfo.proximityHazard(SCORCH_ZONES, "map.layer.neropower.scorch_zones", id("scorch_zone")));
 
     private final NeroPowerMapSource source;
@@ -104,14 +101,11 @@ public final class NeroPowerMapLayers implements MapLayerProvider {
         for (NeroPowerMapSource.Machine machine : this.source.machines(server, dimension, at, OWNED_REACH)) {
             int x = machine.pos().getX();
             int z = machine.pos().getZ();
-            if (ownedBy(machine.owner(), viewer.id())) {
-                if (!sink.isFull(POWER) && viewer.within(dimension, x, z, OWNED_REACH)) {
-                    sink.marker(marker(machine, POWER, dimension, true));
-                }
-            } else if (unowned(machine.owner())) {
-                if (!sink.isFull(POWER_NEARBY) && viewer.within(dimension, x, z, NEAR)) {
-                    sink.marker(marker(machine, POWER_NEARBY, dimension, false));
-                }
+            // Owned by the viewer only. Unowned and other players' machines are never drawn (a marker is an
+            // exact position).
+            if (ownedBy(machine.owner(), viewer.id())
+                    && !sink.isFull(POWER) && viewer.within(dimension, x, z, OWNED_REACH)) {
+                sink.marker(marker(machine, POWER, dimension, true));
             }
         }
         scorch(server, viewer, dimension, sink);
@@ -131,7 +125,7 @@ public final class NeroPowerMapLayers implements MapLayerProvider {
             BlockPos c = zone.center();
             int r = Math.max(1, Math.min(MapBounds.MAX_SPAN / 2 - 1, zone.radius()));
             MapArea area = new MapArea.Rect(
-                    "scorch." + c.getX() + "." + c.getY() + "." + c.getZ(), SCORCH_ZONES, dimension,
+                    "scorch." + c.getX() + "." + c.getZ(), SCORCH_ZONES, dimension,
                     MapAreaStyle.of(SCORCH_FILL, SCORCH_BORDER)
                             .withLabel(MapLabel.translatable("map.area.neropower.scorch_zone")),
                     c.getX() - r, c.getZ() - r, c.getX() + r, c.getZ() + r);
@@ -158,11 +152,6 @@ public final class NeroPowerMapLayers implements MapLayerProvider {
     /** The viewer is the recorded owner ({@link LinkScope#isOwner}). */
     public static boolean ownedBy(Optional<UUID> owner, @Nullable UUID viewer) {
         return viewer != null && LinkScope.isOwner(owner, viewer);
-    }
-
-    /** No owner recorded: the only case proximity may apply to (player-built things with an owner never show by proximity). */
-    public static boolean unowned(Optional<UUID> owner) {
-        return owner.isEmpty();
     }
 
     private static Identifier id(String path) {

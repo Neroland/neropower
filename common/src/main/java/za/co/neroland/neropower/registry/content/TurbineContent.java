@@ -79,11 +79,11 @@ public final class TurbineContent {
     // --- block items --------------------------------------------------------------------------------
 
     public static final RegistryEntry<BlockItem> TURBINE_HELM_ITEM = blockItem("turbine_helm", TURBINE_HELM);
-    public static final RegistryEntry<BlockItem> TURBINE_SHROUD_ITEM = blockItem("turbine_shroud", TURBINE_SHROUD);
-    public static final RegistryEntry<BlockItem> TURBINE_SPINDLE_ITEM = blockItem("turbine_spindle", TURBINE_SPINDLE);
-    public static final RegistryEntry<BlockItem> TURBINE_STATOR_ITEM = blockItem("turbine_stator", TURBINE_STATOR);
+    public static final RegistryEntry<BlockItem> TURBINE_SHROUD_ITEM = hintItem("turbine_shroud", TURBINE_SHROUD);
+    public static final RegistryEntry<BlockItem> TURBINE_SPINDLE_ITEM = hintItem("turbine_spindle", TURBINE_SPINDLE);
+    public static final RegistryEntry<BlockItem> TURBINE_STATOR_ITEM = hintItem("turbine_stator", TURBINE_STATOR);
     public static final RegistryEntry<BlockItem> TURBINE_STEAM_PORT_ITEM =
-            blockItem("turbine_steam_port", TURBINE_STEAM_PORT);
+            hintItem("turbine_steam_port", TURBINE_STEAM_PORT);
     public static final RegistryEntry<BlockItem> CONDENSER_ITEM = blockItem("condenser", CONDENSER);
 
     // --- items -------------------------------------------------------------------------------------
@@ -161,6 +161,11 @@ public final class TurbineContent {
 
     private static RegistryEntry<VaneSetItem> vaneSet(String name, VaneTier tier) {
         return ModItems.ITEMS.register(name, key -> new VaneSetItem(new Item.Properties().setId(key), tier));
+    }
+
+    private static RegistryEntry<BlockItem> hintItem(String name, RegistryEntry<? extends Block> block) {
+        return ModItems.ITEMS.register(name, key -> new za.co.neroland.neropower.machine.HintBlockItem(block.get(),
+                new Item.Properties().setId(key), za.co.neroland.neropower.machine.HintBlockItem.keyFor(name)));
     }
 
     private static RegistryEntry<BlockItem> blockItem(String name, RegistryEntry<? extends Block> block) {

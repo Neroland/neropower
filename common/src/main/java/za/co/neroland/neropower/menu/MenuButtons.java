@@ -1,7 +1,7 @@
 package za.co.neroland.neropower.menu;
 
 /**
- * Screen controls over vanilla's container button click (decision 012): the screen calls
+ * Screen controls over vanilla's container button click: the screen calls
  * {@code minecraft.gameMode.handleInventoryButtonClick(menu.containerId, MenuButtons.encode(action, value))}
  * and the server's {@code clickMenuButton(Player, int id)} decodes it. {@code id = action * 1000 + value},
  * {@code value} 0..999; actions are per-menu constants. Toggles send 0/1, buttons 0, sliders a bucket.

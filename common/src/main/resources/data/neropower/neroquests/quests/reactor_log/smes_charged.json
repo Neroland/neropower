@@ -1,0 +1,14 @@
+{
+  "title": "quest.neropower.reactor_log.smes_charged.title",
+  "description": "quest.neropower.reactor_log.smes_charged.desc",
+  "icon": "neropower:smes_controller",
+  "prerequisites": ["neropower:reactor_log/power_bank"],
+  "objectives": [
+    { "type": "neroquests:gate_open", "gate": "neropower:smes_charged" }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 400 },
+    { "type": "neroquests:currency", "amount": 300 }
+  ],
+  "scope": "player"
+}

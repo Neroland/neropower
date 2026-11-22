@@ -31,12 +31,16 @@ import za.co.neroland.nerotech.api.MachineFailureEvents;
 /**
  * Plain-JVM tests for NeroPower's NeroLink module, mirroring NeroTech's: no game bootstrap and no
  * running server, so every assertion exercises a path that resolves deterministically without the
- * captured server — registration / discovery, the no-server (offline requester) branch of every
- * section, pre-server action validation, the failure-event forwarding filter and payload, and the
- * pure scoping rules in {@link LinkScope}. Chunk enumeration and the owner-gated actions run only
- * in-game and are covered by runtime verification.
+ * captured server — registration / discovery, the no-server (offline requester) branch of every plant
+ * section, pre-server action validation, the failure-event forwarding filter, and the pure scoping
+ * rules in {@link LinkScope}. Schema-2 shape, scope and rate limits: {@link LinkSchema2Test},
+ * {@link LinkScopeTest}, {@link LinkRateLimitTest}. Chunk enumeration and the owner-gated actions run
+ * only in-game and are covered by runtime verification.
  */
 class NeroPowerLinkModuleTest {
+
+    private static final List<String> PLANT_SECTIONS = List.of("fission", "turbines", "storage", "beams",
+            "generators");
 
     @BeforeAll
     static void registerModule() {
@@ -57,13 +61,13 @@ class NeroPowerLinkModuleTest {
     void registersDiscoveryMetadataWithExpectedSectionsAndActions() {
         LinkModuleInfo info = NeroLinkRegistry.module("neropower").orElseThrow();
         assertEquals("neropower", info.moduleId());
-        assertEquals(1, info.schemaVersion());
-        assertTrue(info.dataSections().containsAll(List.of("beams", "fission", "storage", "generators")),
-                "all four data sections must be advertised");
-        assertTrue(info.actionIds().containsAll(List.of("acknowledge_alarm", "scram")),
-                "both actions must be advertised");
+        assertEquals(2, info.schemaVersion());
+        assertTrue(info.dataSections().containsAll(PLANT_SECTIONS), "all plant sections must be advertised");
+        assertTrue(info.dataSections().contains("catalogue"));
+        assertTrue(info.actionIds().containsAll(List.of("acknowledge_alarm", "scram", "turbine_trip")));
         assertEquals(provider().sections(), info.dataSections());
         assertEquals(handler().actionIds(), info.actionIds());
+        assertFalse(info.modVersion().isBlank());
     }
 
     @Test
@@ -75,18 +79,18 @@ class NeroPowerLinkModuleTest {
     // --- snapshot sections without a server: never a roster ---------------------------------------
 
     @Test
-    void everySectionIsEmptyWithNoteWhenRequesterCannotBeResolved() {
-        // No server captured ⇒ the requester is not an online player ⇒ nothing is enumerated, and the
-        // section says so. This is the same shape a non-owner far from any machine sees in-game.
-        for (String section : provider().sections()) {
-            JsonObject out = provider().snapshot(UUID.randomUUID(), section, Map.of());
+    void everyPlantSectionIsEmptyWithNoteWhenRequesterCannotBeResolved() {
+        for (String section : PLANT_SECTIONS) {
+            UUID requester = UUID.randomUUID();
+            JsonObject out = provider().snapshot(requester, section, Map.of());
             assertEquals(section, out.get("section").getAsString());
             assertEquals("proximity", out.get("scope").getAsString());
             assertEquals(LinkScope.PROXIMITY_BLOCKS, out.get("radius").getAsInt());
             assertEquals(0, out.getAsJsonArray("machines").size(), section + " must list nothing");
             assertTrue(out.has("note"), section + " must explain the proximity posture");
             assertTrue(out.has("asOf"));
-            assertFalse(out.has("dim"), "no dimension may be named when the requester is not online");
+            assertFalse(out.has("dim"), "no dimension is ever named");
+            assertFalse(NeroPowerLinkModule.HANDLES.holds(requester), "no handles for an offline requester");
         }
     }
 
@@ -108,10 +112,22 @@ class NeroPowerLinkModuleTest {
     }
 
     @Test
+    void actionsWithoutAHandleAreRefusedBeforeTheWorldIsTouched() {
+        for (String action : handler().actionIds()) {
+            LinkActionResult result = handler().execute(UUID.randomUUID(), action, new JsonObject());
+            assertFalse(result.ok());
+            assertEquals(LinkActionResult.Error.VALIDATION, result.error());
+            assertEquals("h is required", result.message());
+        }
+    }
+
+    @Test
     void actionsAreOnlineOnlyAndFailInternalWithoutAServer() {
+        JsonObject params = new JsonObject();
+        params.addProperty("h", "abc-0");
         for (String action : handler().actionIds()) {
             assertFalse(handler().allowOffline(action), action + " changes world state: online only");
-            LinkActionResult result = handler().execute(UUID.randomUUID(), action, new JsonObject());
+            LinkActionResult result = handler().execute(UUID.randomUUID(), action, params);
             assertFalse(result.ok());
             assertEquals(LinkActionResult.Error.INTERNAL, result.error(), action + " without a server");
         }
@@ -133,14 +149,12 @@ class NeroPowerLinkModuleTest {
 
     @Test
     void busCrossingsAreNotForwarded() {
-        // The module no longer listens on NeroTech's failure channel: FailureTelegraph hands it the
+        // The module does not listen on NeroTech's failure channel: FailureTelegraph hands it the
         // machine directly, because the bus scope carries no position to resolve recipients from.
         List<LinkEvent> seen = capture(() -> {
             ThresholdEvents.fire(new ThresholdEvents.ThresholdCrossing(MachineFailureEvents.CHANNEL,
                     "neropower:fission_core@minecraft:overworld", MachineFailureEvents.STAGE_UNSTABLE,
                     MachineFailureEvents.STAGE_UNSTABLE, true));
-            ThresholdEvents.fire(new ThresholdEvents.ThresholdCrossing(MachineFailureEvents.CHANNEL,
-                    "nerotech:fusion_reactor@minecraft:overworld", 3, 3, true));
             ThresholdEvents.fire(new ThresholdEvents.ThresholdCrossing(
                     Identifier.parse("nerotech:pollution"), "neropower:not_a_failure", 1, 1, true));
         });
@@ -148,34 +162,23 @@ class NeroPowerLinkModuleTest {
     }
 
     @Test
-    void failurePayloadCarriesScopeStageAndDirection() {
-        JsonObject payload = NeroPowerLinkModule.failurePayload("neropower:fission_core", "minecraft:overworld",
-                MachineFailureEvents.STAGE_UNSTABLE, true);
-        assertEquals("neropower:fission_core@minecraft:overworld", payload.get("scope").getAsString());
-        assertEquals("neropower:fission_core", payload.get("machineId").getAsString());
-        assertEquals(MachineFailureEvents.STAGE_UNSTABLE, payload.get("stage").getAsInt());
-        assertTrue(payload.get("rising").getAsBoolean());
-    }
-
-    @Test
-    void failurePayloadCarriesNoPersonalFieldsOrPosition() {
-        JsonObject payload = NeroPowerLinkModule.failurePayload("neropower:fission_core", "minecraft:the_nether",
-                1, false);
-        assertEquals(List.of("scope", "machineId", "stage", "rising"), new ArrayList<>(payload.keySet()));
-        assertEquals("neropower:fission_core@minecraft:the_nether", payload.get("scope").getAsString(),
-                "a machine type and a place — a base's coordinates identify its builder");
-        assertFalse(payload.get("rising").getAsBoolean());
+    void failureBodyCarriesTypeStageAndDirectionOnly() {
+        JsonObject body = PlantEvents.body("neropower:fission_core", MachineFailureEvents.STAGE_UNSTABLE, true);
+        assertEquals(List.of("type", "machineId", "stage", "rising"), new ArrayList<>(body.keySet()));
+        assertEquals("neropower:fission_core", body.get("machineId").getAsString(), "schema-1 name kept");
+        assertFalse(body.toString().contains("minecraft:"), "no dimension, no place");
     }
 
     // --- LinkScope: the pure rules ------------------------------------------------------------------
 
     @Test
-    void proximityIsEuclideanAndInclusive() {
-        assertTrue(LinkScope.withinProximity(0, 64, 0, 128, 64, 0), "exactly on the radius counts");
-        assertFalse(LinkScope.withinProximity(0, 64, 0, 129, 64, 0));
-        assertFalse(LinkScope.withinProximity(0, 64, 0, 100, 64, 100), "diagonal beyond the radius");
-        assertTrue(LinkScope.withinProximity(0, 64, 0, 0, 64 + 128, 0), "vertical distance counts too");
+    void proximityIsDecidedOnTheChunkGrid() {
+        assertTrue(LinkScope.withinProximity(0, 64, 0, 8 * 16 + 15, 64, 0), "the eighth chunk counts, all of it");
+        assertFalse(LinkScope.withinProximity(0, 64, 0, 9 * 16, 64, 0), "the ninth chunk does not");
+        assertTrue(LinkScope.withinProximity(0, 64, 0, 100, 64, 100), "Chebyshev: a diagonal chunk inside the square");
+        assertTrue(LinkScope.withinProximity(0, 64, 0, 0, -60, 0), "no height edge");
         assertTrue(LinkScope.withinProximity(-1000, 0, -1000, -1100, 20, -1050));
+        assertFalse(LinkScope.withinProximity(-1, 64, 0, 8 * 16, 64, 0), "chunk -1 to chunk 8 is nine chunks");
     }
 
     @Test
@@ -194,37 +197,17 @@ class NeroPowerLinkModuleTest {
     }
 
     @Test
-    void isOwnerNeedsARecordedMatchingOwner() {
-        UUID owner = UUID.randomUUID();
-        assertTrue(LinkScope.isOwner(Optional.of(owner), owner));
-        assertFalse(LinkScope.isOwner(Optional.of(owner), UUID.randomUUID()));
-        assertFalse(LinkScope.isOwner(Optional.empty(), owner));
-    }
-
-    @Test
-    void ownedMachinesObeyTheirOwnerOnlyWhereverTheyStand() {
+    void ownedMachinesObeyTheirOwnerOnly() {
         UUID owner = UUID.randomUUID();
         UUID other = UUID.randomUUID();
-        assertTrue(LinkScope.mayAct(Optional.of(owner), owner, false, false), "owner from anywhere");
-        assertTrue(LinkScope.mayAct(Optional.of(owner), owner, true, true));
-        assertFalse(LinkScope.mayAct(Optional.of(owner), other, true, true),
-                "a nearby player who may interact is still not the owner");
+        assertTrue(LinkScope.mayAct(Optional.of(owner), owner), "the owner may act from anywhere in scope");
+        assertFalse(LinkScope.mayAct(Optional.of(owner), other), "a nearby player is still not the owner");
     }
 
     @Test
-    void unownedMachinesObeyANearbyPlayerWhoMayInteract() {
+    void unownedMachinesAcceptNoRemoteAction() {
         UUID requester = UUID.randomUUID();
-        assertTrue(LinkScope.mayAct(Optional.empty(), requester, true, true));
-        assertFalse(LinkScope.mayAct(Optional.empty(), requester, false, true), "too far / other dimension");
-        assertFalse(LinkScope.mayAct(Optional.empty(), requester, true, false), "protection refuses");
-        assertFalse(LinkScope.mayAct(Optional.empty(), requester, false, false));
-        assertFalse(LinkScope.mayAct(Optional.empty(), null, true, true), "no requester");
-    }
-
-    @Test
-    void failureScopeIsMachineAtDimension() {
-        assertEquals("neropower:fission_core@minecraft:overworld",
-                LinkScope.failureScope("neropower:fission_core", "minecraft:overworld"));
-        assertEquals("neropower:beam_relay@nerospace:moon", LinkScope.failureScope("neropower:beam_relay", "nerospace:moon"));
+        assertFalse(LinkScope.mayAct(Optional.empty(), requester), "unowned: in person only (screen, SCRAM Key)");
+        assertFalse(LinkScope.mayAct(Optional.empty(), null), "no requester");
     }
 }

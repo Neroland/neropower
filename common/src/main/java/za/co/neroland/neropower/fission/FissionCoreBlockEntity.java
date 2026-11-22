@@ -2,6 +2,7 @@ package za.co.neroland.neropower.fission;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -31,7 +32,6 @@ import za.co.neroland.nerotech.machine.MachineEnergy;
 import za.co.neroland.nerotech.machine.MachineStatus;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlock;
 
-import za.co.neroland.neropower.NeroPowerCommon;
 import za.co.neroland.neropower.config.NeroPowerConfig;
 import za.co.neroland.neropower.data.SaveAdapters;
 import za.co.neroland.neropower.failure.Explode;
@@ -46,6 +46,7 @@ import za.co.neroland.neropower.multiblock.MultiblockHost;
 import za.co.neroland.neropower.multiblock.MultiblockIndex;
 import za.co.neroland.neropower.progression.FissionWorldLog;
 import za.co.neroland.neropower.progression.MilestoneGates;
+import za.co.neroland.neropower.progression.OperatorCredit;
 
 /**
  * Fission Reactor controller. A hollow 3³ / 5³ / 7³ shell of Fission Casing validated by
@@ -124,7 +125,7 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
     public static final int STALL_NO_ROOM = 6;
     public static final int STALL_SCRAM = 15;
 
-    /** Readout codes (block contract). */
+    /** Readout codes (render inputs). */
     public static final int READOUT_REST = 0;
     public static final int READOUT_WORK = 1;
     public static final int READOUT_STALL = 2;
@@ -133,7 +134,7 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
     public static final int READOUT_FAIL = 5;
 
     /** Record gate opened by the first bred pellet (declared by the progression data). */
-    public static final Identifier FIRST_BREED = Identifier.fromNamespaceAndPath(NeroPowerCommon.MOD_ID, "first_breed");
+    public static final Identifier FIRST_BREED = MilestoneGates.FIRST_BREED;
 
     private static final String KEY_MODE = "NpMode";
     private static final String KEY_BREED = "NpBreed";
@@ -142,6 +143,15 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
 
     /** Whether this loaded core has already recorded its first burn (criticality + world log). Transient. */
     private boolean burnRecorded;
+    /**
+     * The operator this loaded core last tried to credit with criticality / first breed, so a running
+     * reactor does not re-run the gate lookup every tick. Transient (never saved or synced), compared
+     * for equality only; personal data: never log it.
+     */
+    @Nullable
+    private UUID criticalityTried;
+    @Nullable
+    private UUID breedTried;
 
     /** Formed state (persisted so a reload never flickers through "unformed"). */
     private int shellSize;
@@ -345,6 +355,17 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
         level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
     }
 
+    /**
+     * The ports this core served on its last formed tick: the members of the reactor's shared coolant and
+     * steam tanks. Transient, never saved; empty while unformed.
+     */
+    private List<ReactorSteamPortBlockEntity> linkedPorts = List.of();
+
+    /** The ports sharing this reactor's tanks (as of the core's last tick). */
+    public List<ReactorSteamPortBlockEntity> linkedPorts() {
+        return this.linkedPorts;
+    }
+
     /** The Reactor Steam Ports of the formed shell that are loaded and present. */
     private List<ReactorSteamPortBlockEntity> ports(Level level) {
         List<int[]> at = this.layout.steamPorts();
@@ -359,6 +380,17 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
             }
         }
         return out;
+    }
+
+    /**
+     * The operator in the moment of this reactor: whoever last worked the core, else its control
+     * computer (NeroTech's transient {@code lastOperator}; empty for a gallery exhibit). Never saved.
+     */
+    @Nullable
+    private UUID reactorOperator(Level level) {
+        ReactorControlComputerBlockEntity c = computer(level);
+        return OperatorCredit.firstKnown(lastOperator().orElse(null),
+                c == null ? null : c.lastOperator().orElse(null));
     }
 
     @Nullable
@@ -385,6 +417,7 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
         if (!formed()) {
             reportStatus(MachineStatus.UNFORMED);
             idle();
+            this.linkedPorts = List.of();
             this.cryoFed = false;
             this.lastRate = 0L;
             this.stallCause = STALL_UNFORMED;
@@ -397,8 +430,9 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
         }
 
         List<ReactorSteamPortBlockEntity> ports = ports(level);
+        this.linkedPorts = List.copyOf(ports);
         for (ReactorSteamPortBlockEntity port : ports) {
-            port.link();
+            port.link(this);
         }
         ReactorMode mode = ReactorMode.effective(this.requestedMode, ports.size());
         boolean economizer = economizerFitted();
@@ -433,7 +467,7 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
         boolean stalled = this.poison.stalled();
         boolean running = loaded > 0 && roomToStore && !stalled;
         if (running && !this.wasRunning) {
-            // Idle to running: re-check the shell next tick (decision 004 "validate on change"; a block
+            // Idle to running: re-check the shell next tick ("validate on change"; a block
             // swapped with no neighbour update would otherwise only be caught on load or menu open).
             this.recheckDue = true;
         }
@@ -448,7 +482,9 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
         boolean cryo = false;
         if (running) {
             double speed = presetSpeedFactor() * modifiers().speedMultiplier();
-            int heat = FissionMath.heatPerTick(FissionConfig.heatPerRodPerTick(), heatSum, crf);
+            // Steam mode: heat is the product, so it follows the work rate as burn-up does.
+            int heat = steam ? FissionMath.steamModeHeat(FissionConfig.heatPerRodPerTick(), heatSum, crf, speed)
+                    : FissionMath.heatPerTick(FissionConfig.heatPerRodPerTick(), heatSum, crf);
             int residual = heat;
             if (!steam) {
                 long output = FissionMath.outputPerTick(FissionConfig.nePerRod(), rodSum, crf, speed, failurePermille);
@@ -462,24 +498,37 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
             } else {
                 int steamPerHeat = FissionConfig.steamPerHeat();
                 int steamPermille = (int) ((long) outputPermille * Math.max(0, failurePermille) / FissionMath.PERMILLE);
-                boolean anyWater = false;
-                boolean anyRoom = false;
+                // Shared tanks: water from any port, steam into any port with room.
+                long water = 0L;
+                long room = 0L;
                 for (ReactorSteamPortBlockEntity port : ports) {
-                    long water = port.waterAvailable();
-                    long room = port.steamRoom();
-                    anyWater |= water > 0L;
-                    anyRoom |= room > 0L;
-                    if (residual <= 0) {
-                        continue;
+                    water += port.waterAvailable();
+                    room += port.steamRoom();
+                }
+                boolean anyWater = water > 0L;
+                boolean anyRoom = room > 0L;
+                SteamBoil boil = SteamBoil.boil(residual, steamPerHeat, steamPermille, water, room);
+                if (boil.heatTaken() > 0) {
+                    long drawLeft = boil.waterUsed();
+                    for (ReactorSteamPortBlockEntity port : ports) {
+                        if (drawLeft <= 0L) {
+                            break;
+                        }
+                        long here = port.waterAvailable();
+                        if (here > 0L) {
+                            drawLeft -= port.drawCoolant(Math.min(here, drawLeft));
+                        }
                     }
-                    int take = (int) Math.min(residual, Math.min(water, room) / steamPerHeat);
-                    if (take <= 0) {
-                        continue;
+                    long raiseLeft = boil.steam();
+                    for (ReactorSteamPortBlockEntity port : ports) {
+                        if (raiseLeft <= 0L) {
+                            break;
+                        }
+                        long added = port.addSteam(Math.min(raiseLeft, port.steamRoom()));
+                        raiseLeft -= added;
+                        rate += added;
                     }
-                    port.drawCoolant((long) take * steamPerHeat);
-                    long raised = FissionMath.steamFromHeat(take, steamPerHeat, steamPermille);
-                    rate += port.addSteam(Math.min(raised, room));
-                    residual -= take;
+                    residual -= boil.heatTaken();
                 }
                 if (residual > 0) {
                     stall = !anyWater ? STALL_NO_WATER : !anyRoom ? STALL_STEAM_FULL : STALL_NONE;
@@ -599,6 +648,12 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
             }
             if (level instanceof ServerLevel serverLevel) {
                 MilestoneGates.record(serverLevel, ownerId(), FIRST_BREED);
+                UUID operator = reactorOperator(serverLevel);
+                if (OperatorCredit.shouldTry(true, operator, this.breedTried)
+                        && MilestoneGates.online(serverLevel, operator)) {
+                    this.breedTried = operator;
+                    MilestoneGates.credit(serverLevel, operator, FIRST_BREED);
+                }
             }
             setChanged();
         } else if (this.breeder.progress() != before) {
@@ -640,10 +695,22 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
         if (delta == 0 && braidedDelta == 0) {
             return;
         }
-        if (!this.burnRecorded && this.level instanceof ServerLevel serverLevel) {
-            this.burnRecorded = true;
-            MilestoneGates.record(serverLevel, ownerId(), MilestoneGates.CRITICALITY);
-            FissionWorldLog.recordBurn(serverLevel);
+        if (this.level instanceof ServerLevel serverLevel) {
+            if (!this.burnRecorded) {
+                this.burnRecorded = true;
+                MilestoneGates.record(serverLevel, ownerId(), MilestoneGates.CRITICALITY);
+                if (!isGalleryExhibit()) { // the gallery opens no world-first crossing
+                    FissionWorldLog.recordBurn(serverLevel);
+                }
+            }
+            // Criticality is the real signal: rods aged this tick in a formed core (not crafting it).
+            // Credit the online operator in the moment — whoever last worked the core or its computer.
+            UUID operator = reactorOperator(serverLevel);
+            if (OperatorCredit.shouldTry(OperatorCredit.critical(formed(), Math.max(delta, braidedDelta)),
+                    operator, this.criticalityTried) && MilestoneGates.online(serverLevel, operator)) {
+                this.criticalityTried = operator;
+                MilestoneGates.credit(serverLevel, operator, MilestoneGates.CRITICALITY);
+            }
         }
         for (int slot = 0; slot < usable; slot++) {
             ItemStack stack = this.items.get(slot);
@@ -693,9 +760,9 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
         int seen = heat >= failHeat ? heat : Math.max(0, heat - band);
         FailureStage stage = controller.tick(seen, capacity, NeroPowerConfig.overloadEnabled());
         if (stage == FailureStage.FAILURE && controller.justEntered() && level instanceof ServerLevel serverLevel) {
-            // Contamination burst on the core's chunk and its eight neighbours (nothing while radiation is off).
-            za.co.neroland.neropower.radiation.RadiationSources.reactorFailure(serverLevel, pos);
-            failureAction().apply(serverLevel, pos, failureContext());
+            if (!isGalleryExhibit()) { // a gallery exhibit telegraphs its failure but never runs the action
+                failureAction().apply(serverLevel, pos, failureContext());
+            }
         }
         return stage;
     }
@@ -740,6 +807,73 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
         }
         return isSpentRod(stack) ? FissionMath.MAX_BURNUP : 0;
     }
+
+    /**
+     * What {@code stack} becomes on leaving the core: a Fuel or Braided Fuel Rod with any
+     * burn-up is a Hot Spent Fuel Rod; anything else, fresh rods included, is returned as is.
+     */
+    public static ItemStack leavingCore(ItemStack stack) {
+        boolean rod = isFuelRod(stack) || isBraidedRod(stack);
+        if (FissionMath.leavesSpent(rod, rod ? burnupOf(stack) : 0)) {
+            return new ItemStack(za.co.neroland.neropower.registry.content.FissionContent.HOT_SPENT_FUEL_ROD.get(),
+                    stack.getCount());
+        }
+        return stack;
+    }
+
+    /**
+     * Turn the part-burnt rod in rod slot {@code slot} (if any) into a Hot Spent Fuel Rod in place, because
+     * it is about to leave the core. Returns the rod that was there when it was converted, else null.
+     */
+    @Nullable
+    public ItemStack spendLeavingRod(int slot) {
+        if (slot < 0 || slot >= ROD_SLOTS) {
+            return null;
+        }
+        ItemStack before = this.items.get(slot);
+        ItemStack after = leavingCore(before);
+        if (after == before) {
+            return null;
+        }
+        this.items.set(slot, after);
+        setChanged();
+        return before;
+    }
+
+    /** Put a rod back that {@link #spendLeavingRod} converted but that did not leave after all. */
+    public void restoreRod(int slot, ItemStack converted, ItemStack original) {
+        if (slot >= 0 && slot < ROD_SLOTS && this.items.get(slot) == converted) {
+            this.items.set(slot, original);
+            setChanged();
+        }
+    }
+
+    /** Every part-burnt rod leaves as spent: run before the slots spill (block removed or broken). */
+    public void spendLeavingRods() {
+        for (int slot = 0; slot < ROD_SLOTS; slot++) {
+            spendLeavingRod(slot);
+        }
+    }
+
+    @Override
+    public ItemStack removeItem(int slot, int amount) {
+        spendLeavingRod(slot);
+        return super.removeItem(slot, amount);
+    }
+
+    @Override
+    public ItemStack removeItemNoUpdate(int slot) {
+        spendLeavingRod(slot);
+        return super.removeItemNoUpdate(slot);
+    }
+
+    //? if >=1.21.5 {
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        spendLeavingRods();
+        super.preRemoveSideEffects(pos, state);
+    }
+    //?}
 
     /** Usable rod slots take Fuel and Braided Fuel Rods; slot 6 Pallurite Pellets; slot 7 nothing. */
     @Override
@@ -793,10 +927,21 @@ public class FissionCoreBlockEntity extends NeroPowerMachineBlockEntity implemen
 
     // --- failure action -----------------------------------------------------------
 
-    /** The blast grows with the shell (5 / 7 / 9 before the cap); the scorch zone follows when enabled. */
+    /**
+     * Every failure path, cryo-fed or not: first the contamination burst on the core's chunk and its eight
+     * neighbours (nothing while radiation is off, for an exhibit or on protected ground), then the blast,
+     * which grows with the shell (5 / 7 / 9 before the cap), and the scorch zone when enabled.
+     */
     @Override
     protected FailureAction failureAction() {
-        return new ScorchZoneAction(new Explode(Math.max(FissionStructure.MIN_SIZE, this.shellSize) + 2));
+        return withBurst(new ScorchZoneAction(new Explode(Math.max(FissionStructure.MIN_SIZE, this.shellSize) + 2)));
+    }
+
+    /** {@code action} preceded by the reactor's radiation burst. */
+    static FailureAction withBurst(FailureAction action) {
+        FailureAction burst = (level, pos, ctx) ->
+                za.co.neroland.neropower.radiation.RadiationSources.reactorFailure(level, pos);
+        return burst.andThen(action);
     }
 
     @Override

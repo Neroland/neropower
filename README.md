@@ -4,30 +4,37 @@
 > **optional add-on to [NeroTech](https://github.com/Neroland/nerotech)**: it adds power *depth* on top
 > of NeroTech's machine framework and generators.
 
-**Status:** in development — version `0.2.0-alpha.1`. First release will be `0.2.0-beta.1`.
-See [`docs/DESIGN.md`](docs/DESIGN.md) for the design record and [`CHANGELOG.md`](CHANGELOG.md) for
-what each release shipped.
+**Version:** `0.4.0` ("Power Station"). See the [wiki](wiki/Home.md) for players,
+[`docs/DESIGN.md`](docs/DESIGN.md) for the design record and [`CHANGELOG.md`](CHANGELOG.md) for what
+each release shipped.
 
 ## What it adds
 
-- **Fission reactor** with a real fuel cycle — burn-up curves, control rods, neutron poisoning,
-  reprocessing.
+- **Fission reactor** in three sizes with a real fuel cycle — burn-up curves, control rods,
+  moderators, neutron poisoning, a control computer with automatic SCRAM.
+- **Two fuel lines** — the standard Fuel Rod and the bred Pallurite line ending in the Braided Fuel Rod.
+- **Steam plant** — steam mode, a scalable steam turbine with inertia and an overspeed trip, and a
+  Steam Condenser; ports move fluid by adjacency, so no pipe mod is needed.
+- **Waste back end** — Spent Fuel Rack, reprocessing, Vitrifier and Dry Cask; nothing is a dead end.
+- **Storage** — tiered, pooled battery banks, the Surge Bank, Momentum Wheel, superconducting Storage
+  Ring and portable Power Cells.
+- **Beamed power and grids** — transmitters, receivers, relays, the Beam Splitter and Phased Array
+  Emitter, plus Circuit Breaker, Load Bank and Power Monitor.
+- **Optional radiation** — chunk contamination with shielding, a Geiger Counter, a Dosimeter Badge and
+  Decontaminant; no per-player dose is stored.
 - **Staged failure model** — stable → warning → unstable → failure, always telegraphed, claim-aware,
   terrain damage off by default on servers.
-- **Tiered, pooled battery banks** with buffer / priority-source modes.
-- **Beamed power** — line-of-sight transmitters, receivers and relays with distance loss and
-  owner-checked linking.
-- **RTG** and **Stirling gradient** generators — output that is a function of state, not a flat number.
-- **Quest chapter** — a NeroQuests quest pack, *Reactor Log* (14 quests), ships inside the jar and
-  appears in the quest book when NeroQuests is installed. NeroQuests is **optional**: without it the
-  pack is inert data and NeroPower has no dependency on it.
+- **RTG**, **Stirling**, **Hydrogen Fuel Cell** and **Betavoltaic Cell** generators.
+- **Power Guide, quests and a gallery** — an in-game guide, the *Reactor Log* NeroQuests chapter
+  (18 quests, inert data without NeroQuests) and `/neropower gallery` with a guided tour.
+- **NeroLink module** (link schema 2) — scoped, coordinate-free plant data for the companion app.
 
 ## Requirements
 
-- **Neroland Core** 1.17.0+ and **NeroTech** 0.7.1-beta.1+ (both required; version floors are in `gradle.properties`).
+- **Neroland Core** 1.20.0+ and **NeroTech** 0.8.0+ (both required; version floors are in `gradle.properties`).
 - **Minecraft:** 1.21.1, 1.21.4, 1.21.5, 1.21.8 (also 1.21.7), 1.21.10 (also 1.21.9), 1.21.11, 26.1.2, 26.2 and 26.3
   · **Loaders:** NeoForge, MinecraftForge/Forge, Fabric (27 cells) · **Java:** 21 for 1.21.x, 25 for 26.x
-- **Java:** 25 · Mod id: `neropower` · package `za.co.neroland.neropower`
+- Mod id: `neropower` · package `za.co.neroland.neropower`
 
 ## Layout
 

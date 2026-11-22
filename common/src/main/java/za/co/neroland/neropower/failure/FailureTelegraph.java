@@ -38,8 +38,11 @@ import za.co.neroland.neropower.machine.NeroPowerMachineBlockEntity;
  *
  * <p>Privacy (POPIA/GDPR): the owner UUID is used only to address the alert — it never enters the
  * event scope, a log line or a packet. The machine's position is used only in process (proximity,
- * sound, particles, the owner's own alert); the published scopes name a machine type and a
- * dimension only (NeroTech 0.6.0+ ignores the position argument of {@code fire}).
+ * sound, particles); the published scopes name a machine type and a dimension only (NeroTech
+ * 0.6.0+ ignores the position argument of {@code fire}). The owner's Core link alert is stored by
+ * Core against the owner, so it carries no coordinates either: its text names the machine type and
+ * stage, and its id keys the machine through a per-process salted hash ({@link #alertId}), which
+ * cannot be turned back into a position.
  */
 public final class FailureTelegraph {
 
@@ -65,7 +68,9 @@ public final class FailureTelegraph {
                 published.code(), rising);
         // ...and NeroLink, with the machine in hand: recipients come from the block entity, never
         // from the bus scope (which carries no position from NeroTech 0.6.0 on).
-        NeroPowerLinkModule.publishFailure(serverLevel, be, published.code(), rising);
+        if (!be.isGalleryExhibit()) { // gallery exhibits send no NeroLink event
+            NeroPowerLinkModule.publishFailure(serverLevel, be, published.code(), rising);
+        }
 
         // (b) The alarm block state, for blocks that declare it.
         BlockState state = be.getBlockState();
@@ -112,12 +117,37 @@ public final class FailureTelegraph {
             FailureStage stage) {
         boolean failed = stage == FailureStage.FAILURE;
         LinkAlert.Severity severity = failed ? LinkAlert.Severity.CRITICAL : LinkAlert.Severity.WARN;
-        String text = (failed
-                ? "Your NeroPower machine has failed at "
-                : "Your NeroPower machine is unstable at ")
-                + pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + " (" + machineId + ").";
         LinkAlerts.get(server).raise(server, owner, LinkAlert.raise(
-                "failure_" + stage.name().toLowerCase(java.util.Locale.ROOT) + "_" + pos.asLong(),
-                MODULE_ID, severity, text));
+                alertId(stage, pos.asLong()), MODULE_ID, severity, alertText(machineId, stage)));
+    }
+
+    /**
+     * Per-process salt for {@link #alertId}: keeps one alert per machine and stage while the server
+     * runs, without a position the stored alert could be read back to. Never saved, logged or sent.
+     */
+    private static final long ALERT_SALT = new java.security.SecureRandom().nextLong();
+
+    /**
+     * The owner's alert text: the machine type and the stage only. No coordinates, dimension, name or
+     * UUID (POPIA/GDPR; Core persists the alert against the owner). Pure.
+     */
+    static String alertText(String machineId, FailureStage stage) {
+        return (stage == FailureStage.FAILURE
+                ? "Your NeroPower machine has failed ("
+                : "Your NeroPower machine is unstable (")
+                + machineId + ").";
+    }
+
+    /**
+     * The owner's alert id: {@code failure_<stage>_<hex>}, where {@code hex} is a salted mix of the
+     * packed position. Stable per machine and stage within one server run (a repeat alert replaces
+     * the last), but not reversible to a position. Pure apart from the process salt.
+     */
+    static String alertId(FailureStage stage, long packedPos) {
+        long z = packedPos ^ ALERT_SALT;
+        z = (z ^ (z >>> 30)) * 0xBF58476D1CE4E5B9L;
+        z = (z ^ (z >>> 27)) * 0x94D049BB133111EBL;
+        z ^= z >>> 31;
+        return "failure_" + stage.name().toLowerCase(java.util.Locale.ROOT) + "_" + Long.toHexString(z);
     }
 }

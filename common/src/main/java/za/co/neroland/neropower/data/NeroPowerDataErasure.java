@@ -20,10 +20,10 @@ import za.co.neroland.neropower.beam.BeamLinkSession;
  * <ol>
  *   <li><b>Beam link owner</b> — the UUID of the player who linked a Beam Transmitter / Relay, in
  *       that block entity's NBT ({@code LinkOwnerMost} / {@code LinkOwnerLeast}). There is no list of loaded block entities to
- *       sweep, so the eraser records the UUID in {@link NeroPowerErasureState} (pending set) and bumps
- *       its epoch: every loaded transmitter / relay drops a listed owner on its next tick, every
- *       unloaded one on its next load. <b>Retention of the pending row: 30 days</b>
- *       ({@link NeroPowerErasureState#ERASURE_RETENTION_DAYS}), purged on load and on each mark.
+ *       sweep, so the eraser records a salted-hash tombstone in {@link NeroPowerErasureState} and bumps
+ *       its epoch: every loaded transmitter / relay drops the owner of a link made on or before the
+ *       erasure day on its next tick, every unloaded one on its next load. Tombstones do not expire
+ *       (an unloaded chunk may wait years) and never hold the UUID itself.
  *       The store's Core backup copy is refreshed at once ({@link SavedDataRecovery#backupNow}),
  *       as the {@code SavedDataRecovery} contract requires.</li>
  *   <li><b>Beam link session</b> — the transient, in-memory "first endpoint picked" entry keyed by

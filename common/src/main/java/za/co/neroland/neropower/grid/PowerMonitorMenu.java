@@ -15,7 +15,7 @@ import za.co.neroland.neropower.menu.GaugeTailMenu;
 import za.co.neroland.neropower.registry.content.GridContent;
 
 /**
- * Power Monitor menu (wide hull 248 × 200, screens/power_monitor.md): no machine slots and no serverbound
+ * Power Monitor menu (wide hull 248 × 200): no machine slots and no serverbound
  * controls. The screen reads the ring, stored, capacity and source id from the block entity at
  * {@link #machinePos()} (the update tag); this menu syncs only readout, stall cause and "has source".
  */

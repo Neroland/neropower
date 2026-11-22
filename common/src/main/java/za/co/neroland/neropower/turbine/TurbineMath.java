@@ -23,7 +23,7 @@ public final class TurbineMath {
     /** The largest render bucket (2400 rpm). */
     public static final int MAX_RPM_BUCKET = MAX_TARGET_RPM / RPM_PER_BUCKET;
 
-    /** The condenser's default air-cooling table (decision 005), by NeroTech {@code Atmosphere} name. */
+    /** The condenser's default air-cooling table, by NeroTech {@code Atmosphere} name. */
     public static final String DEFAULT_ATMOSPHERE_FACTORS =
             "EARTHLIKE=1000,NITROGEN_OXYGEN=1000,NITROGEN_METHANE=1100,THIN_CO2=900,SULFUROUS=600,VACUUM=0";
     /** Factor used for an atmosphere the table does not list. */

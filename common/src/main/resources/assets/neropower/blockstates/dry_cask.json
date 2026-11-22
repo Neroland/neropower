@@ -4,20 +4,20 @@
       "model": "neropower:block/dry_cask"
     },
     "facing=north,status=working": {
-      "model": "neropower:block/dry_cask"
+      "model": "neropower:block/dry_cask_working"
     },
     "facing=north,status=starved": {
       "model": "neropower:block/dry_cask"
     },
     "facing=north,status=tripped": {
-      "model": "neropower:block/dry_cask"
+      "model": "neropower:block/dry_cask_leaking"
     },
     "facing=east,status=idle": {
       "model": "neropower:block/dry_cask",
       "y": 90
     },
     "facing=east,status=working": {
-      "model": "neropower:block/dry_cask",
+      "model": "neropower:block/dry_cask_working",
       "y": 90
     },
     "facing=east,status=starved": {
@@ -25,7 +25,7 @@
       "y": 90
     },
     "facing=east,status=tripped": {
-      "model": "neropower:block/dry_cask",
+      "model": "neropower:block/dry_cask_leaking",
       "y": 90
     },
     "facing=south,status=idle": {
@@ -33,7 +33,7 @@
       "y": 180
     },
     "facing=south,status=working": {
-      "model": "neropower:block/dry_cask",
+      "model": "neropower:block/dry_cask_working",
       "y": 180
     },
     "facing=south,status=starved": {
@@ -41,7 +41,7 @@
       "y": 180
     },
     "facing=south,status=tripped": {
-      "model": "neropower:block/dry_cask",
+      "model": "neropower:block/dry_cask_leaking",
       "y": 180
     },
     "facing=west,status=idle": {
@@ -49,7 +49,7 @@
       "y": 270
     },
     "facing=west,status=working": {
-      "model": "neropower:block/dry_cask",
+      "model": "neropower:block/dry_cask_working",
       "y": 270
     },
     "facing=west,status=starved": {
@@ -57,7 +57,7 @@
       "y": 270
     },
     "facing=west,status=tripped": {
-      "model": "neropower:block/dry_cask",
+      "model": "neropower:block/dry_cask_leaking",
       "y": 270
     }
   }

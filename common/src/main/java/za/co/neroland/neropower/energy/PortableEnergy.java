@@ -7,7 +7,7 @@ import za.co.neroland.nerolandcore.energy.EnergyConversions;
 import za.co.neroland.neropower.registry.content.StorageContent;
 
 /**
- * NeroPower's local item-energy seam (decision 008): Neroland Core has no item energy capability yet,
+ * NeroPower's local item-energy seam: Neroland Core has no item energy capability yet,
  * so every NeroPower user of portable energy (battery cell and surge bank charge slots, the Induction
  * Charger adapter, the loaders' FE item capabilities) goes through here. The charge is the
  * {@code neropower:cell_energy} component (Long NE) on a stack whose item is a

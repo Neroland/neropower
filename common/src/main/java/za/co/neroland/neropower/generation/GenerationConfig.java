@@ -17,8 +17,10 @@ public final class GenerationConfig {
             "fuelCellTicksPerUnit", 20, 1, 12_000, true, "ticks a Hydrogen Fuel Cell spends on one unit of "
             + "hydrogen with oxygen fed (twice as long when it breathes the air instead)");
     private static final ConfigValue<Integer> FUEL_CELL_NE_PER_UNIT = NeroPowerConfig.schema().intRange(
-            "fuelCellNePerHydrogenUnit", 200, 1, 1_000_000, true, "NE one unit of hydrogen gives in a Hydrogen "
-            + "Fuel Cell, spread evenly over the unit's ticks (on air the same NE over twice the time)");
+            "fuelCellNePerHydrogenUnit", 60, 1, 70, true, "NE one unit of hydrogen gives in a Hydrogen "
+            + "Fuel Cell, spread evenly over the unit's ticks (on air the same NE over twice the time). Capped "
+            + "at 70 so electrolysing water and burning the hydrogen always loses energy, even with the "
+            + "cheapest upgraded Electrolyzer");
     private static final ConfigValue<Integer> FUEL_CELL_WATER_PER_UNIT = NeroPowerConfig.schema().intRange(
             "fuelCellWaterPerUnitMb", 50, 0, 1_000, true, "mB of water a Hydrogen Fuel Cell puts out per unit "
             + "of hydrogen");

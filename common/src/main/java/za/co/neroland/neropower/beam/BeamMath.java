@@ -136,6 +136,58 @@ public final class BeamMath {
         return true;
     }
 
+    /** Half-thickness of the beam, in blocks, for the entity hazard. */
+    public static final double BEAM_RADIUS = 0.5;
+
+    /** The longest stretch of beam one entity query covers; a pass walks the segment in such steps. */
+    public static final double HAZARD_STEP = 16.0;
+
+    /** At most this many entities take beam damage from one shot in one pass. */
+    public static final int HAZARD_CAP = 16;
+
+    /**
+     * Whether the segment {@code a -> b} passes through the box {@code [min, max]} grown by
+     * {@code radius} on every side (slab test). A box containing either end is hit. This is the
+     * beam hazard's hit rule: only what stands on the line between the two endpoints, never the whole
+     * cuboid the two ends span.
+     */
+    public static boolean segmentHitsBox(double ax, double ay, double az, double bx, double by, double bz,
+            double minX, double minY, double minZ, double maxX, double maxY, double maxZ, double radius) {
+        double[] a = {ax, ay, az};
+        double[] d = {bx - ax, by - ay, bz - az};
+        double[] lo = {minX - radius, minY - radius, minZ - radius};
+        double[] hi = {maxX + radius, maxY + radius, maxZ + radius};
+        double t0 = 0.0;
+        double t1 = 1.0;
+        for (int i = 0; i < 3; i++) {
+            if (Math.abs(d[i]) < 1e-12) {
+                if (a[i] < lo[i] || a[i] > hi[i]) {
+                    return false;
+                }
+                continue;
+            }
+            double inv = 1.0 / d[i];
+            double ta = (lo[i] - a[i]) * inv;
+            double tb = (hi[i] - a[i]) * inv;
+            if (ta > tb) {
+                double swap = ta;
+                ta = tb;
+                tb = swap;
+            }
+            t0 = Math.max(t0, ta);
+            t1 = Math.min(t1, tb);
+            if (t0 > t1) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** How many query steps cover a segment of {@code length} blocks ({@link #HAZARD_STEP} each, at least one). */
+    public static int hazardSteps(double length) {
+        return Math.max(1, (int) Math.ceil(length / HAZARD_STEP));
+    }
+
     private static int clampPermille(int permille) {
         return Math.max(0, Math.min(PERMILLE, permille));
     }

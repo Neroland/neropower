@@ -19,8 +19,8 @@ import za.co.neroland.neropower.protection.Protection;
 import za.co.neroland.neropower.registry.content.GridContent;
 
 /**
- * Phased Array Emitter menu (tall hull 176 × 222, screens/phased_array_emitter.md): no machine slots. Synced
- * data: {@link PhasedArrayEmitterBlockEntity#EXTRA_DATA}; no coordinates. Controls (decision 012):
+ * Phased Array Emitter menu (tall hull 176 × 222): no machine slots. Synced
+ * data: {@link PhasedArrayEmitterBlockEntity#EXTRA_DATA}; no coordinates. Controls:
  * {@code move} (value = row × 2 + 0 up / 1 down) and {@code unlink} (value = row).
  */
 public class PhasedArrayEmitterMenu extends MachineMenu implements GaugeTailMenu {

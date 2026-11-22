@@ -1,0 +1,55 @@
+{
+  "chapter": "radiation",
+  "title": "gui.neropower.power_guide.chapter.radiation",
+  "steps": [
+    {
+      "id": "radiation_sources",
+      "icon": "neropower:fission_residue",
+      "title": "gui.neropower.power_guide.step.radiation_sources",
+      "text": "gui.neropower.power_guide.step.radiation_sources.text",
+      "completed_by_item": "neropower:geiger_counter"
+    },
+    {
+      "id": "radiation_effects",
+      "icon": "neropower:hot_spent_fuel_rod",
+      "title": "gui.neropower.power_guide.step.radiation_effects",
+      "text": "gui.neropower.power_guide.step.radiation_effects.text",
+      "completed_by_item": "neropower:geiger_counter"
+    },
+    {
+      "id": "shielding",
+      "icon": "neropower:shielding_block",
+      "title": "gui.neropower.power_guide.step.shielding",
+      "text": "gui.neropower.power_guide.step.shielding.text",
+      "completed_by_item": "neropower:shielding_block"
+    },
+    {
+      "id": "geiger_counter",
+      "icon": "neropower:geiger_counter",
+      "title": "gui.neropower.power_guide.step.geiger_counter",
+      "text": "gui.neropower.power_guide.step.geiger_counter.text",
+      "completed_by_item": "neropower:geiger_counter"
+    },
+    {
+      "id": "dosimeter_badge",
+      "icon": "neropower:dosimeter_badge",
+      "title": "gui.neropower.power_guide.step.dosimeter_badge",
+      "text": "gui.neropower.power_guide.step.dosimeter_badge.text",
+      "completed_by_item": "neropower:dosimeter_badge"
+    },
+    {
+      "id": "decontaminant",
+      "icon": "neropower:decontaminant",
+      "title": "gui.neropower.power_guide.step.decontaminant",
+      "text": "gui.neropower.power_guide.step.decontaminant.text",
+      "completed_by_item": "neropower:decontaminant"
+    },
+    {
+      "id": "radiation_mode",
+      "icon": "neropower:shielding_glass",
+      "title": "gui.neropower.power_guide.step.radiation_mode",
+      "text": "gui.neropower.power_guide.step.radiation_mode.text",
+      "completed_by_item": "neropower:shielding_glass"
+    }
+  ]
+}

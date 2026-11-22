@@ -3,7 +3,7 @@ package za.co.neroland.neropower.grid;
 import za.co.neroland.neropower.failure.FailureThresholds;
 
 /**
- * Circuit Breaker rules (decision 008 annex), Minecraft-free: what passes, how stress is measured, when it
+ * Circuit Breaker rules, Minecraft-free: what passes, how stress is measured, when it
  * trips, how a reset is recognised and what a comparator reads. The breaker never stores more than one
  * tick of what it may pass and never blasts: a trip only opens the circuit.
  */

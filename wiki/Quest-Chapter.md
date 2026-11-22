@@ -1,7 +1,7 @@
 # Quest Chapter
 
 NeroPower ships a quest pack for **NeroQuests**: the chapter *Reactor Log* (`neropower:reactor_log`,
-14 quests). It appears in the quest book when NeroQuests is installed and is inert data otherwise —
+18 quests). It appears in the quest book when NeroQuests is installed and is inert data otherwise —
 NeroPower has **no dependency** on NeroQuests, and nothing in NeroPower is locked behind a quest.
 
 ## The chapter
@@ -22,24 +22,33 @@ NeroPower has **no dependency** on NeroQuests, and nothing in NeroPower is locke
 | Decay Heat | Pellets | Hold a Spent Isotope Pellet |
 | Closing the Loop | First Burn | Hold 2 Reprocessed Pellets |
 | World First: Fission | — | Shared by the whole server: the first reactor in any dimension burns fuel |
+| Turbine Spin-up | Criticality | A steam turbine first reaches rated speed |
+| First Breed | Criticality | A Breeder Blanket breeds the first Kindled Pellet |
+| Into Glass | First Burn | The first Vitrified Waste comes out of a Vitrifier |
+| Full Ring | Power Bank | A Storage Ring is fully charged |
 
 Machine outputs (pellets, spent rods, reprocessed pellets) are *collect* objectives, not crafts.
 
 ## Milestone records
 
-Three quests read **player-scope milestone gates** NeroPower opens through Neroland Core the first
+Seven quests read **player-scope milestone gates** NeroPower opens through Neroland Core the first
 time something happens. They are records for the quest book, not locks: nothing in NeroPower checks
 them for access.
 
 | Gate | Opened when |
 | --- | --- |
-| `neropower:criticality` | A formed Fission Reactor burns fuel, for the reactor's owner |
+| `neropower:criticality` | A formed Fission Reactor actually burns fuel |
 | `neropower:beam_linked` | A player links a Beam Transmitter |
-| `neropower:bank_capacity` | A Battery Bank's pooled capacity reaches `bankCapacityMilestone` (default 32 M NE), for the controller's owner |
+| `neropower:bank_capacity` | A Battery Bank's pooled capacity reaches `bankCapacityMilestone` (default 32 M NE) |
+| `neropower:turbine_spinup` | A steam turbine first reaches rated speed |
+| `neropower:first_breed` | A Breeder Blanket breeds a Kindled Pellet |
+| `neropower:first_vitrified` | A Vitrifier makes Vitrified Waste |
+| `neropower:smes_charged` | A Storage Ring reaches full charge |
 
-A reactor's or bank's owner is NeroTech's machine-owner field, which exists only when the server has
-NeroTech's per-player attribution on; an unowned machine, or an owner who opted out, records nothing.
-See [Privacy](Privacy.md).
+A machine record goes to the machine's owner (NeroTech's machine-owner field, which exists only when
+the server has NeroTech's per-player attribution on) and to the player operating the machine at that
+moment, if they are online. Nothing about that player is saved by NeroPower, and NeroPower never picks
+the nearest player. An owner who opted out of attribution records nothing. See [Privacy](Privacy.md).
 
 ## World log
 

@@ -1,0 +1,26 @@
+// Steam-plant block-entity saves written before the shared tanks (pre-release 0.4.0 builds, each port with
+// its own tanks; no 0.3.x release shipped steam ports). Hand-authored from the ReactorSteamPortBlockEntity
+// and TurbineSteamPortBlockEntity save writers. Must keep loading unchanged in every later release; never
+// edit these values, add a new fixture instead.
+{
+  reactor_port_water: {
+    id: "neropower:reactor_steam_port", x: 3, y: 64, z: 0, Heat: 0, Preset: 0,
+    CoolantFluid: "minecraft:water", CoolantAmount: 12000, SteamFluid: "neropower:steam", SteamAmount: 2500
+  },
+  reactor_port_steam_full: {
+    id: "neropower:reactor_steam_port", x: 3, y: 65, z: 0, Heat: 0, Preset: 0,
+    SteamFluid: "neropower:steam", SteamAmount: 16000
+  },
+  reactor_port_cryo: {
+    id: "neropower:reactor_steam_port", x: 3, y: 66, z: 0, Heat: 0, Preset: 0,
+    CoolantFluid: "nerotech:cryo_coolant", CoolantAmount: 800
+  },
+  turbine_port_inlet: {
+    id: "neropower:turbine_steam_port", x: 9, y: 64, z: 0, Heat: 0, Preset: 0,
+    SteamFluid: "neropower:steam", SteamAmount: 7000
+  },
+  turbine_port_exhaust: {
+    id: "neropower:turbine_steam_port", x: 9, y: 65, z: 0, Heat: 0, Preset: 0,
+    ExhaustFluid: "neropower:exhaust_steam", ExhaustAmount: 9000
+  }
+}

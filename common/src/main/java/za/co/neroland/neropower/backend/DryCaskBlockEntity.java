@@ -91,8 +91,7 @@ public class DryCaskBlockEntity extends NeroPowerMachineBlockEntity implements R
             }
         }
         this.readout = BackEndReadout.readout(false, overheated(), BackEndReadout.CAUSE_NONE, false);
-        za.co.neroland.neropower.machine.NeroPowerMachineBlock.applyStatus(level, pos,
-                za.co.neroland.neropower.machine.NeroPowerMachineBlock.VisualStatus.fromReadout(this.readout));
+        za.co.neroland.neropower.machine.NeroPowerMachineBlock.applyStatus(level, pos, visualStatus(leaking(), this.readout));
         reportStatus(MachineStatus.IDLE);
         setActive(false);
     }
@@ -113,6 +112,21 @@ public class DryCaskBlockEntity extends NeroPowerMachineBlockEntity implements R
         this.radioactive = hot;
         this.openFaces = Shielding.unshieldedFaces(level, pos);
         this.counted = true;
+    }
+
+    /** Whether the cask holds radioactive waste with at least one face not shielded (last count). */
+    public boolean leaking() {
+        return emitting() && this.openFaces > 0;
+    }
+
+    /**
+     * The in-world {@code status}: a leaking cask is {@code tripped} (open vents, lime marks) whatever its
+     * heat, so a live radiation source never looks sealed; otherwise the readout decides.
+     */
+    static za.co.neroland.neropower.machine.NeroPowerMachineBlock.VisualStatus visualStatus(boolean leaking,
+            int readout) {
+        return leaking ? za.co.neroland.neropower.machine.NeroPowerMachineBlock.VisualStatus.TRIPPED
+                : za.co.neroland.neropower.machine.NeroPowerMachineBlock.VisualStatus.fromReadout(readout);
     }
 
     /** Slots holding spent rods or residue (last count). */
@@ -158,7 +172,7 @@ public class DryCaskBlockEntity extends NeroPowerMachineBlockEntity implements R
         return slot >= 0 && slot < CaskMath.CASK_SLOTS;
     }
 
-    // --- menu sync (spec: screens/dry_cask.md) -----------------------------------------------------
+    // --- menu sync -----------------------------------------------------
 
     /** Extra-data layout; read only through {@code DryCaskMenu}'s getters. */
     static final int D_OCCUPIED = 0;
@@ -182,7 +196,7 @@ public class DryCaskBlockEntity extends NeroPowerMachineBlockEntity implements R
         return switch (index) {
             case D_OCCUPIED -> this.occupied;
             case D_SHIELDED -> 6 - this.openFaces;
-            case D_LEAKING -> emitting() && this.openFaces > 0 ? 1 : 0;
+            case D_LEAKING -> leaking() ? 1 : 0;
             case D_TRACE -> CaskMath.traceHeat(this.radioactive, BackEndConfig.caskSlotsPerHeat());
             case D_INTERVAL -> BackEndConfig.caskHeatIntervalTicks();
             case D_RADIATION_ON -> this.level instanceof ServerLevel serverLevel

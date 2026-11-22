@@ -21,7 +21,7 @@ import za.co.neroland.neropower.menu.GaugeTail;
 import za.co.neroland.neropower.registry.content.StorageContent;
 
 /**
- * Surge Bank (0.4.0, decision 008): a small, very fast store. Standing alone it is a buffer that pushes
+ * Surge Bank (0.4.0): a small, very fast store. Standing alone it is a buffer that pushes
  * at its own high rate (through {@link StorageEnergy}, so the slosh guard applies); touching a Battery
  * Bank's cells or controller it joins that bank as the <b>fast tier</b> ({@link PoolMember#fastTier()}):
  * filled first and drained first, with its I/O added on top of the cells' pooled I/O under

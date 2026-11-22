@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
@@ -18,43 +19,45 @@ import za.co.neroland.nerolandcore.data.PlayerDataErasure;
 import za.co.neroland.neropower.beam.BeamLinkSession;
 
 /**
- * POPIA/GDPR conformance for NeroPower's eraser, run through Core's reusable
- * {@link ErasureConformance} harness exactly as Core's own suite runs it: plain JVM, no game
- * bootstrap, {@code null} server. The production eraser ({@code NeroPowerDataErasure.erase}) needs a
- * live {@link net.minecraft.server.MinecraftServer} to fetch the SavedData store and refresh Core's
- * backup, so — as Core's test does for its own stores — the eraser registered here binds
- * {@link NeroPowerDataErasure#eraseWith} to a bare {@link NeroPowerErasureState} and a fresh
- * {@link BeamLinkSession}. The backup refresh is a {@code SavedDataRecovery} call with no logic of
- * its own; the in-game half is covered by runtime verification ({@code /neroland data erase}).
+ * POPIA/GDPR conformance for NeroPower's eraser, run through Core's reusable {@link ErasureConformance}
+ * harness exactly as Core's own suite runs it: plain JVM, no game bootstrap, {@code null} server. The
+ * production eraser needs a live server for the SavedData store and Core's backup, so the eraser
+ * registered here binds {@link NeroPowerDataErasure#eraseWith} to a bare {@link NeroPowerErasureState} and a
+ * fresh {@link BeamLinkSession}.
  *
- * <p>The beam link owner lives in block-entity NBT, which no plain-JVM test can construct; the
- * probe therefore models a transmitter as the harness sees it — an object holding a link-owner
- * UUID that consults the pending set on its next tick — so the run proves the whole mechanism:
- * mark → pending → owner dropped. Every test uses a random UUID and never logs it.
+ * <p>The beam link owner lives in block-entity NBT, which no plain-JVM test can construct; the probe models a
+ * transmitter as the erasure sees it: a link owner and a link day, re-checked per epoch and on load, exactly as
+ * {@code BeamTransmitterBlockEntity.checkLinkOwnerErasure} does. Every test uses random UUIDs and logs none.
  */
 class NeroPowerErasureConformanceTest {
 
-    /** A transmitter as far as erasure is concerned: a link owner that is re-checked per epoch. */
+    /** A transmitter as far as erasure is concerned. */
     private static final class FakeTransmitter {
         private UUID linkOwner;
+        private long linkDay = NeroPowerErasureState.UNKNOWN_LINK_DAY;
         private int checkedEpoch = -1;
 
-        void link(UUID owner) {
+        void link(UUID owner, long day) {
             this.linkOwner = owner;
+            this.linkDay = day;
         }
 
         boolean hasOwner(UUID owner) {
             return owner.equals(this.linkOwner);
         }
 
-        /** What {@code BeamTransmitterBlockEntity.checkLinkOwnerErasure} does on a tick. */
+        /** A chunk (re)load: the next tick re-checks whatever the epoch is. */
+        void reload() {
+            this.checkedEpoch = -1;
+        }
+
         void tick(NeroPowerErasureState state) {
             int epoch = NeroPowerErasureState.erasureEpoch();
             if (this.checkedEpoch == epoch) {
                 return;
             }
             this.checkedEpoch = epoch;
-            if (this.linkOwner != null && state.isPending(this.linkOwner)) {
+            if (this.linkOwner != null && state.erasedOnOrAfter(this.linkOwner, this.linkDay)) {
                 this.linkOwner = null;
             }
         }
@@ -82,27 +85,84 @@ class NeroPowerErasureConformanceTest {
         FakeTransmitter loaded = new FakeTransmitter();
         FakeTransmitter unloaded = new FakeTransmitter();
 
-        // Seed, so the probes are not vacuous: a pending link session and two linked transmitters.
         session.begin(player, "minecraft:overworld", 1, 2, 3, 0L);
-        loaded.link(player);
-        unloaded.link(player);
-        loaded.tick(state); // the loaded one has already checked the current epoch
+        loaded.link(player, today - 10);
+        unloaded.link(player, NeroPowerErasureState.UNKNOWN_LINK_DAY); // a pre-0.4.0 link: no day saved
+        loaded.tick(state);
 
         register((server, uuid) -> {
             NeroPowerDataErasure.eraseWith(session, state, uuid, today);
-            loaded.tick(state); // a loaded transmitter reacts on its next tick (epoch bumped)
+            loaded.tick(state);
         });
 
         ErasureConformance.create()
                 .probe("neropower:beam_link_session", uuid -> session.peek(uuid, 0L).isPresent())
                 .probe("neropower:beam_link_owner_loaded", loaded::hasOwner)
                 .probe("neropower:beam_link_owner_unloaded", uuid -> {
-                    unloaded.tick(state); // an unloaded one catches up on its first tick after load
+                    unloaded.reload();
+                    unloaded.tick(state);
                     return unloaded.hasOwner(uuid);
                 })
                 .verify(null, player);
 
-        assertTrue(state.isPending(player), "the pending row must stay for the retention window");
+        assertTrue(state.isPending(player));
+    }
+
+    @Test
+    void aChunkUnloadedFourHundredDaysStillDropsTheOwner() {
+        UUID player = UUID.randomUUID();
+        NeroPowerErasureState state = new NeroPowerErasureState();
+        FakeTransmitter outpost = new FakeTransmitter();
+        outpost.link(player, 100L);
+        state.mark(player, 120L);
+        // Nobody loads the outpost for 400 days; other players are erased meanwhile.
+        for (int i = 0; i < 5; i++) {
+            state.mark(UUID.randomUUID(), 200L + i * 50L);
+        }
+        outpost.reload();
+        outpost.tick(state);
+        assertFalse(outpost.hasOwner(player), "the tombstone did not expire (old 30-day bug)");
+        assertTrue(state.isPending(player));
+    }
+
+    @Test
+    void aReturningPlayersNewLinkSurvivesLaterErasures() {
+        UUID player = UUID.randomUUID();
+        NeroPowerErasureState state = new NeroPowerErasureState();
+        state.mark(player, 300L);
+        FakeTransmitter fresh = new FakeTransmitter();
+        fresh.link(player, 301L); // linked after the erasure
+        fresh.tick(state);
+        state.mark(UUID.randomUUID(), 302L); // someone else's erasure bumps the epoch
+        fresh.tick(state);
+        fresh.reload();
+        fresh.tick(state);
+        assertTrue(fresh.hasOwner(player), "a link made after the erasure keeps its owner");
+
+        FakeTransmitter sameDay = new FakeTransmitter();
+        sameDay.link(player, 300L);
+        sameDay.tick(state);
+        assertFalse(sameDay.hasOwner(player), "a link from the erasure day itself is dropped (the private choice)");
+    }
+
+    @Test
+    void tombstonesHoldNoPlainUuidAndLegacyRowsAreHashed() {
+        UUID a = UUID.randomUUID();
+        UUID b = UUID.randomUUID();
+        NeroPowerErasureState legacy = NeroPowerErasureState.fromLegacyRows(Map.of(a, 10L, b, 11L));
+        assertEquals(2, legacy.size());
+        assertTrue(legacy.isPending(a));
+        assertTrue(legacy.erasedOnOrAfter(b, 11L));
+        assertFalse(legacy.erasedOnOrAfter(b, 12L));
+        assertFalse(legacy.storesPlain(a.toString()), "no plain UUID survives the load");
+        assertFalse(legacy.storesPlain(b.toString()));
+
+        NeroPowerErasureState fresh = new NeroPowerErasureState();
+        fresh.mark(a, 5L);
+        assertFalse(fresh.storesPlain(a.toString()));
+        NeroPowerErasureState other = new NeroPowerErasureState();
+        other.mark(b, 5L);
+        assertFalse(other.isPending(a), "salts are per world: one world's tombstone means nothing in another");
     }
 
     @Test
@@ -123,31 +183,15 @@ class NeroPowerErasureConformanceTest {
     }
 
     @Test
-    void pendingRowsExpireAfterThirtyDays() {
+    void markBumpsTheEpochAndRepeatsKeepTheLatestDay() {
         UUID player = UUID.randomUUID();
         NeroPowerErasureState state = new NeroPowerErasureState();
-        state.mark(player, 100L);
-
-        assertEquals(0, state.purgeExpired(100L + NeroPowerErasureState.ERASURE_RETENTION_DAYS));
-        assertTrue(state.isPending(player), "still pending on the last day of the window");
-        assertEquals(1, state.purgeExpired(100L + NeroPowerErasureState.ERASURE_RETENTION_DAYS + 1));
-        assertFalse(state.isPending(player));
-        assertEquals(0, state.size());
-    }
-
-    @Test
-    void markPurgesExpiredRowsAndBumpsTheEpoch() {
-        UUID old = UUID.randomUUID();
-        UUID fresh = UUID.randomUUID();
-        NeroPowerErasureState state = new NeroPowerErasureState();
-        state.mark(old, 0L);
         int epoch = NeroPowerErasureState.erasureEpoch();
-
-        state.mark(fresh, 31L);
-
-        assertFalse(state.isPending(old), "a mark purges rows past the retention window");
-        assertTrue(state.isPending(fresh));
-        assertEquals(epoch + 1, NeroPowerErasureState.erasureEpoch(), "every mark moves the epoch once");
+        state.mark(player, 10L);
+        state.mark(player, 40L);
+        assertEquals(epoch + 2, NeroPowerErasureState.erasureEpoch(), "every mark moves the epoch once");
+        assertEquals(1, state.size());
+        assertTrue(state.erasedOnOrAfter(player, 40L), "the later erasure day wins");
         assertFalse(state.isPending(null));
     }
 

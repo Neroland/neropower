@@ -13,7 +13,8 @@
   when all 27 cells and their `ecjCheck` build green.
 - Mod id: **`neropower`** (matches the registry namespace + every loader manifest). Package root:
   `za.co.neroland.neropower`. Author: **Neroland**.
-- Version: **0.3.2** (`mod_version`; the next release is **0.4.0**, stable label, no pre-release suffix).
+- Version: **0.4.0** (`mod_version`, stable label, no pre-release suffix; last release 0.3.2). It cannot
+  publish until NeroTech 0.8.0 is on GitHub Packages.
 - Dependencies: **Neroland Core 1.20.0** (`nerolandcore_version`) and **NeroTech 0.8.0**
   (`nerotech_version`). Loader ranges are derived from the compiled pins, never hardcoded: NeoForge/Forge
   `[${nerolandcoreVersion},2.0)` and `[${nerotechVersion},1.0)`; Fabric `>=${nerolandcore_version} <2.0.0`

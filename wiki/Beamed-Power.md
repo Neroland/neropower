@@ -4,6 +4,8 @@ Beamed power moves energy across the map without a cable: a **Beam Transmitter**
 line-of-sight beam at a **Beam Receiver**, optionally bouncing through **Beam Relays** on the way.
 Distance costs a little, anything solid in the way stops the beam outright, and standing in one
 hurts. An **Orbital Receiver** is the special case that can be beamed to from another dimension.
+The **Beam Splitter** and **Phased Array Emitter** (0.4.0) turn links into a grid; see
+[Beam Grids](Beam-Grids.md).
 
 ## How it works
 
@@ -36,7 +38,12 @@ endpoints (spawn protection counts), both must be loaded, and endpoints further 
 `beamRange` are refused. Only the player who made a link — or an operator — can unlink or re-aim
 it, so nobody can quietly re-aim your transmitter. The linking player's UUID is the one thing
 NeroPower stores about players. It stays on the server (world save only, never sent to clients);
-see [Privacy](Privacy.md).
+see [Privacy](Privacy.md). Beam Splitters and Phased Array Emitters link the same way but record no
+owner.
+
+A nearby client is told a beam's target only when it is within 64 blocks in the same dimension; a
+farther target is sent as a direction only, and one in another dimension not at all. The
+[Beam Alignment Scope](Tools.md#beam-alignment-scope) shows a beam's line of sight and what blocks it.
 
 ### Passes, loss and line of sight
 
@@ -51,7 +58,8 @@ Each pass:
 - offers up to `beamTransferPerPass` NE (2,000 by default) from its buffer. What arrives is
   `sent × (1 − loss ⁄ 1000)^distance`: at the default 3 ‰ per block, about **68 %** survives 128
   blocks. The transmitter is only charged for what the target actually kept;
-- deals `beamDamage` (half a heart) to every living creature standing in the beam.
+- deals `beamDamage` (half a heart) to every living creature standing in the beam: only on the line
+  between the two endpoints (half a block either side), never beside it, and at most 16 creatures a pass.
 
 Relays forward what lands on them **in the same pass**, up to `beamMaxHops` deep (8), and a pass
 never visits the same endpoint twice — a chain that loops back on itself reports *Relay chain loops

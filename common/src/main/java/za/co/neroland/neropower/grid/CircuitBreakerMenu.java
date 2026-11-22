@@ -20,8 +20,8 @@ import za.co.neroland.neropower.protection.Protection;
 import za.co.neroland.neropower.registry.content.GridContent;
 
 /**
- * Circuit Breaker menu (tall hull 176 × 222, screens/circuit_breaker.md): no machine slots. Controls
- * (decision 012): {@code reset} (value 0), {@code redstoneReset} (0/1) and {@code limit} as a
+ * Circuit Breaker menu (tall hull 176 × 222): no machine slots. Controls
+ *: {@code reset} (value 0), {@code redstoneReset} (0/1) and {@code limit} as a
  * {@link ScaledValue}: action {@code ACTION_LIMIT + exponent}, value = mantissa.
  */
 public class CircuitBreakerMenu extends MachineMenu implements GaugeTailMenu {

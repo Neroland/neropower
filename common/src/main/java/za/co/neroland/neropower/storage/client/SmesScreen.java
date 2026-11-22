@@ -174,6 +174,9 @@ public class SmesScreen extends PowerMachineScreen<SmesMenu> {
             return Component.translatable("gui.neropower.smes.stall.locked_out",
                     GaugeMath.duration(this.menu.lockoutTicks()));
         }
+        if (readout == 3 && cause == 13) {
+            return Component.translatable("gui.neropower.smes.stall.no_coolant_warming");
+        }
         if (readout == 3) {
             return Component.translatable(this.menu.stage() == FailureStage.UNSTABLE
                     ? "gui.neropower.smes.stall.halved" : "gui.neropower.smes.stall.warming");
@@ -246,6 +249,10 @@ public class SmesScreen extends PowerMachineScreen<SmesMenu> {
         } else if (over(mx, my, 8, 116, 232, 9)) {
             lines.add(GaugeTooltips.tr("status"));
             lines.add(stall());
+            GaugeTooltips.stallFix(lines, this.menu.readout(), this.menu.stallCause());
+            if (this.menu.readout() == 3 && this.menu.stallCause() == 13) {
+                lines.add(Component.translatable("gui.neropower.stall.fix.no_coolant"));
+            }
         }
     }
 }

@@ -96,4 +96,12 @@ public abstract class PowerMachineScreen<T extends MachineMenu & GaugeTailMenu> 
         }
         return lines;
     }
+
+    /** The Guide button (opens the Power Guide at this block's chapter). */
+    @Override
+    protected void init() {
+        super.init();
+        addRenderableWidget(za.co.neroland.neropower.client.guide.PowerGuideLinks.button(this, this.menu,
+                this.leftPos, this.topPos, this.imageWidth));
+    }
 }

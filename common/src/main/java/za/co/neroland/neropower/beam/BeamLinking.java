@@ -142,7 +142,7 @@ public final class BeamLinking {
     /**
      * Second click for a {@link MultiBeamSource} (Beam Splitter, Phased Array Emitter): same dimension only,
      * protection at both ends, within the source's range, room for another link. <b>No owner is recorded</b>
-     * (decision 008 annex): the check here is the only authorisation.
+     *: the check here is the only authorisation.
      */
     private static void completeMulti(ServerLevel level, ServerPlayer player, ServerLevel sourceLevel,
             BlockPos sourcePos, MultiBeamSource source, BlockPos targetPos, BeamEndpointBlockEntity target,

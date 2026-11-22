@@ -13,7 +13,7 @@ import za.co.neroland.neropower.grid.LoadBankMenu;
 import za.co.neroland.neropower.storage.client.StorageScreenKit;
 
 /**
- * Load Bank screen (tall hull 176 × 186, screens/load_bank.md): solo heat bar (NeroTech's heat tooltip),
+ * Load Bank screen (tall hull 176 × 186): solo heat bar (NeroTech's heat tooltip),
  * the set rate (slider in 100 NE/t steps; scroll 100 a notch), Zero, what it is drawing, the heat
  * it makes and the stall line.
  */
@@ -96,6 +96,7 @@ public class LoadBankScreen extends PowerMachineScreen<LoadBankMenu> {
         } else if (GridScreenKit.in(mx, my, 8, 80, 160, 9)) {
             lines.add(GaugeTooltips.tr("status"));
             lines.add(stall());
+            GaugeTooltips.stallFix(lines, this.menu.readout(), this.menu.stallCause());
         }
     }
 

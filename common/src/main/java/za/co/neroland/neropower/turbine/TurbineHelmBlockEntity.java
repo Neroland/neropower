@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -33,7 +34,6 @@ import za.co.neroland.nerotech.machine.MachineEnergy;
 import za.co.neroland.nerotech.machine.MachineStatus;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlock;
 
-import za.co.neroland.neropower.NeroPowerCommon;
 import za.co.neroland.neropower.config.NeroPowerConfig;
 import za.co.neroland.neropower.failure.Explode;
 import za.co.neroland.neropower.failure.FailureContext;
@@ -50,6 +50,7 @@ import za.co.neroland.neropower.multiblock.Probe;
 import za.co.neroland.neropower.multiblock.ShapeResult;
 import za.co.neroland.neropower.multiblock.TurbineShape;
 import za.co.neroland.neropower.progression.MilestoneGates;
+import za.co.neroland.neropower.progression.OperatorCredit;
 import za.co.neroland.neropower.registry.content.TurbineContent;
 
 /**
@@ -71,8 +72,7 @@ import za.co.neroland.neropower.registry.content.TurbineContent;
 public class TurbineHelmBlockEntity extends NeroPowerMachineBlockEntity implements MultiblockHost {
 
     /** Record gate opened the first time a turbine delivers power at rated speed. */
-    public static final Identifier GATE_TURBINE_SPINUP =
-            Identifier.fromNamespaceAndPath(NeroPowerCommon.MOD_ID, "turbine_spinup");
+    public static final Identifier GATE_TURBINE_SPINUP = MilestoneGates.TURBINE_SPINUP;
 
     /** The helm's own NE buffer and per-side push budget. */
     public static final int BUFFER_NE = 200_000;
@@ -84,6 +84,8 @@ public class TurbineHelmBlockEntity extends NeroPowerMachineBlockEntity implemen
     public static final int STALL_NO_STEAM = 3;
     public static final int STALL_EXHAUST_BLOCKED = 5;
     public static final int STALL_BUFFER_FULL = 8;
+    /** Formed, but no slice can work: no vane set on an open slice, or no fully wound stator ring. */
+    public static final int STALL_NO_WORKING_SLICE = 14;
 
     /** Machine-specific synced ints after NeroTech's seven ({@code P} = a hi/lo pair of two ints). */
     public static final int EXTRA_RPM = 0;
@@ -160,6 +162,9 @@ public class TurbineHelmBlockEntity extends NeroPowerMachineBlockEntity implemen
     private int readout = TurbineReadout.REST;
     /** The spin-up gate has been offered by this loaded helm (transient; the gate itself is idempotent). */
     private boolean spinUpRecorded;
+    /** The operator this loaded helm last tried to credit with spin-up. Transient, equality only; never log it. */
+    @Nullable
+    private UUID spinUpTried;
 
     // --- render sync (compare-and-record) -------------------------------------------------------------
     private int syncedBucket = -1;
@@ -348,6 +353,19 @@ public class TurbineHelmBlockEntity extends NeroPowerMachineBlockEntity implemen
         return super.canPlaceItem(slot, stack) || (slot >= this.machineSlots && GovernorModuleItem.is(stack));
     }
 
+    /** Inlet and exhaust ports served on the last tick: the members of the shared tanks. */
+    private List<TurbineSteamPortBlockEntity> linkedInlets = List.of();
+    private List<TurbineSteamPortBlockEntity> linkedExhausts = List.of();
+
+    /** The ports sharing this turbine's steam-in ({@code INLET}) or exhaust ({@code EXHAUST}) tank. */
+    public List<TurbineSteamPortBlockEntity> linkedPorts(PortMode mode) {
+        return switch (mode) {
+            case INLET -> this.linkedInlets;
+            case EXHAUST -> this.linkedExhausts;
+            case VENT -> List.of();
+        };
+    }
+
     // --- tick -------------------------------------------------------------------------------------------
 
     @Override
@@ -366,6 +384,7 @@ public class TurbineHelmBlockEntity extends NeroPowerMachineBlockEntity implemen
                     this.recheckDue = true;
                     continue;
                 }
+                port.link(this);
                 switch (port.mode()) {
                     case INLET -> {
                         inlets.add(port);
@@ -380,6 +399,8 @@ public class TurbineHelmBlockEntity extends NeroPowerMachineBlockEntity implemen
                 }
             }
         }
+        this.linkedInlets = List.copyOf(inlets);
+        this.linkedExhausts = List.copyOf(exhausts);
         this.portsInlet = inlets.size();
         this.portsExhaust = exhausts.size();
         this.portsVent = vents.size();
@@ -423,10 +444,17 @@ public class TurbineHelmBlockEntity extends NeroPowerMachineBlockEntity implemen
             }
         }
 
-        if (!this.spinUpRecorded && output > 0L && this.rpm >= TurbineMath.RATED_RPM
-                && level instanceof ServerLevel serverLevel) {
-            this.spinUpRecorded = true;
-            MilestoneGates.record(serverLevel, lastOperator().orElse(ownerId()), GATE_TURBINE_SPINUP);
+        boolean spunUp = OperatorCredit.spunUp(output, this.rpm, TurbineMath.RATED_RPM);
+        if (spunUp && level instanceof ServerLevel serverLevel) {
+            if (!this.spinUpRecorded) {
+                this.spinUpRecorded = true;
+                MilestoneGates.record(serverLevel, ownerId(), GATE_TURBINE_SPINUP);
+            }
+            UUID operator = lastOperator().orElse(null);
+            if (OperatorCredit.shouldTry(true, operator, this.spinUpTried) && MilestoneGates.online(serverLevel, operator)) {
+                this.spinUpTried = operator;
+                MilestoneGates.credit(serverLevel, operator, GATE_TURBINE_SPINUP);
+            }
         }
 
         updateReadout(steam, rotor, plan, output, stage);
@@ -483,8 +511,8 @@ public class TurbineHelmBlockEntity extends NeroPowerMachineBlockEntity implemen
      */
     private boolean onOverspeed(ServerLevel level, BlockPos pos) {
         trip();
-        TurbineConfig.FailureMode mode = NeroPowerConfig.overloadEnabled()
-                ? TurbineConfig.failureAction() : TurbineConfig.FailureMode.TRIP;
+        TurbineConfig.FailureMode mode = NeroPowerConfig.overloadEnabled() && !isGalleryExhibit()
+                ? TurbineConfig.failureAction() : TurbineConfig.FailureMode.TRIP; // exhibits only ever trip
         switch (mode) {
             case SHED_VANES -> {
                 for (BlockPos spindle : this.spindles) {
@@ -532,9 +560,12 @@ public class TurbineHelmBlockEntity extends NeroPowerMachineBlockEntity implemen
             FailureStage stage) {
         int cause;
         MachineStatus status = null;
-        if (!formed() || !rotor.runnable()) {
-            // Unformed, or formed without a working vane slice or a wound stator slice.
+        if (!formed()) {
             cause = STALL_NOT_FORMED;
+            status = MachineStatus.UNFORMED;
+        } else if (!rotor.runnable()) {
+            // The shell is right, but no vane slice or no wound stator slice: the screen names which.
+            cause = STALL_NO_WORKING_SLICE;
             status = MachineStatus.UNFORMED;
         } else if (this.tripped) {
             cause = STALL_NONE; // the readout says "tripped"
@@ -623,6 +654,31 @@ public class TurbineHelmBlockEntity extends NeroPowerMachineBlockEntity implemen
     /** NE delivered last tick. */
     public long lastOutput() {
         return this.lastOutput;
+    }
+
+    /** Formed structure length (blocks, helm to tail), or 0 when unformed. Read by the link module. */
+    public int length() {
+        return formed() ? this.length : 0;
+    }
+
+    /** Inlet steam fill as permille (0..1000) at the last tick; 0 with no inlet. Read by the link module. */
+    public int steamPermille() {
+        if (this.steamCapacity <= 0L) {
+            return 0;
+        }
+        return (int) Math.max(0L, Math.min(1000L, this.steamStored * 1000L / this.steamCapacity));
+    }
+
+    /**
+     * Latch the trip on request from a remote operator (link action {@code turbine_trip}): the same latch
+     * an overspeed sets, with no failure action. Clearing it is the normal reset path.
+     *
+     * @return whether the turbine was running untripped before
+     */
+    public boolean requestTrip() {
+        boolean was = this.tripped;
+        trip();
+        return !was;
     }
 
     @Override

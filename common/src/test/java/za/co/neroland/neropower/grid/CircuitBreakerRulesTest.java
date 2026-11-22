@@ -11,7 +11,7 @@ import za.co.neroland.neropower.failure.FailureController;
 import za.co.neroland.neropower.failure.FailureStage;
 
 /**
- * Rule test for the Circuit Breaker (decision 008 annex): it passes at most 125 % of its limit and
+ * Rule test for the Circuit Breaker: it passes at most 125 % of its limit and
  * nothing while tripped, its load climbs WARNING 60 % / UNSTABLE 80 % / FAILURE (trip) 100 % after the
  * dwell on each rung, a reset by redstone needs a rising edge with the option on, the comparator reads
  * 15 tripped else load / 67, and limits travel the button channel to three significant digits.

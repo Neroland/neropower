@@ -1,48 +1,183 @@
 {
   "variants": {
-    "facing=north,port_mode=inlet": {
+    "facing=north,port_mode=inlet,status=idle": {
       "model": "neropower:block/turbine_steam_port_inlet"
     },
-    "facing=north,port_mode=exhaust": {
+    "facing=north,port_mode=inlet,status=working": {
+      "model": "neropower:block/turbine_steam_port_inlet_working"
+    },
+    "facing=north,port_mode=inlet,status=starved": {
+      "model": "neropower:block/turbine_steam_port_inlet_starved"
+    },
+    "facing=north,port_mode=inlet,status=tripped": {
+      "model": "neropower:block/turbine_steam_port_inlet_starved"
+    },
+    "facing=north,port_mode=exhaust,status=idle": {
       "model": "neropower:block/turbine_steam_port_exhaust"
     },
-    "facing=north,port_mode=vent": {
+    "facing=north,port_mode=exhaust,status=working": {
+      "model": "neropower:block/turbine_steam_port_exhaust_working"
+    },
+    "facing=north,port_mode=exhaust,status=starved": {
+      "model": "neropower:block/turbine_steam_port_exhaust_starved"
+    },
+    "facing=north,port_mode=exhaust,status=tripped": {
+      "model": "neropower:block/turbine_steam_port_exhaust_starved"
+    },
+    "facing=north,port_mode=vent,status=idle": {
       "model": "neropower:block/turbine_steam_port_vent"
     },
-    "facing=east,port_mode=inlet": {
+    "facing=north,port_mode=vent,status=working": {
+      "model": "neropower:block/turbine_steam_port_vent_working"
+    },
+    "facing=north,port_mode=vent,status=starved": {
+      "model": "neropower:block/turbine_steam_port_vent_starved"
+    },
+    "facing=north,port_mode=vent,status=tripped": {
+      "model": "neropower:block/turbine_steam_port_vent_starved"
+    },
+    "facing=east,port_mode=inlet,status=idle": {
       "model": "neropower:block/turbine_steam_port_inlet",
       "y": 90
     },
-    "facing=east,port_mode=exhaust": {
+    "facing=east,port_mode=inlet,status=working": {
+      "model": "neropower:block/turbine_steam_port_inlet_working",
+      "y": 90
+    },
+    "facing=east,port_mode=inlet,status=starved": {
+      "model": "neropower:block/turbine_steam_port_inlet_starved",
+      "y": 90
+    },
+    "facing=east,port_mode=inlet,status=tripped": {
+      "model": "neropower:block/turbine_steam_port_inlet_starved",
+      "y": 90
+    },
+    "facing=east,port_mode=exhaust,status=idle": {
       "model": "neropower:block/turbine_steam_port_exhaust",
       "y": 90
     },
-    "facing=east,port_mode=vent": {
+    "facing=east,port_mode=exhaust,status=working": {
+      "model": "neropower:block/turbine_steam_port_exhaust_working",
+      "y": 90
+    },
+    "facing=east,port_mode=exhaust,status=starved": {
+      "model": "neropower:block/turbine_steam_port_exhaust_starved",
+      "y": 90
+    },
+    "facing=east,port_mode=exhaust,status=tripped": {
+      "model": "neropower:block/turbine_steam_port_exhaust_starved",
+      "y": 90
+    },
+    "facing=east,port_mode=vent,status=idle": {
       "model": "neropower:block/turbine_steam_port_vent",
       "y": 90
     },
-    "facing=south,port_mode=inlet": {
+    "facing=east,port_mode=vent,status=working": {
+      "model": "neropower:block/turbine_steam_port_vent_working",
+      "y": 90
+    },
+    "facing=east,port_mode=vent,status=starved": {
+      "model": "neropower:block/turbine_steam_port_vent_starved",
+      "y": 90
+    },
+    "facing=east,port_mode=vent,status=tripped": {
+      "model": "neropower:block/turbine_steam_port_vent_starved",
+      "y": 90
+    },
+    "facing=south,port_mode=inlet,status=idle": {
       "model": "neropower:block/turbine_steam_port_inlet",
       "y": 180
     },
-    "facing=south,port_mode=exhaust": {
+    "facing=south,port_mode=inlet,status=working": {
+      "model": "neropower:block/turbine_steam_port_inlet_working",
+      "y": 180
+    },
+    "facing=south,port_mode=inlet,status=starved": {
+      "model": "neropower:block/turbine_steam_port_inlet_starved",
+      "y": 180
+    },
+    "facing=south,port_mode=inlet,status=tripped": {
+      "model": "neropower:block/turbine_steam_port_inlet_starved",
+      "y": 180
+    },
+    "facing=south,port_mode=exhaust,status=idle": {
       "model": "neropower:block/turbine_steam_port_exhaust",
       "y": 180
     },
-    "facing=south,port_mode=vent": {
+    "facing=south,port_mode=exhaust,status=working": {
+      "model": "neropower:block/turbine_steam_port_exhaust_working",
+      "y": 180
+    },
+    "facing=south,port_mode=exhaust,status=starved": {
+      "model": "neropower:block/turbine_steam_port_exhaust_starved",
+      "y": 180
+    },
+    "facing=south,port_mode=exhaust,status=tripped": {
+      "model": "neropower:block/turbine_steam_port_exhaust_starved",
+      "y": 180
+    },
+    "facing=south,port_mode=vent,status=idle": {
       "model": "neropower:block/turbine_steam_port_vent",
       "y": 180
     },
-    "facing=west,port_mode=inlet": {
+    "facing=south,port_mode=vent,status=working": {
+      "model": "neropower:block/turbine_steam_port_vent_working",
+      "y": 180
+    },
+    "facing=south,port_mode=vent,status=starved": {
+      "model": "neropower:block/turbine_steam_port_vent_starved",
+      "y": 180
+    },
+    "facing=south,port_mode=vent,status=tripped": {
+      "model": "neropower:block/turbine_steam_port_vent_starved",
+      "y": 180
+    },
+    "facing=west,port_mode=inlet,status=idle": {
       "model": "neropower:block/turbine_steam_port_inlet",
       "y": 270
     },
-    "facing=west,port_mode=exhaust": {
+    "facing=west,port_mode=inlet,status=working": {
+      "model": "neropower:block/turbine_steam_port_inlet_working",
+      "y": 270
+    },
+    "facing=west,port_mode=inlet,status=starved": {
+      "model": "neropower:block/turbine_steam_port_inlet_starved",
+      "y": 270
+    },
+    "facing=west,port_mode=inlet,status=tripped": {
+      "model": "neropower:block/turbine_steam_port_inlet_starved",
+      "y": 270
+    },
+    "facing=west,port_mode=exhaust,status=idle": {
       "model": "neropower:block/turbine_steam_port_exhaust",
       "y": 270
     },
-    "facing=west,port_mode=vent": {
+    "facing=west,port_mode=exhaust,status=working": {
+      "model": "neropower:block/turbine_steam_port_exhaust_working",
+      "y": 270
+    },
+    "facing=west,port_mode=exhaust,status=starved": {
+      "model": "neropower:block/turbine_steam_port_exhaust_starved",
+      "y": 270
+    },
+    "facing=west,port_mode=exhaust,status=tripped": {
+      "model": "neropower:block/turbine_steam_port_exhaust_starved",
+      "y": 270
+    },
+    "facing=west,port_mode=vent,status=idle": {
       "model": "neropower:block/turbine_steam_port_vent",
+      "y": 270
+    },
+    "facing=west,port_mode=vent,status=working": {
+      "model": "neropower:block/turbine_steam_port_vent_working",
+      "y": 270
+    },
+    "facing=west,port_mode=vent,status=starved": {
+      "model": "neropower:block/turbine_steam_port_vent_starved",
+      "y": 270
+    },
+    "facing=west,port_mode=vent,status=tripped": {
+      "model": "neropower:block/turbine_steam_port_vent_starved",
       "y": 270
     }
   }

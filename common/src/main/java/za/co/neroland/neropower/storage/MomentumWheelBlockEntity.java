@@ -19,7 +19,7 @@ import za.co.neroland.nerotech.machine.MachineStatus;
 import za.co.neroland.neropower.registry.content.StorageContent;
 
 /**
- * Momentum Wheel (0.4.0, decision 008): a kinetic store. It charges by spinning up (energy in), gives
+ * Momentum Wheel (0.4.0): a kinetic store. It charges by spinning up (energy in), gives
  * energy back by slowing down (energy out), and loses {@code momentumWheelLossPermillePerSecond} of what
  * it holds to friction every second ({@link MomentumMath}). No fuel, no failure, never part of a bank pool
  * (so its loss is always visible). The renderer reads {@link #chargeBucket()} (0..20, synced only when it

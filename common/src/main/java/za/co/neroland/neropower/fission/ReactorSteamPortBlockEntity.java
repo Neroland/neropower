@@ -33,14 +33,27 @@ import za.co.neroland.nerotech.machine.MachineStatus;
 import za.co.neroland.neropower.machine.NeroPowerMachineBlockEntity;
 import za.co.neroland.neropower.registry.ModTags;
 import za.co.neroland.neropower.registry.content.FissionContent;
+import za.co.neroland.neropower.turbine.PoolRoute;
+import za.co.neroland.neropower.turbine.PortExchange;
+import za.co.neroland.neropower.turbine.PortPool;
+import za.co.neroland.neropower.turbine.PortTankSave;
+import za.co.neroland.neropower.turbine.PortTransfer;
+import za.co.neroland.neropower.turbine.PooledFluidStorage;
+import za.co.neroland.neropower.turbine.TurbineConfig;
 
 /**
  * Reactor Steam Port: two tanks in a reactor wall. The <b>coolant</b> tank takes water or any
  * {@code #nerotech:cryo_coolant} fluid (one at a time); the <b>steam</b> tank holds what the core boils.
  * The Fission Core does all the work: in steam mode it drains water and fills steam here; in either mode
- * it draws cryo coolant to carry heat off and widen its safe band. The port only stores, exposes and
- * auto-ejects: pipes fill the coolant tank and draw the steam tank on every face (STORAGE preset,
- * auto-eject and auto-input on).
+ * it draws cryo coolant to carry heat off and widen its safe band.
+ *
+ * <p><b>Shared tanks.</b> While a formed core serves it, every port of that reactor is a
+ * face onto the reactor's <em>shared</em> coolant and steam tanks ({@link PortPool} over the member
+ * ports' own tanks, which stay the saved storage): water piped or pushed into any port can be boiled into
+ * steam that leaves through any other. Every {@code portTransferInterval} ticks the port pushes steam into
+ * the block it touches (a Turbine Steam Port inlet; on an automatic face never into a tank that also takes
+ * water) and pulls water / cryo coolant from it, by its FLUID side configuration (STORAGE preset, auto-eject
+ * and auto-input on). Pipes still work through the same capability.
  *
  * <p>Synced render inputs: {@code readout} (rest / work / stall) and {@code stallCause} (none, no coolant,
  * steam full, no reactor). No player data.
@@ -51,7 +64,7 @@ public class ReactorSteamPortBlockEntity extends NeroPowerMachineBlockEntity {
     public static final TagKey<Fluid> CRYO_COOLANT =
             TagKey.create(Registries.FLUID, Identifier.fromNamespaceAndPath("nerotech", "cryo_coolant"));
 
-    /** Readout codes (block contract). */
+    /** Readout codes (render inputs). */
     public static final int READOUT_REST = 0;
     public static final int READOUT_WORK = 1;
     public static final int READOUT_STALL = 2;
@@ -72,33 +85,20 @@ public class ReactorSteamPortBlockEntity extends NeroPowerMachineBlockEntity {
     private final ReactorPortTank coolant;
     private final ReactorPortTank steam;
 
-    /** The face view: fills go to the coolant tank, drains (and the reported fluid) come from the steam tank. */
-    private final NeroFluidStorage route = new NeroFluidStorage() {
-        @Override
-        public Fluid getFluid() {
-            return ReactorSteamPortBlockEntity.this.steam.getFluid();
-        }
+    /** The reactor's shared coolant tank as seen from this port (only this port's tank while unlinked). */
+    private final PooledFluidStorage coolantPool = new PooledFluidStorage(this::coolantSlots);
+    /** The reactor's shared steam tank as seen from this port. */
+    private final PooledFluidStorage steamPool = new PooledFluidStorage(this::steamSlots);
 
-        @Override
-        public long getAmount() {
-            return ReactorSteamPortBlockEntity.this.steam.getAmount();
-        }
+    /** The face view: fills go to the shared coolant tank, drains (and the reported fluid) come from the shared steam tank. */
+    private final NeroFluidStorage route = new PoolRoute(List.of(this.coolantPool), this.steamPool);
 
-        @Override
-        public long getCapacity() {
-            return ReactorSteamPortBlockEntity.this.steam.getCapacity();
-        }
+    /** The core that served this port last (transient, never saved; dropped once stale or removed). */
+    @Nullable
+    private FissionCoreBlockEntity core;
 
-        @Override
-        public long fill(Fluid fluid, long amount, boolean simulate) {
-            return ReactorSteamPortBlockEntity.this.coolant.fill(fluid, amount, simulate);
-        }
-
-        @Override
-        public long drain(long amount, boolean simulate) {
-            return ReactorSteamPortBlockEntity.this.steam.drain(amount, simulate);
-        }
-    };
+    /** Exchange phase (transient), spread across ports. */
+    private final int phaseSeed = System.identityHashCode(this);
 
     /** Ticks since a core last served this port, and since steam last flowed (transient). */
     private int sinceLink = MEMORY_TICKS;
@@ -137,6 +137,50 @@ public class ReactorSteamPortBlockEntity extends NeroPowerMachineBlockEntity {
         this.sinceLink = 0;
     }
 
+    /** As {@link #link()}, and this port becomes a face onto {@code core}'s shared tanks. */
+    public void link(FissionCoreBlockEntity core) {
+        this.sinceLink = 0;
+        this.core = core;
+    }
+
+    /** The ports sharing tanks with this one: the serving core's ports, else this port alone. */
+    private List<ReactorSteamPortBlockEntity> members() {
+        FissionCoreBlockEntity c = this.core;
+        if (c == null || c.isRemoved() || this.sinceLink >= MEMORY_TICKS) {
+            return List.of(this);
+        }
+        List<ReactorSteamPortBlockEntity> ports = c.linkedPorts();
+        return ports.contains(this) ? ports : List.of(this);
+    }
+
+    private List<ReactorPortTank> coolantSlots() {
+        List<ReactorSteamPortBlockEntity> members = members();
+        java.util.ArrayList<ReactorPortTank> out = new java.util.ArrayList<>(members.size());
+        for (ReactorSteamPortBlockEntity port : members) {
+            out.add(port.coolant);
+        }
+        return out;
+    }
+
+    private List<ReactorPortTank> steamSlots() {
+        List<ReactorSteamPortBlockEntity> members = members();
+        java.util.ArrayList<ReactorPortTank> out = new java.util.ArrayList<>(members.size());
+        for (ReactorSteamPortBlockEntity port : members) {
+            out.add(port.steam);
+        }
+        return out;
+    }
+
+    /** The shared coolant tank seen from this port. */
+    public PooledFluidStorage coolantPool() {
+        return this.coolantPool;
+    }
+
+    /** The shared steam tank seen from this port. */
+    public PooledFluidStorage steamPool() {
+        return this.steamPool;
+    }
+
     /** Water (mB) the core may boil from here. */
     public long waterAvailable() {
         return this.coolant.getFluid() == Fluids.WATER ? this.coolant.getAmount() : 0L;
@@ -153,9 +197,9 @@ public class ReactorSteamPortBlockEntity extends NeroPowerMachineBlockEntity {
         return amount <= 0L ? 0L : this.coolant.drain(amount, false);
     }
 
-    /** Free room (mB) in the steam tank. */
+    /** Free room (mB) in this port's steam tank for NeroPower steam (0 while it holds another mod's steam). */
     public long steamRoom() {
-        return this.steam.room();
+        return this.steam.slotEmpty() || this.steam.getFluid() == steamFluid() ? this.steam.room() : 0L;
     }
 
     /** Add steam the core raised; returns what fitted. */
@@ -203,13 +247,31 @@ public class ReactorSteamPortBlockEntity extends NeroPowerMachineBlockEntity {
         return config == null ? this.route : config.fluidView(side);
     }
 
-    /** Tank 0 is coolant (in only), tank 1 steam (out only): a fixed order per face. */
+    /** Tank 0 is the shared coolant tank (in only), tank 1 the shared steam tank (out only): a fixed order per face. */
     @Override
     public List<GatedFluidView> standardFluidViews(@Nullable Direction side) {
         GatedFluidView face = gatedView(this.route, Channel.FLUID, side);
         return List.of(
-                new GatedFluidView(this.coolant, face::insertable, () -> false),
-                new GatedFluidView(this.steam, () -> false, face::extractable));
+                new GatedFluidView(this.coolantPool, face::insertable, () -> false),
+                new GatedFluidView(this.steamPool, () -> false, face::extractable));
+    }
+
+    // --- pipe-less exchange ------------------------------------------------------------
+
+    @Override
+    protected void exchangeMedia(Level level, BlockPos pos) {
+        if (level.isClientSide()) {
+            return;
+        }
+        int interval = TurbineConfig.portTransferInterval();
+        if (!PortTransfer.due(level.getGameTime(), PortTransfer.phase(this.phaseSeed, interval), interval)) {
+            return;
+        }
+        SideConfigComponent config = sideConfig();
+        if (this.steamPool.getAmount() > 0L) {
+            PortExchange.push(level, pos, config, this.steamPool, true, interval);
+        }
+        PortExchange.pull(level, pos, config, this.coolantPool, ReactorSteamPortBlockEntity::isCoolant, interval);
     }
 
     // --- tick ---------------------------------------------------------------------------------------
@@ -230,9 +292,9 @@ public class ReactorSteamPortBlockEntity extends NeroPowerMachineBlockEntity {
         int cause;
         if (!linked) {
             cause = STALL_NO_REACTOR;
-        } else if (this.steam.room() <= 0L) {
+        } else if (this.steamPool.roomFor(steamFluid()) <= 0L) {
             cause = STALL_STEAM_FULL;
-        } else if (this.coolant.getAmount() <= 0L) {
+        } else if (this.coolantPool.getAmount() <= 0L) {
             cause = STALL_NO_COOLANT;
         } else {
             cause = STALL_NONE;
@@ -300,8 +362,8 @@ public class ReactorSteamPortBlockEntity extends NeroPowerMachineBlockEntity {
         super.saveAdditional(tag, registries);
         ValueOutput output = ValueOutput.of(tag, registries);
     *///?}
-        this.coolant.save(output, "Coolant");
-        this.steam.save(output, "Steam");
+        this.coolant.save(output, PortTankSave.REACTOR_COOLANT);
+        this.steam.save(output, PortTankSave.REACTOR_STEAM);
     }
 
     //? if >=1.21.6 {
@@ -317,8 +379,8 @@ public class ReactorSteamPortBlockEntity extends NeroPowerMachineBlockEntity {
         long capacity = FissionConfig.steamPortTankMb();
         this.coolant.resize(capacity);
         this.steam.resize(capacity);
-        this.coolant.load(input, "Coolant");
-        this.steam.load(input, "Steam");
+        this.coolant.load(input, PortTankSave.REACTOR_COOLANT);
+        this.steam.load(input, PortTankSave.REACTOR_STEAM);
     }
 
     @Override

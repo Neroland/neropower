@@ -2,7 +2,7 @@ package za.co.neroland.neropower.generation;
 
 /**
  * The synced {@code readout} (0–5) and {@code stallCause} (0–15) codes the small generators report
- * (block-contract render inputs; meanings from the shared screen gauge-kit table). No Minecraft types.
+ * (render inputs; meanings from the shared screen gauge-kit table). No Minecraft types.
  */
 public final class GenerationReadout {
 

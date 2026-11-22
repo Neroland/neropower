@@ -105,17 +105,17 @@ public class StirlingGeneratorBlockEntity extends NeroPowerMachineBlockEntity {
         int drawn = 0;
         if (hot != null && hotGradient > 0) {
             int usable = StirlingMath.usableGradient(hotGradient, cold);
+            UpgradeModifiers mods = modifiers();
+            // Speed draws more heat per tick; it never makes more NE from the same heat (no free energy).
             int draw = StirlingMath.drawFor(usable, EnvironmentalConfig.stirlingDrawPermille(),
-                    EnvironmentalConfig.stirlingMaxDrawPerOp());
+                    EnvironmentalConfig.stirlingMaxDrawPerOp(), mods.speedMultiplier() * presetSpeedFactor());
             if (draw > 0 && getEnergy().getAmount() < getEnergy().getCapacity()) {
                 drawn = hot.extractHeat(draw, hot.ambient());
                 if (drawn > 0) {
-                    UpgradeModifiers mods = modifiers();
                     int bonus = cold ? StirlingMath.coldFaceBonusPermille(
                             EnvironmentalConfig.stirlingColdFaceBonusPermille(), planetAmbient(level, pos),
                             NeroPowerConfig.planetEfficiencyEnabled()) : 0;
                     int output = StirlingMath.outputFor(drawn, EnvironmentalConfig.stirlingNePerHeatUnit(), bonus);
-                    output = (int) Math.round(output * mods.speedMultiplier() * presetSpeedFactor());
                     if (output > 0) {
                         energyBuffer().generate(output);
                     }

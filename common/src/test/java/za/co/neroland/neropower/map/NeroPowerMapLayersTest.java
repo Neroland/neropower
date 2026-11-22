@@ -1,6 +1,7 @@
 package za.co.neroland.neropower.map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -91,32 +92,40 @@ class NeroPowerMapLayersTest {
                 .farBounds(MapBounds.around(20_000, 20_000, 256))
                 .forbiddenIds(THIRD)
                 .expectEntitledSees(NeroPowerMapLayers.POWER, 2)
-                .expectEntitledSees(NeroPowerMapLayers.POWER_NEARBY, 1)
                 .expectEntitledSees(NeroPowerMapLayers.SCORCH_ZONES, 1)
                 .verify();
     }
 
     @Test
-    void anotherPlayersMachineNeverShowsAndUnownedStopsAtSixtyFour() {
+    void anotherPlayersOrAnUnownedMachineNeverShows() {
         NeroPowerMapLayers layers = new NeroPowerMapLayers(seeded());
         za.co.neroland.nerolandcore.map.MapLayerRegistry.register(layers);
         var r = za.co.neroland.nerolandcore.map.MapLayerRegistry.query("neropower", at(STRANGER, 0, 0), OVERWORLD,
                 MapBounds.around(0, 0, 4_096));
         List<String> ids = new ArrayList<>();
         r.markers().forEach(m -> ids.add(m.layer().getPath() + "/" + m.id()));
-        assertEquals(List.of("power_nearby/reactor.-20.64.4"), ids,
-                "a stranger sees only the unowned reactor in range: not the owner's, not the third player's");
+        assertEquals(List.of(), ids,
+                "a stranger sees no machine at all: not the owner's, not the third player's, not the unowned ones");
+        var own = za.co.neroland.nerolandcore.map.MapLayerRegistry.query("neropower", at(OWNER, 0, 0), OVERWORLD,
+                MapBounds.around(0, 0, 4_096));
+        List<String> mine = new ArrayList<>();
+        own.markers().forEach(m -> mine.add(m.layer().getPath() + "/" + m.id()));
+        assertEquals(2, mine.size(), "the owner sees their own two machines");
+        assertTrue(mine.stream().allMatch(id -> id.startsWith("power/")), "only on the owner layer: " + mine);
+        assertTrue(layers.layers().stream().noneMatch(l -> l.id().getPath().equals("power_nearby")),
+                "the proximity layer for unowned machines is gone");
         assertEquals(1, r.areas().size(), "live scorch zone in range only; expired, far and other-dimension skipped");
     }
 
-    /** Map visibility (own on {@code power} + unowned on {@code power_nearby}) equals LinkScope's. */
+    /** The map shows exactly the viewer's own machines, a subset of what the link module lists. */
     @Test
     void mapAndLinkAgreeOnMachineVisibility() {
         List<Optional<UUID>> owners = List.of(Optional.of(OWNER), Optional.of(THIRD), Optional.empty());
         for (UUID viewer : new UUID[] { OWNER, STRANGER, THIRD }) {
             for (Optional<UUID> owner : owners) {
-                boolean map = NeroPowerMapLayers.ownedBy(owner, viewer) || NeroPowerMapLayers.unowned(owner);
-                assertEquals(LinkScope.visibleTo(owner, viewer), map);
+                boolean map = NeroPowerMapLayers.ownedBy(owner, viewer);
+                assertEquals(LinkScope.isOwner(owner, viewer), map);
+                assertTrue(!map || LinkScope.visibleTo(owner, viewer), "never on the map but hidden in the link");
             }
         }
         // An erased owner reads as no owner: proximity-only for everyone, owned by nobody.

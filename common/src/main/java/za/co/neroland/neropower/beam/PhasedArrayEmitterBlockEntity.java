@@ -27,7 +27,7 @@ import za.co.neroland.neropower.menu.GaugeTail;
 import za.co.neroland.neropower.registry.content.GridContent;
 
 /**
- * Phased Array Emitter (0.4.0, decision 008 annex): the superconductor-tier source. It takes NE in on
+ * Phased Array Emitter (0.4.0): the superconductor-tier source. It takes NE in on
  * every face and, every {@code beamCheckIntervalTicks}, beams {@code phasedArrayTransferPerPass} to <b>one</b>
  * of up to {@code phasedArrayMaxTargets} receivers, round-robin in list order ({@link PhasedArrayMath}),
  * over {@code phasedArrayRange} blocks at {@code phasedArrayLossPermillePerBlock} — the transmitter's

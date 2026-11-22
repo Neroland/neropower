@@ -1,7 +1,7 @@
 package za.co.neroland.neropower.storage;
 
 /**
- * The Momentum Wheel's rules, Minecraft-free (decision 008, id per decision 011): bearing friction takes
+ * The Momentum Wheel's rules, Minecraft-free: bearing friction takes
  * {@code lossPermillePerSecond} of the stored energy every second (at least 1 NE while any is stored and
  * the loss is on, so a wheel always spins down to rest), and the renderer reads speed as a 0..20 bucket of
  * the fill. Energy only ever leaves through the loss or an extract; nothing here adds any.

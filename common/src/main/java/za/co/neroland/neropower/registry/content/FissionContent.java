@@ -92,12 +92,12 @@ public final class FissionContent {
 
     // --- block items ------------------------------------------------------------------------------
 
-    public static final RegistryEntry<BlockItem> GRAPHITE_MODERATOR_ITEM = blockItem("graphite_moderator", GRAPHITE_MODERATOR);
-    public static final RegistryEntry<BlockItem> MODERATOR_TANK_ITEM = blockItem("moderator_tank", MODERATOR_TANK);
-    public static final RegistryEntry<BlockItem> BREEDER_BLANKET_ITEM = blockItem("breeder_blanket", BREEDER_BLANKET);
+    public static final RegistryEntry<BlockItem> GRAPHITE_MODERATOR_ITEM = hintItem("graphite_moderator", GRAPHITE_MODERATOR);
+    public static final RegistryEntry<BlockItem> MODERATOR_TANK_ITEM = hintItem("moderator_tank", MODERATOR_TANK);
+    public static final RegistryEntry<BlockItem> BREEDER_BLANKET_ITEM = hintItem("breeder_blanket", BREEDER_BLANKET);
     public static final RegistryEntry<BlockItem> EUROPIUM_CONTROL_ROD_ASSEMBLY_ITEM =
-            blockItem("europium_control_rod_assembly", EUROPIUM_CONTROL_ROD_ASSEMBLY);
-    public static final RegistryEntry<BlockItem> REACTOR_STEAM_PORT_ITEM = blockItem("reactor_steam_port", REACTOR_STEAM_PORT);
+            hintItem("europium_control_rod_assembly", EUROPIUM_CONTROL_ROD_ASSEMBLY);
+    public static final RegistryEntry<BlockItem> REACTOR_STEAM_PORT_ITEM = hintItem("reactor_steam_port", REACTOR_STEAM_PORT);
     public static final RegistryEntry<BlockItem> REACTOR_CONTROL_COMPUTER_ITEM =
             blockItem("reactor_control_computer", REACTOR_CONTROL_COMPUTER);
 
@@ -156,6 +156,11 @@ public final class FissionContent {
 
     private static RegistryEntry<Item> item(String name) {
         return ModItems.ITEMS.register(name, key -> new Item(new Item.Properties().setId(key)));
+    }
+
+    private static RegistryEntry<BlockItem> hintItem(String name, RegistryEntry<? extends Block> block) {
+        return ModItems.ITEMS.register(name, key -> new za.co.neroland.neropower.machine.HintBlockItem(block.get(),
+                new Item.Properties().setId(key), za.co.neroland.neropower.machine.HintBlockItem.keyFor(name)));
     }
 
     private static RegistryEntry<BlockItem> blockItem(String name, RegistryEntry<? extends Block> block) {

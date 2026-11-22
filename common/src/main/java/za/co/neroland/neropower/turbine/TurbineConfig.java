@@ -3,6 +3,8 @@ package za.co.neroland.neropower.turbine;
 import za.co.neroland.nerolandcore.config.ConfigValue;
 
 import za.co.neroland.neropower.config.NeroPowerConfig;
+import za.co.neroland.neropower.fission.FissionConfig;
+import za.co.neroland.neropower.fission.FissionMath;
 
 /**
  * The steam turbine's and Steam Condenser's balance keys, declared on NeroPower's shared
@@ -75,6 +77,10 @@ public final class TurbineConfig {
             "share of the yield kept for exhaust vented to the air through a vent port instead of a condenser");
     private static final ConfigValue<Integer> PORT_TANK_MB = NeroPowerConfig.schema().intRange(
             "turbineSteamPortTankMb", 16_000, 1_000, 256_000, true, "tank size (mB) of a Turbine Steam Port");
+    private static final ConfigValue<Integer> PORT_TRANSFER_INTERVAL = NeroPowerConfig.schema().intRange(
+            "portTransferInterval", PortTransfer.DEFAULT_INTERVAL, PortTransfer.MIN_INTERVAL, PortTransfer.MAX_INTERVAL,
+            true, "ticks between the pipe-less fluid exchanges of Reactor Steam Ports, Turbine Steam Ports and "
+            + "Steam Condensers with the blocks they touch (never per tick)");
     private static final ConfigValue<Integer> CONDENSER_MB_PER_TICK = NeroPowerConfig.schema().intRange(
             "condenserMbPerTick", 200, 1, 100_000, true,
             "mB/t of exhaust steam an air-cooled Steam Condenser condenses at atmosphere factor 1000");
@@ -98,9 +104,38 @@ public final class TurbineConfig {
     public static void init() {
     }
 
+    /**
+     * The NE per mB the turbine actually uses: {@code turbineNePerSteamMb}, capped so steam mode can never
+     * yield more than twice direct mode per rod at any config ({@code FissionMath.steamNePerMbCap}). The defaults sit exactly on the cap (8), so it only binds on extreme configs.
+     */
     public static int nePerSteamMb() {
+        int configured = NE_PER_STEAM_MB.get();
+        String curve = FissionConfig.burnupCurve();
+        int nePerRod = FissionConfig.nePerRod();
+        int heatPerRod = FissionConfig.heatPerRodPerTick();
+        int steamPerHeat = FissionConfig.steamPerHeat();
+        CapCache cache = capCache;
+        if (cache == null || !cache.matches(curve, nePerRod, heatPerRod, steamPerHeat)) {
+            cache = new CapCache(curve, nePerRod, heatPerRod, steamPerHeat,
+                    FissionMath.steamNePerMbCap(FissionMath.parseCurve(curve), nePerRod, heatPerRod, steamPerHeat));
+            capCache = cache;
+        }
+        return Math.max(0, Math.min(configured, cache.cap()));
+    }
+
+    /** {@code turbineNePerSteamMb} as configured, before the steam-to-direct cap ({@link #nePerSteamMb()}). */
+    public static int configuredNePerSteamMb() {
         return NE_PER_STEAM_MB.get();
     }
+
+    /** The last computed cap, keyed by the fission keys it depends on (recomputed after a config reload). */
+    private record CapCache(String curve, int nePerRod, int heatPerRod, int steamPerHeat, int cap) {
+        boolean matches(String c, int ne, int heat, int steam) {
+            return this.curve.equals(c) && this.nePerRod == ne && this.heatPerRod == heat && this.steamPerHeat == steam;
+        }
+    }
+
+    private static volatile CapCache capCache;
 
     /** mB/t one vane slice of {@code tier} passes (0 for none). */
     public static int vaneFlow(VaneTier tier) {
@@ -154,6 +189,11 @@ public final class TurbineConfig {
 
     public static int portTankMb() {
         return PORT_TANK_MB.get();
+    }
+
+    /** Ticks between adjacent fluid exchanges of ports and condensers, clamped to its bounds. */
+    public static int portTransferInterval() {
+        return PortTransfer.clampInterval(PORT_TRANSFER_INTERVAL.get());
     }
 
     public static int condenserMbPerTick() {

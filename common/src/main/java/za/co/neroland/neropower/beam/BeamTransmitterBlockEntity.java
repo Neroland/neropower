@@ -14,14 +14,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.phys.AABB;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -69,6 +67,9 @@ public class BeamTransmitterBlockEntity extends BeamEndpointBlockEntity {
     /** The linking player's UUID ({@code LinkOwnerMost} / {@code LinkOwnerLeast}); null when unlinked or never linked. */
     @Nullable
     private UUID linkOwner;
+
+    /** UTC epoch day the current link was made ({@code LinkDay}); erasure compares it with the tombstone. */
+    private long linkDay = NeroPowerErasureState.UNKNOWN_LINK_DAY;
 
     /**
      * The {@link NeroPowerErasureState#erasureEpoch()} this block last checked its link owner
@@ -139,6 +140,7 @@ public class BeamTransmitterBlockEntity extends BeamEndpointBlockEntity {
     public void link(BeamTarget newTarget, UUID player) {
         this.target = newTarget;
         this.linkOwner = player;
+        this.linkDay = NeroPowerErasureState.todayEpochDay();
         this.distance = 0;
         this.lossPermille = 0;
         this.lastPass = 0L;
@@ -170,7 +172,7 @@ public class BeamTransmitterBlockEntity extends BeamEndpointBlockEntity {
         }
         this.linkOwnerErasureEpoch = epoch;
         if (this.linkOwner != null && level instanceof ServerLevel serverLevel
-                && NeroPowerErasureState.isPending(serverLevel.getServer(), this.linkOwner)) {
+                && NeroPowerErasureState.shouldDropLinkOwner(serverLevel.getServer(), this.linkOwner, this.linkDay)) {
             clearLinkOwner();
         }
     }
@@ -288,7 +290,7 @@ public class BeamTransmitterBlockEntity extends BeamEndpointBlockEntity {
                 return 0L;
             }
             factor = BeamMath.lossFactor(blocks, BeamConfig.beamLossPermillePerBlock());
-            hurtEntitiesInBeam(level, pos, targetPos);
+            BeamShot.hurtEntitiesInBeam(level, pos, targetPos);
         } else {
             this.distance = 0;
             factor = BeamMath.orbitalFactor(BeamConfig.beamOrbitalHopLossPermille());
@@ -341,33 +343,6 @@ public class BeamTransmitterBlockEntity extends BeamEndpointBlockEntity {
         });
     }
 
-    /**
-     * The beam hazard: every living entity whose bounding box meets the segment's box (thickened by
-     * half a block) takes {@code beamDamage} as magic damage. {@code 0} disables it. The box is an
-     * approximation — a long diagonal beam's box is generous — which is the documented trade-off.
-     */
-    private static void hurtEntitiesInBeam(Level level, BlockPos from, BlockPos to) {
-        double damage = BeamConfig.beamDamage();
-        if (damage <= 0.0 || !(level instanceof ServerLevel serverLevel)) {
-            return;
-        }
-        double ax = from.getX() + 0.5;
-        double ay = from.getY() + 0.5;
-        double az = from.getZ() + 0.5;
-        double bx = to.getX() + 0.5;
-        double by = to.getY() + 0.5;
-        double bz = to.getZ() + 0.5;
-        AABB box = new AABB(Math.min(ax, bx), Math.min(ay, by), Math.min(az, bz),
-                Math.max(ax, bx), Math.max(ay, by), Math.max(az, bz)).inflate(0.5);
-        for (LivingEntity entity : serverLevel.getEntitiesOfClass(LivingEntity.class, box, LivingEntity::isAlive)) {
-            //? if >=1.21.2 {
-            entity.hurtServer(serverLevel, serverLevel.damageSources().magic(), (float) damage);
-            //?} else {
-            /*entity.hurt(serverLevel.damageSources().magic(), (float) damage);
-            *///?}
-        }
-    }
-
     // --- persistence: a block position + dimension id, and the linking player's UUID ---------------
 
     /** NBT keys holding the link owner's UUID halves — world save only, never in the client sync tag. */
@@ -385,8 +360,27 @@ public class BeamTransmitterBlockEntity extends BeamEndpointBlockEntity {
         CompoundTag tag = super.getUpdateTag(registries);
         tag.remove(LINK_OWNER_MOST);
         tag.remove(LINK_OWNER_LEAST);
+        tag.remove(SaveKeys.LINK_DAY);
+        // The client sees no absolute target: the Target* keys are rewritten
+        // relative to this block. A target within the render cut in this dimension is shown as is (the same
+        // as an offset from a block the client already sees); a farther one as a point along the beam's
+        // direction only; another dimension's as no position at all (the dish points up).
+        tag.remove("TargetX");
+        tag.remove("TargetY");
+        tag.remove("TargetZ");
+        tag.remove("TargetDim");
+        Level here = getLevel();
+        BeamTarget shown = BeamClientView.clientTarget(getBlockPos(), this.target, here == null ? "" : BeamTarget.dimensionId(here),
+                BeamConfig.beamRange());
+        if (shown != null) {
+            tag.putInt("TargetX", shown.pos().getX());
+            tag.putInt("TargetY", shown.pos().getY());
+            tag.putInt("TargetZ", shown.pos().getZ());
+            tag.putString("TargetDim", shown.dimension());
+        }
         return tag;
     }
+
 
     //? if >=1.21.6 {
     @Override
@@ -400,6 +394,7 @@ public class BeamTransmitterBlockEntity extends BeamEndpointBlockEntity {
     *///?}
         BeamTarget.save(output, this.target);
         SaveKeys.writeLinkOwner(SaveAdapters.writer(output), this.linkOwner);
+        SaveKeys.writeLinkDay(SaveAdapters.writer(output), this.linkDay);
     }
 
     //? if >=1.21.6 {
@@ -414,6 +409,7 @@ public class BeamTransmitterBlockEntity extends BeamEndpointBlockEntity {
     *///?}
         this.target = BeamTarget.load(input);
         this.linkOwner = SaveKeys.readLinkOwner(SaveAdapters.reader(input));
+        this.linkDay = SaveKeys.readLinkDay(SaveAdapters.reader(input));
         this.linkOwnerErasureEpoch = -1; // re-check against erasures that landed while unloaded
     }
 }

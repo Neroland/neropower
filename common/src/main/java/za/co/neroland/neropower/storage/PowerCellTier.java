@@ -1,7 +1,7 @@
 package za.co.neroland.neropower.storage;
 
 /**
- * The three portable Power Cell tiers (decision 008). Capacity and rate come from {@link StorageConfig}
+ * The three portable Power Cell tiers. Capacity and rate come from {@link StorageConfig}
  * per tier, read on use, so a config reload applies at once.
  */
 public enum PowerCellTier {

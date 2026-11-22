@@ -5,7 +5,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 /**
- * Code-drawn controls of the screen gauge kit (screens/gauge-kit.md §6) the beam and grid screens share:
+ * Code-drawn controls of the screen gauge kit the beam and grid screens share:
  * word buttons, checkboxes, sliders, horizontal bars and list rows, plus the hit test. Draw-only and
  * screen-relative (callers add {@code leftPos}/{@code topPos}); tooltips stay with each screen's
  * {@code readoutTooltip}, so every element keeps one provider.

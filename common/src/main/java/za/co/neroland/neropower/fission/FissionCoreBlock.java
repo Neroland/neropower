@@ -48,4 +48,17 @@ public class FissionCoreBlock extends NeroPowerMachineBlock {
     protected BlockEntityType<? extends AbstractMachineBlockEntity> machineType() {
         return FissionContent.FISSION_CORE_TYPE.get();
     }
+
+    //? if <1.21.5 {
+    /*// Before 1.21.5 the block spills the slots (NeroTech's onRemove); part-burnt rods leave as spent first.
+    @Override
+    protected void onRemove(BlockState state, net.minecraft.world.level.Level level, BlockPos pos, BlockState newState,
+            boolean movedByPiston) {
+        if (!state.is(newState.getBlock()) && !level.isClientSide()
+                && level.getBlockEntity(pos) instanceof FissionCoreBlockEntity core) {
+            core.spendLeavingRods();
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+    *///?}
 }

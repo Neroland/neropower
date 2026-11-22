@@ -41,7 +41,7 @@ public class FissionCoreScreen extends PowerMachineScreen<FissionCoreMenu> {
     private static final int BUTTON = 0xFF1B232E;
     private static final int BUTTON_HOVER = 0xFF2A3542;
 
-    // Panel-relative rectangles (screens/fission_core.md).
+    // Panel-relative rectangles.
     private static final int T1_X = 34;
     private static final int T2_X = 52;
     private static final int T_Y = 20;
@@ -163,7 +163,12 @@ public class FissionCoreScreen extends PowerMachineScreen<FissionCoreMenu> {
         } else {
             g.text(this.font, Component.translatable("gui.neropower.fission_core.unformed"), x + 8, y + L2_Y, WARNING, false);
         }
-        g.text(this.font, stallLine(), x + 8, y + S_Y, stallColor(), false);
+        int readout = this.menu.readout();
+        boolean blinkOff = readout == FissionCoreBlockEntity.READOUT_FAIL
+                && za.co.neroland.nerotech.config.NeroTechConfig.renderAnimationsEnabled() && (gameTick() / 5) % 2 == 1;
+        if (!blinkOff) {
+            g.text(this.font, stallLine(), x + 8, y + S_Y, stallColor(), false);
+        }
     }
 
     private void tank(GuiGraphicsExtractor g, int tx, int ty, boolean on, long amount, long capacity, int color) {
@@ -210,6 +215,13 @@ public class FissionCoreScreen extends PowerMachineScreen<FissionCoreMenu> {
 
     private Component stallLine() {
         int cause = this.menu.stallCause();
+        // A core at WARNING or UNSTABLE says so first, whatever else holds it (kit: hot / fail text).
+        if (this.menu.readout() == FissionCoreBlockEntity.READOUT_HOT) {
+            return Component.translatable("gui.neropower.stall.hot");
+        }
+        if (this.menu.readout() == FissionCoreBlockEntity.READOUT_FAIL) {
+            return Component.translatable("gui.neropower.stall.failing");
+        }
         return switch (cause) {
             case FissionCoreBlockEntity.STALL_UNFORMED -> Component.translatable("gui.neropower.stall.fission.unformed");
             case FissionCoreBlockEntity.STALL_NO_FUEL -> Component.translatable("gui.neropower.stall.fission.no_fuel");
@@ -229,6 +241,12 @@ public class FissionCoreScreen extends PowerMachineScreen<FissionCoreMenu> {
 
     private int stallColor() {
         int cause = this.menu.stallCause();
+        if (this.menu.readout() == FissionCoreBlockEntity.READOUT_HOT) {
+            return WARNING;
+        }
+        if (this.menu.readout() == FissionCoreBlockEntity.READOUT_FAIL) {
+            return DANGER;
+        }
         if (cause == FissionCoreBlockEntity.STALL_NONE) {
             return this.menu.readout() == FissionCoreBlockEntity.READOUT_WORK ? NOMINAL : SUBTLE;
         }
@@ -283,7 +301,32 @@ public class FissionCoreScreen extends PowerMachineScreen<FissionCoreMenu> {
             lines.add(GaugeTooltips.tr("fission.pallurite_slot"));
         } else if (overEmptySlot(mx, my, FissionCoreBlockEntity.MACHINE_SLOTS + 3)) {
             lines.add(GaugeTooltips.tr("fission.economizer_slot"));
+        } else if (overLines(mx, my, 8, S_Y, 9, 0, 0, LINE_W)) {
+            lines.add(GaugeTooltips.tr("status"));
+            lines.add(stallLine());
+            String fix = stallFixKey(this.menu.readout(), this.menu.stallCause());
+            if (fix != null) {
+                lines.add(Component.translatable(fix));
+                lines.add(Component.translatable("gui.neropower.guide.see_guide").withStyle(net.minecraft.ChatFormatting.GRAY));
+            }
         }
+    }
+
+    /** The fix line for the core's stall line, or null when nothing needs fixing. */
+    static String stallFixKey(int readout, int cause) {
+        if (readout == FissionCoreBlockEntity.READOUT_HOT || readout == FissionCoreBlockEntity.READOUT_FAIL) {
+            return "gui.neropower.stall.fix.fission_hot";
+        }
+        return switch (cause) {
+            case FissionCoreBlockEntity.STALL_UNFORMED -> "gui.neropower.stall.fix.not_formed";
+            case FissionCoreBlockEntity.STALL_NO_FUEL -> "gui.neropower.stall.fix.fission_no_fuel";
+            case FissionCoreBlockEntity.STALL_POISONED -> "gui.neropower.stall.fix.fission_poisoned";
+            case FissionCoreBlockEntity.STALL_NO_WATER -> "gui.neropower.stall.fix.fission_no_water";
+            case FissionCoreBlockEntity.STALL_STEAM_FULL -> "gui.neropower.stall.fix.fission_steam_full";
+            case FissionCoreBlockEntity.STALL_NO_ROOM -> "gui.neropower.stall.fix.buffer_full";
+            case FissionCoreBlockEntity.STALL_SCRAM -> "gui.neropower.stall.fix.fission_scram";
+            default -> null;
+        };
     }
 
     private boolean overEmptyRod(int mx, int my) {

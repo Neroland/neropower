@@ -27,7 +27,7 @@ public abstract class StorageBlockEntity extends NeroPowerMachineBlockEntity {
     public static final int READOUT_TRIP = 4;
     public static final int READOUT_FAIL = 5;
 
-    // stallCause codes (screen gauge kit table; decision 012 accepts it). Only the ones storage uses.
+    // stallCause codes (screen gauge kit table). Only the ones storage uses.
     public static final int STALL_NONE = 0;
     public static final int STALL_NOT_FORMED = 1;
     public static final int STALL_BUFFER_FULL = 8;

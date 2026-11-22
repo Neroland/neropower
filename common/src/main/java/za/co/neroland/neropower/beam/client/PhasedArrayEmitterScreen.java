@@ -15,7 +15,7 @@ import za.co.neroland.neropower.menu.MenuButtons;
 import za.co.neroland.neropower.storage.client.StorageScreenKit;
 
 /**
- * Phased Array Emitter screen (tall hull 176 × 222, screens/phased_array_emitter.md): solo energy bar, the
+ * Phased Array Emitter screen (tall hull 176 × 222): solo energy bar, the
  * target list (serving marker, letter handle, distance, loss), Up / Down / Unlink on the selected row and
  * the stall line. No position, dimension or owner is ever shown.
  */
@@ -155,6 +155,7 @@ public class PhasedArrayEmitterScreen extends PowerMachineScreen<PhasedArrayEmit
         } else if (GridScreenKit.in(mx, my, 8, 116, 160, 9)) {
             lines.add(GaugeTooltips.tr("status"));
             lines.add(stall());
+            GaugeTooltips.stallFix(lines, this.menu.readout(), this.menu.stallCause());
         }
     }
 

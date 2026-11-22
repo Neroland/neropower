@@ -22,7 +22,7 @@ public class BatteryCellMenu extends MachineMenu implements GaugeTailMenu {
     /** Gauge tooltip tail (energy, heat), after NeroTech's shared data. */
     private final GaugeTail gaugeTail;
 
-    /** The charge slot (decision 008). */
+    /** The charge slot. */
     private static final int MACHINE_SLOTS = 1;
 
     public BatteryCellMenu(int id, Inventory playerInventory) {

@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import za.co.neroland.neropower.data.SaveKeys;
 
 /**
- * Rule test for the Beam Splitter (decision 008 annex): splitting never creates energy (lens loss
+ * Rule test for the Beam Splitter: splitting never creates energy (lens loss
  * rounded up, allocations floored, shares capped at 1000 in total, even from a tampered save), the
  * lens table parses with defaults, and the link list saves and loads without any owner key.
  */

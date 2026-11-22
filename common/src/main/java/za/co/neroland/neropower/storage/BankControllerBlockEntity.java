@@ -3,6 +3,7 @@ package za.co.neroland.neropower.storage;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -25,6 +26,8 @@ import za.co.neroland.nerotech.machine.MachineStatus;
 
 import za.co.neroland.neropower.machine.NeroPowerMachineBlockEntity;
 import za.co.neroland.neropower.progression.MilestoneGates;
+import za.co.neroland.neropower.progression.OperatorCredit;
+import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 
 /**
  * Battery Bank Controller (Stage 5) — pools the Battery Cells connected to it into one energy
@@ -59,6 +62,9 @@ public class BankControllerBlockEntity extends NeroPowerMachineBlockEntity {
     private Set<BlockPos> memberPositions = Set.of();
     private BankMode mode = BankMode.BUFFER;
     private final int scanPhase = Math.floorMod(System.identityHashCode(this), SCAN_INTERVAL);
+    /** The operator this loaded controller last tried to credit with bank capacity. Transient, equality only; never log it. */
+    @org.jetbrains.annotations.Nullable
+    private UUID capacityTried;
 
     public BankControllerBlockEntity(BlockPos pos, BlockState state) {
         // The controller's own buffer is a placeholder: capacity 0, so nothing ever lands in it —
@@ -145,10 +151,36 @@ public class BankControllerBlockEntity extends NeroPowerMachineBlockEntity {
         this.memberPositions = positions;
         // Milestone record for the controller's owner once the pooled capacity reaches the configured
         // size (idempotent; skipped for an unowned controller).
-        if (level instanceof ServerLevel serverLevel && this.pool.formed()
-                && this.pool.getCapacity() >= StorageConfig.bankCapacityMilestone()) {
+        if (level instanceof ServerLevel serverLevel && OperatorCredit.bankCapacity(this.pool.formed(),
+                this.pool.getCapacity(), StorageConfig.bankCapacityMilestone())) {
             MilestoneGates.record(serverLevel, ownerId(), MilestoneGates.BANK_CAPACITY);
+            // And the online operator in the moment: whoever last worked the controller, else the player
+            // who last placed or used one of its cells (NeroTech's transient lastOperator; never saved).
+            UUID operator = bankOperator(cells);
+            if (OperatorCredit.shouldTry(true, operator, this.capacityTried)
+                    && MilestoneGates.online(serverLevel, operator)) {
+                this.capacityTried = operator;
+                MilestoneGates.credit(serverLevel, operator, MilestoneGates.BANK_CAPACITY);
+            }
         }
+    }
+
+    /** The controller's operator in the moment, else the first member cell's. Transient, never saved. */
+    @org.jetbrains.annotations.Nullable
+    private UUID bankOperator(List<PoolMember> cells) {
+        UUID own = lastOperator().orElse(null);
+        if (own != null) {
+            return own;
+        }
+        for (PoolMember cell : cells) {
+            if (cell instanceof NeroTechMachineBlockEntity machine) {
+                UUID operator = machine.lastOperator().orElse(null);
+                if (operator != null) {
+                    return operator;
+                }
+            }
+        }
+        return null;
     }
 
     /** Shedding a buffer would achieve nothing — it has no work rate to throttle. */

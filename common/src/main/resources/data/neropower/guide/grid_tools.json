@@ -1,0 +1,27 @@
+{
+  "chapter": "grid_tools",
+  "title": "gui.neropower.power_guide.chapter.grid_tools",
+  "steps": [
+    {
+      "id": "circuit_breaker",
+      "icon": "neropower:circuit_breaker",
+      "title": "gui.neropower.power_guide.step.circuit_breaker",
+      "text": "gui.neropower.power_guide.step.circuit_breaker.text",
+      "completed_by_item": "neropower:circuit_breaker"
+    },
+    {
+      "id": "load_bank",
+      "icon": "neropower:load_bank",
+      "title": "gui.neropower.power_guide.step.load_bank",
+      "text": "gui.neropower.power_guide.step.load_bank.text",
+      "completed_by_item": "neropower:load_bank"
+    },
+    {
+      "id": "power_monitor",
+      "icon": "neropower:power_monitor",
+      "title": "gui.neropower.power_guide.step.power_monitor",
+      "text": "gui.neropower.power_guide.step.power_monitor.text",
+      "completed_by_item": "neropower:power_monitor"
+    }
+  ]
+}

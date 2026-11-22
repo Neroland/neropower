@@ -19,7 +19,7 @@ import za.co.neroland.neropower.protection.Protection;
 import za.co.neroland.neropower.registry.content.GridContent;
 
 /**
- * Load Bank menu (tall hull 176 × 186, screens/load_bank.md): no machine slots. Control (decision 012):
+ * Load Bank menu (tall hull 176 × 186): no machine slots. Control:
  * {@code rate} as a {@link ScaledValue} (action {@code ACTION_RATE + exponent}, value = mantissa); "Zero"
  * sends rate 0.
  */

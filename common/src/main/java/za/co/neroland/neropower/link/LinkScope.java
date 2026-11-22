@@ -8,36 +8,67 @@ import java.util.UUID;
  * kept as pure statics so they are unit-tested exactly as the module applies them:
  * <ul>
  *   <li><b>Proximity</b> — a snapshot only ever enumerates machines in the requesting <i>online</i>
- *       player's dimension within {@value #PROXIMITY_BLOCKS} blocks of them, in loaded chunks. There
- *       is no server-wide roster; a player who is offline sees nothing.</li>
+ *       player's dimension, in loaded chunks within {@value #PROXIMITY_CHUNKS} chunks of theirs
+ *       (Chebyshev, whole columns, about {@value #PROXIMITY_BLOCKS} blocks). Reach is decided on the
+ *       chunk grid, never by exact distance, so the edge moves in 16-block steps and has no height:
+ *       a machine cannot be placed more finely than its chunk by walking the edge.
+ *       There is no server-wide roster; a player who is offline sees nothing.</li>
  *   <li><b>Owner</b> — a machine that recorded an owner (a beam transmitter / relay's link owner;
  *       a fission core's NeroTech owner, only set when per-player attribution is on) is shown only
  *       to that owner. A machine with no recorded owner is shown by proximity alone.</li>
- *   <li><b>Actions</b> ({@link #mayAct}) — an owned machine obeys its owner only; an unowned one
- *       obeys an online player standing in its dimension within {@value #PROXIMITY_BLOCKS} blocks
- *       who also passes NeroPower's protection seam ({@code mayInteract}) — the same person who
- *       could walk up and do it by hand.</li>
- *   <li><b>Failure events</b> — go to the machine's owner only; an unowned machine's events go only
- *       to online players within proximity of it (resolved by the module from the machine itself,
- *       never from a published scope). Never a server-wide broadcast. Their scope
- *       ({@link #failureScope}) names a machine type and a dimension — never a position: a base's
- *       coordinates identify its builder.</li>
+ *   <li><b>Actions</b> ({@link #mayAct}) — remote control needs ownership: an owned machine obeys
+ *       its owner only, and an unowned machine obeys nobody remotely. It can be used in person (its
+ *       screen, the SCRAM Key).</li>
+ *   <li><b>Failure events</b> — go to online players within proximity of the machine, filtered by the
+ *       owner rule, plus a push-eligible copy for a recorded opt-in owner (see {@link PlantEvents}). Never
+ *       a server-wide broadcast, and since link schema 2 the body names neither a position nor a
+ *       dimension. {@link #failureScope} remains the NeroTech bus scope shape only.</li>
  * </ul>
  */
 public final class LinkScope {
 
-    /** Proximity radius (blocks) around the requesting player. */
+    /** Nominal proximity radius (blocks) around the requesting player: {@link #PROXIMITY_CHUNKS} chunks. */
     public static final int PROXIMITY_BLOCKS = 128;
+
+    /** Reach on the chunk grid (Chebyshev, chunks): the machine's chunk within this many of the requester's. */
+    public static final int PROXIMITY_CHUNKS = PROXIMITY_BLOCKS / 16;
+
+    /** The "near" band (Chebyshev, chunks): about 32 blocks. */
+    public static final int NEAR_CHUNKS = 2;
+
+    /** Band names: the only distance information an entry carries. */
+    public static final String BAND_NEAR = "near";
+    public static final String BAND_IN_RANGE = "in_range";
 
     private LinkScope() {
     }
 
-    /** Whether {@code (x,y,z)} lies within {@link #PROXIMITY_BLOCKS} (Euclidean) of {@code (px,py,pz)}. */
+    /**
+     * Whether a machine at {@code (x,y,z)} is in reach of a requester at {@code (px,py,pz)}: its chunk lies
+     * within {@link #PROXIMITY_CHUNKS} chunks of the requester's (Chebyshev). Heights are ignored on purpose,
+     * and two requesters in the same chunk always get the same answer.
+     */
     public static boolean withinProximity(int px, int py, int pz, int x, int y, int z) {
-        long dx = (long) x - px;
-        long dy = (long) y - py;
-        long dz = (long) z - pz;
-        return dx * dx + dy * dy + dz * dz <= (long) PROXIMITY_BLOCKS * PROXIMITY_BLOCKS;
+        return chunkDistance(px, pz, x, z) <= PROXIMITY_CHUNKS;
+    }
+
+    /** Chebyshev distance in chunks between the chunks holding {@code (ax,az)} and {@code (bx,bz)}. */
+    public static int chunkDistance(int ax, int az, int bx, int bz) {
+        return Math.max(Math.abs((ax >> 4) - (bx >> 4)), Math.abs((az >> 4) - (bz >> 4)));
+    }
+
+    /** The coarse band of an in-reach machine: {@link #BAND_NEAR} within {@link #NEAR_CHUNKS} chunks, else in range. */
+    public static String band(int px, int pz, int x, int z) {
+        return chunkDistance(px, pz, x, z) <= NEAR_CHUNKS ? BAND_NEAR : BAND_IN_RANGE;
+    }
+
+    /**
+     * The recorded owner used for every scoping rule (link sections, actions, events, map layers): the beam
+     * link owner where NeroPower recorded one, otherwise the NeroTech machine owner (only set when NeroTech's
+     * per-player attribution is on). Compared, never emitted.
+     */
+    public static Optional<UUID> ownerOf(Optional<UUID> linkOwner, Optional<UUID> machineOwner) {
+        return linkOwner.isPresent() ? linkOwner : machineOwner;
     }
 
     /**
@@ -54,23 +85,12 @@ public final class LinkScope {
     }
 
     /**
-     * Whether {@code requester} may act (acknowledge, SCRAM) on a machine with {@code owner}:
-     * <ul>
-     *   <li>owned → the owner only, wherever they stand;</li>
-     *   <li>unowned (NeroTech's opt-in attribution off at placement) → only when the requester is
-     *       online, in the machine's dimension and within {@value #PROXIMITY_BLOCKS} blocks
-     *       ({@code inProximity}, computed by the caller) <i>and</i> passes the protection seam
-     *       ({@code mayInteract}).</li>
-     * </ul>
+     * Whether {@code requester} may act remotely (acknowledge, SCRAM, turbine trip) on a machine with
+     * {@code owner}: only its recorded owner. An unowned machine accepts no remote action; it can be used in
+     * person through its screen or the SCRAM Key (no control through walls from range).
      */
-    public static boolean mayAct(Optional<UUID> owner, UUID requester, boolean inProximity, boolean mayInteract) {
-        if (requester == null) {
-            return false;
-        }
-        if (owner.isPresent()) {
-            return owner.get().equals(requester);
-        }
-        return inProximity && mayInteract;
+    public static boolean mayAct(Optional<UUID> owner, UUID requester) {
+        return requester != null && owner.isPresent() && owner.get().equals(requester);
     }
 
     /** The chunk radius that covers {@link #PROXIMITY_BLOCKS} blocks (16-block chunks, rounded up). */

@@ -14,7 +14,7 @@ import za.co.neroland.neropower.fission.ReactorControlComputerMenu;
 import za.co.neroland.neropower.menu.MenuButtons;
 
 /**
- * Reactor Control Computer screen (wide tall hull, 248 × 222; screens/reactor_control_computer.md): four
+ * Reactor Control Computer screen (wide tall hull, 248 × 222): four
  * signal rows (Heat, Fuel, Output, Stage) whose live bars are also the threshold sliders (click to set),
  * the Auto-SCRAM checkbox and level slider, the redstone and comparator choices (left click next, right
  * click previous), a lamp test and the stall line. No default gauges: every number is the core's.
@@ -169,11 +169,14 @@ public class ReactorControlComputerScreen extends PowerMachineScreen<ReactorCont
         button(g, x + B1_X, y + CY2_Y, B1_W, Component.translatable("gui.neropower.control_computer.test"));
 
         // Stall line.
-        Component stall = !linked ? Component.translatable("gui.neropower.stall.control_computer.unlinked")
+        g.text(this.font, stallLine(), x + 8, y + S_Y, !linked ? SUBTLE : this.menu.tripped() ? AUTO : LABEL, false);
+    }
+
+    private Component stallLine() {
+        return !this.menu.linked() ? Component.translatable("gui.neropower.stall.control_computer.unlinked")
                 : this.menu.tripped() ? Component.translatable("gui.neropower.stall.control_computer.tripped")
                 : Component.translatable("gui.neropower.control_computer.running",
                         Component.translatable(FailureStage.byCode(this.menu.stage()).translationKey()));
-        g.text(this.font, stall, x + 8, y + S_Y, !linked ? SUBTLE : this.menu.tripped() ? AUTO : LABEL, false);
     }
 
     private void button(GuiGraphicsExtractor g, int bx, int by, int w, Component label) {
@@ -209,6 +212,14 @@ public class ReactorControlComputerScreen extends PowerMachineScreen<ReactorCont
             lines.add(GaugeTooltips.tr("control_computer.comparator_tip", signalName(this.menu.comparatorSignal())));
         } else if (inRect(mx, my, B1_X, CY2_Y, B1_W, 12)) {
             lines.add(GaugeTooltips.tr("control_computer.test_tip"));
+        } else if (inRect(mx, my, 8, S_Y - 1, 200, 10)) {
+            lines.add(GaugeTooltips.tr("status"));
+            lines.add(stallLine());
+            if (!this.menu.linked()) {
+                lines.add(Component.translatable("gui.neropower.stall.fix.control_computer_unlinked"));
+            } else if (this.menu.tripped()) {
+                lines.add(Component.translatable("gui.neropower.stall.fix.control_computer_tripped"));
+            }
         }
     }
 

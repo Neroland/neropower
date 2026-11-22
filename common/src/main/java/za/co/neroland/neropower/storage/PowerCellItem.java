@@ -7,7 +7,7 @@ import za.co.neroland.neropower.energy.PortableEnergy;
 import za.co.neroland.neropower.energy.PortableEnergyItem;
 
 /**
- * A portable Power Cell (decision 008): NE kept on the stack in {@code neropower:cell_energy}, shown as
+ * A portable Power Cell: NE kept on the stack in {@code neropower:cell_energy}, shown as
  * the item bar (green when full, amber, red when nearly empty). Charged in a Battery Cell or Surge Bank
  * charge slot and by NeroTech's Induction Charger; drawn by any NeroPower user through
  * {@link PortableEnergy} and, on NeoForge and Forge, by other mods through the FE item capability.

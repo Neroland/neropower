@@ -272,10 +272,14 @@ def gen_vitrifier():
 # ---------------- Dry Cask ----------------
 # foot y0..2 (x1..15), body y2..13 (10 wide), lid plate y13..14, cap y14..15, lugs y11..13.
 
-def gen_dry_cask():
-    name = "dry_cask_side"
-    rng = rng_for(name)
-    img = _clear_base(name)
+# Leaking: the lid plate and cap stand one unit higher on a short neck, so the seal is visibly open.
+
+def _cask_side(name, state):
+    """``state``: ``idle`` (sealed, cold), ``working`` (sealed, warm: the rib vents glow) or
+    ``leaking`` (lid lifted off its seat, seal band broken, lime seep down the body, vents blown
+    open, hazard stripes lit on the foot). The three differ in shape, not only colour."""
+    rng = rng_for("dry_cask_side")
+    img = _clear_base("dry_cask_side")
     px = img.load()
     _plate(px, rng, 8, 2, 23, 3, [ALLOY[3], ALLOY[1]], lit=False)   # cap
     _plate(px, rng, 5, 4, 26, 5, [ALLOY[3], ALLOY[1]], lit=False)   # lid plate
@@ -307,11 +311,47 @@ def gen_dry_cask():
         px[a + 1, 7] = SOCKET_SHADOW
         px[a + 2, 7] = SOCKET_SHADOW
     _plate(px, rng, 2, 28, 29, 31, [ALLOY[0], ALLOY[2]])            # foot
+    if state == "working":
+        for y in range(12, 24, 4):                                  # heat seen through the rib vents
+            for yy in (y, y + 1):
+                px[15, yy] = P_HOT
+                px[16, yy] = P_AMBER
+        for x in list(range(7, 14)) + list(range(18, 25)):          # a warm line under the seal band
+            px[x, 9] = P_EMBER
+    elif state == "leaking":
+        fresh = _clear_base("dry_cask_side").load()
+        for y in (0, 1, 2, 3):                                      # lid plate and cap, one unit up
+            for x in range(S):
+                px[x, y] = px[x, y + 2]
+        for y in (4, 5):                                            # the gap, and the neck in it
+            for x in range(S):
+                px[x, y] = fresh[x, y]
+            for x in range(10, 22):
+                px[x, y] = SOCKET_SHADOW
+        for x in range(10, 22, 2):
+            px[x, 5] = RAD_LIME
+            px[x + 1, 5] = RAD_DEEP
+        for (x0, x1, drop) in ((10, 12, 17), (19, 21, 21)):         # seal band broken in two places
+            for x in range(x0, x1 + 1):
+                px[x, 7] = SOCKET_SHADOW
+                px[x, 8] = SOCKET_SHADOW
+            for y in range(7, drop):                                # seep running down from the break
+                px[x0 + 1, y] = RAD_LIME if y < drop - 3 else RAD_DEEP
+                if y % 3 == 0:
+                    px[x0, y] = RAD_DEEP
+        for y in range(12, 24, 4):                                  # rib vents blown open
+            for yy in (y - 1, y, y + 1, y + 2):
+                px[14, yy] = RAD_DEEP
+                px[17, yy] = RAD_DEEP
+                px[15, yy] = RAD_LIME if yy in (y, y + 1) else RAD_DEEP
+                px[16, yy] = RAD_LIME if yy in (y, y + 1) else RAD_DEEP
+        hazard_edge(px, lit=True, y0=28, y1=30)                     # the foot's hazard stripes
     save(img, "block", name)
 
-    name = "dry_cask_top"
-    rng = rng_for(name)
-    img = _clear_base(name)
+
+def _cask_top(name, leaking):
+    rng = rng_for("dry_cask_top")
+    img = _clear_base("dry_cask_top")
     px = img.load()
     _plate(px, rng, 2, 2, 29, 29, [ALLOY[0], ALLOY[2]])             # foot
     _plate(px, rng, 5, 5, 26, 26, [ALLOY[1], ALLOY[3]])             # lid plate
@@ -325,7 +365,26 @@ def gen_dry_cask():
     for y in (4, 27):                                               # rib tops (north / south)
         for x in range(14, 18):
             px[x, y] = ALLOY[3]
+    if leaking:
+        for (bx, by) in ((6, 6), (24, 6), (6, 24), (24, 24)):       # four corner bolts gone
+            rect(px, bx, by, bx + 1, by + 1, SOCKET_SHADOW)
+            px[bx, by] = RAD_LIME
+        for x in range(9, 23):                                      # seep along two lid edges only
+            for y in (6, 25):
+                if x not in (15, 16):
+                    px[x, y] = RAD_LIME if x % 3 else RAD_DEEP
+        for y in (3, 28):                                           # blown rib vents from above
+            for x in (15, 16):
+                px[x, y] = RAD_LIME
     save(img, "block", name)
+
+
+def gen_dry_cask():
+    _cask_side("dry_cask_side", "idle")
+    _cask_side("dry_cask_side_working", "working")
+    _cask_side("dry_cask_side_leaking", "leaking")
+    _cask_top("dry_cask_top", False)
+    _cask_top("dry_cask_top_leaking", True)
 
 
 # ---------------- Hydrogen Fuel Cell (id fuel_cell) ----------------
@@ -394,10 +453,11 @@ def gen_fuel_cell():
 # ---------------- Betavoltaic Cell ----------------
 # half height: base y0..2, core y2..6 (x3..13), four fins a side y2..5, window frame y6..8 (x5..11).
 
-def gen_betavoltaic_cell():
-    name = "betavoltaic_cell_side"
-    rng = rng_for(name)
-    img = _clear_base(name)
+# Spent: the capsule's pull tab stands up out of the window (x7..9, y8..9.5, z7..9).
+
+def _beta_side(name, spent):
+    rng = rng_for("betavoltaic_cell_side")
+    img = _clear_base("betavoltaic_cell_side")
     px = img.load()
     _plate(px, rng, 10, 16, 21, 19, [ALLOY[3], ALLOY[1]])           # window frame
     _plate(px, rng, 6, 20, 25, 27)                                  # core
@@ -413,11 +473,22 @@ def gen_betavoltaic_cell():
     _plate(px, rng, 0, 28, 31, 31, [ALLOY[0], ALLOY[2]])            # base
     _bolt(px, 2, 29)
     _bolt(px, 28, 29)
+    if spent:
+        for y in (13, 14, 15):                                      # the raised tab, edge on
+            px[14, y] = SPENT[2]
+            px[15, y] = SPENT[0]
+            px[16, y] = SPENT[0]
+            px[17, y] = SPENT[1]
+        for x in range(14, 18):
+            px[x, 13] = SPENT[2]
     save(img, "block", name)
 
-    name = "betavoltaic_cell_top"
-    rng = rng_for(name)
-    img = _clear_base(name)
+
+def _beta_top(name, state):
+    """``working``: one steady amber row under the glass. ``idle``: the same wafer, dark.
+    ``spent``: dark, and the spent capsule's square pull tab stands up in the window."""
+    rng = rng_for("betavoltaic_cell_top")
+    img = _clear_base("betavoltaic_cell_top")
     px = img.load()
     _plate(px, rng, 0, 0, 31, 31, [ALLOY[0], ALLOY[2]])             # base
     for z in (3, 11, 19, 27):                                       # fins from above, both flanks
@@ -435,12 +506,33 @@ def gen_betavoltaic_cell():
     for i in range(13, 20, 2):
         px[i, 18] = WAFER[1]
         px[i, 14] = WAFER[1]
-    for x in range(13, 19):                                         # one steady amber row: never pulsed
-        px[x, 16] = P_AMBER
-    px[15, 16] = P_HOT
+    if state == "working":
+        for x in range(13, 19):                                     # one steady amber row: never pulsed
+            px[x, 16] = P_AMBER
+        px[15, 16] = P_HOT
+    elif state == "spent":
+        rect(px, 14, 14, 17, 17, SPENT[0])                          # the tab, from above
+        for i in range(14, 18):
+            px[i, 14] = SPENT[2]
+            px[14, i] = SPENT[2]
+            px[i, 17] = SPENT[1]
+            px[17, i] = SPENT[1]
+        px[15, 15] = A_DARK                                         # its pull hole
+        px[16, 16] = A_DARK
+        for i in range(15, 19):                                     # and its shadow on the wafer
+            px[i, 18] = SOCKET_SHADOW
+            px[18, i] = SOCKET_SHADOW
     px[19, 13] = _mix(A_LIGHT, WAFER[0], 0.3)                       # glass glint
     tell(px, 23, 14, vertical=True)
     save(img, "block", name)
+
+
+def gen_betavoltaic_cell():
+    _beta_side("betavoltaic_cell_side", False)
+    _beta_side("betavoltaic_cell_side_spent", True)
+    _beta_top("betavoltaic_cell_top", "working")
+    _beta_top("betavoltaic_cell_top_idle", "idle")
+    _beta_top("betavoltaic_cell_top_spent", "spent")
 
 
 # ---------------- items ----------------
@@ -661,10 +753,10 @@ def _vitrifier_model():
     ])
 
 
-def _cask_model():
+def _cask_model(side="dry_cask_side", top="dry_cask_top", leaking=False):
     s = ALL_SIDE
-    return _model(_t(side="dry_cask_side", top="dry_cask_top", socket="backend_socket",
-                     particle="dry_cask_side"), [
+    lift = 1 if leaking else 0
+    elements = [
         _el((1, 0, 1), (15, 2, 15), s),                    # foot
         _el((3, 2, 4), (13, 13, 12), s, skip=("down", "up")),                 # body (two crossed slabs)
         _el((4, 2, 3), (12, 13, 13), s, skip=("down", "up")),
@@ -672,12 +764,17 @@ def _cask_model():
         _el((7, 2, 13), (9, 13, 14), s, skip=("down", "north")),
         _el((2, 2, 7), (3, 13, 9), s, skip=("down", "east")),
         _el((13, 2, 7), (14, 13, 9), s, skip=("down", "west")),
-        _el((2.5, 13, 2.5), (13.5, 14, 13.5), s),          # lid plate
-        _el((4, 14, 4), (12, 15, 12), s, skip=("down",)),  # cap
+        _el((2.5, 13 + lift, 2.5), (13.5, 14 + lift, 13.5), s),               # lid plate
+        _el((4, 14 + lift, 4), (12, 15 + lift, 12), s, skip=("down",)),       # cap
         _el((1, 11, 7), (2, 13, 9), s, skip=("east",)),    # lifting lugs
         _el((14, 11, 7), (15, 13, 9), s, skip=("west",)),
-        _socket(*SOCKETS["dry_cask"]),
-    ])
+    ]
+    if leaking:
+        elements.append(_el((5, 13, 5), (11, 14, 11), s, skip=("down", "up")))   # the neck in the gap
+        for el in elements:                                # a lifted cap is never culled by a neighbour
+            el["faces"].get("up", {}).pop("cullface", None)
+    elements.append(_socket(*SOCKETS["dry_cask"]))
+    return _model(_t(side=side, top=top, socket="backend_socket", particle=side), elements)
 
 
 def _fuel_cell_model():
@@ -702,7 +799,7 @@ def _fuel_cell_model():
                      particle="fuel_cell_side"), elements)
 
 
-def _betavoltaic_model():
+def _betavoltaic_model(side="betavoltaic_cell_side", top="betavoltaic_cell_top", spent=False):
     s = ALL_SIDE
     elements = [
         _el((0, 0, 0), (16, 2, 16), s),                    # base
@@ -711,12 +808,11 @@ def _betavoltaic_model():
     for z in (1.5, 5.5, 9.5, 13.5):                        # fins, four a side
         elements.append(_el((0, 2, z), (3, 5, z + 1), s, skip=("down", "east")))
         elements.append(_el((13, 2, z), (16, 5, z + 1), s, skip=("down", "west")))
-    elements += [
-        _el((5, 6, 5), (11, 8, 11), s, skip=("down",)),    # window frame
-        _socket(*SOCKETS["betavoltaic_cell"]),
-    ]
-    return _model(_t(side="betavoltaic_cell_side", top="betavoltaic_cell_top", socket="backend_socket",
-                     particle="betavoltaic_cell_side"), elements)
+    elements.append(_el((5, 6, 5), (11, 8, 11), s, skip=("down",)))          # window frame
+    if spent:
+        elements.append(_el((7, 8, 7), (9, 9.5, 9), s, skip=("down",)))      # the raised pull tab
+    elements.append(_socket(*SOCKETS["betavoltaic_cell"]))
+    return _model(_t(side=side, top=top, socket="backend_socket", particle=side), elements)
 
 
 def _write_json(rel, obj):
@@ -751,6 +847,16 @@ def _variants(model_for):
 
 BLOCKS = ("spent_fuel_pool", "vitrifier", "dry_cask", "fuel_cell", "betavoltaic_cell")
 STATUS = ("idle", "working", "starved", "tripped")
+# Model per status. Cask: idle = sealed and cold, working = sealed and warm, tripped = leaking
+# (starved is not a state a cask has; it shows the sealed model). Betavoltaic Cell: the block's own
+# model is the working look (it is also the item); idle = dark, starved = spent capsule (tripped
+# shows the same).
+STATUS_MODELS = {
+    "dry_cask": {"idle": "dry_cask", "working": "dry_cask_working", "starved": "dry_cask",
+                 "tripped": "dry_cask_leaking"},
+    "betavoltaic_cell": {"idle": "betavoltaic_cell_idle", "working": "betavoltaic_cell",
+                         "starved": "betavoltaic_cell_spent", "tripped": "betavoltaic_cell_spent"},
+}
 ITEMS = ("fission_residue", "vitrified_waste", "beta_capsule", "spent_beta_capsule")
 
 
@@ -761,8 +867,13 @@ def write_models():
         "spent_fuel_pool_alarm": _pool_model("spent_fuel_pool_side_alarm"),
         "vitrifier": _vitrifier_model(),
         "dry_cask": _cask_model(),
+        "dry_cask_working": _cask_model(side="dry_cask_side_working"),
+        "dry_cask_leaking": _cask_model("dry_cask_side_leaking", "dry_cask_top_leaking", leaking=True),
         "fuel_cell": _fuel_cell_model(),
         "betavoltaic_cell": _betavoltaic_model(),
+        "betavoltaic_cell_idle": _betavoltaic_model(top="betavoltaic_cell_top_idle"),
+        "betavoltaic_cell_spent": _betavoltaic_model("betavoltaic_cell_side_spent", "betavoltaic_cell_top_spent",
+                                                     spent=True),
     }
     for name, model in models.items():
         _write_json("models/block/%s.json" % name, model)
@@ -771,11 +882,10 @@ def write_models():
     for block in ("vitrifier", "fuel_cell"):
         _write_json("blockstates/%s.json" % block, _variants(lambda f, b=block: [("facing=%s" % f, b)]))
     # The cask and the betavoltaic cell have no renderer, so they carry the `status` block state
-    # (idle / working / starved / tripped, set on a bucket change). No state art yet: every status
-    # shows the same model until art paints one.
-    for block in ("dry_cask", "betavoltaic_cell"):
-        _write_json("blockstates/%s.json" % block, _variants(lambda f, b=block: [
-            ("facing=%s,status=%s" % (f, s), b) for s in STATUS]))
+    # (idle / working / starved / tripped, set on a change only) and each status has its own model.
+    for block, looks in STATUS_MODELS.items():
+        _write_json("blockstates/%s.json" % block, _variants(lambda f, lk=looks: [
+            ("facing=%s,status=%s" % (f, s), lk[s]) for s in STATUS]))
     for block in BLOCKS:
         _write_json("items/%s.json" % block,
                     {"model": {"type": "minecraft:model", "model": "%s:block/%s" % (NS, block)}})
@@ -822,9 +932,15 @@ SHEET = [
     {"id": "vitrifier", "block": True,
      "faces": ["vitrifier_front", "vitrifier_side", "vitrifier_top"],
      "states": ["vitrifier_top", "vitrifier_melt"]},
-    {"id": "dry_cask", "block": True, "faces": ["dry_cask_side", "dry_cask_top"]},
+    {"id": "dry_cask", "block": True, "faces": ["dry_cask_top"],
+     "states": ["dry_cask_side", "dry_cask_side_working", "dry_cask_side_leaking"]},
+    {"id": "dry_cask: leaking", "model": "block/dry_cask_leaking", "faces": [],
+     "states": ["dry_cask_top", "dry_cask_top_leaking"]},
     {"id": "fuel_cell", "block": True, "faces": ["fuel_cell_front", "fuel_cell_side"]},
-    {"id": "betavoltaic_cell", "block": True, "faces": ["betavoltaic_cell_top", "betavoltaic_cell_side"]},
+    {"id": "betavoltaic_cell", "block": True, "faces": ["betavoltaic_cell_side"],
+     "states": ["betavoltaic_cell_top_idle", "betavoltaic_cell_top", "betavoltaic_cell_top_spent"]},
+    {"id": "betavoltaic_cell: spent", "model": "block/betavoltaic_cell_spent", "faces": [],
+     "states": ["betavoltaic_cell_side", "betavoltaic_cell_side_spent"]},
     {"id": "socket + items", "model": None,
      "faces": ["backend_socket", "item:fission_residue", "item:vitrified_waste", "item:beta_capsule",
                "item:spent_beta_capsule", "particle:pool_bubble_0", "particle:pool_bubble_1",

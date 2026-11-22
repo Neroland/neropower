@@ -31,7 +31,7 @@ import za.co.neroland.neropower.registry.RegistrationProvider;
 import za.co.neroland.neropower.registry.RegistrationProvider.RegistryEntry;
 
 /**
- * Radiation (WP-Radiation, decision 007): the two Shielding blocks, the Geiger Counter, Dosimeter
+ * Radiation: the two Shielding blocks, the Geiger Counter, Dosimeter
  * Badge and Decontaminant, the {@code neropower:dosimeter_reading} and {@code neropower:geiger_reading}
  * components and the three radiation sound events. Order for the eager (Fabric) loader: components,
  * sounds, blocks, items.
@@ -94,9 +94,11 @@ public final class RadiationContent {
 
     // --- items ---------------------------------------------------------------------------------------
     public static final RegistryEntry<BlockItem> SHIELDING_BLOCK_ITEM = ModItems.ITEMS.register("shielding_block",
-            key -> new BlockItem(SHIELDING_BLOCK.get(), new Item.Properties().setId(key)));
+            key -> new za.co.neroland.neropower.machine.HintBlockItem(SHIELDING_BLOCK.get(), new Item.Properties().setId(key),
+                    za.co.neroland.neropower.machine.HintBlockItem.keyFor("shielding_block")));
     public static final RegistryEntry<BlockItem> SHIELDING_GLASS_ITEM = ModItems.ITEMS.register("shielding_glass",
-            key -> new BlockItem(SHIELDING_GLASS.get(), new Item.Properties().setId(key)));
+            key -> new za.co.neroland.neropower.machine.HintBlockItem(SHIELDING_GLASS.get(), new Item.Properties().setId(key),
+                    za.co.neroland.neropower.machine.HintBlockItem.keyFor("shielding_glass")));
 
     public static final RegistryEntry<GeigerCounterItem> GEIGER_COUNTER = ModItems.ITEMS.register("geiger_counter",
             key -> new GeigerCounterItem(new Item.Properties().setId(key).stacksTo(1)));

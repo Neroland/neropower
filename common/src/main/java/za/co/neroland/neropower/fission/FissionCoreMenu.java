@@ -19,7 +19,7 @@ import za.co.neroland.neropower.menu.MenuButtons;
  * them, NeroTech's upgrade block and the player inventory at y 140, plus the core's
  * {@value FissionCoreBlockEntity#EXTRA_DATA} synced ints and the output rate (NE/t or mB/t of steam) as
  * the gauge tail's wide value. The mode button arrives through {@link #clickMenuButton} as a
- * {@link MenuButtons} id (decision 012). Locked rod slots refuse every stack (the block entity knows the
+ * {@link MenuButtons} id. Locked rod slots refuse every stack (the block entity knows the
  * shell size).
  */
 public class FissionCoreMenu extends MachineMenu implements GaugeTailMenu {
@@ -53,9 +53,37 @@ public class FissionCoreMenu extends MachineMenu implements GaugeTailMenu {
         addUpgradeAndPlayerSlots(playerInventory, 138, 18, 2, 140);
     }
 
+    /**
+     * Hand path: a part-burnt rod clicked out of a rod slot (pick up, shift-click, swap with
+     * the hotbar, drop) leaves as a Hot Spent Fuel Rod. Server side the rod is converted before the click and
+     * put back if it did not leave (a click that changed nothing, or a full inventory).
+     */
+    @Override
+    //? if >=26.1 {
+    public void clicked(int slotId, int button, net.minecraft.world.inventory.ContainerInput clickType, Player player) {
+    //?} else {
+    /*public void clicked(int slotId, int button, net.minecraft.world.inventory.ClickType clickType, Player player) {
+    *///?}
+        if (slotId >= 0 && slotId < this.slots.size() && !player.level().isClientSide()
+                && this.container instanceof FissionCoreBlockEntity core
+                && this.slots.get(slotId).container == core
+                && this.slots.get(slotId).getContainerSlot() < FissionCoreBlockEntity.ROD_SLOTS) {
+            int index = this.slots.get(slotId).getContainerSlot();
+            net.minecraft.world.item.ItemStack original = core.spendLeavingRod(index);
+            if (original != null) {
+                net.minecraft.world.item.ItemStack converted = core.getItem(index);
+                super.clicked(slotId, button, clickType, player);
+                core.restoreRod(index, converted, original);
+                return;
+            }
+        }
+        super.clicked(slotId, button, clickType, player);
+    }
+
     @Override
     public boolean clickMenuButton(Player player, int id) {
-        if (!(this.container instanceof FissionCoreBlockEntity core) || !stillValid(player)) {
+        if (!(this.container instanceof FissionCoreBlockEntity core) || !stillValid(player)
+                || !za.co.neroland.neropower.protection.Protection.mayUse(player, core)) {
             return false;
         }
         if (MenuButtons.action(id) == ACTION_MODE) {

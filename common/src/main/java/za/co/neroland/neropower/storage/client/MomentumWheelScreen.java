@@ -87,6 +87,7 @@ public class MomentumWheelScreen extends PowerMachineScreen<MomentumWheelMenu> {
         } else if (over(mx, my, 8, 80, 160, 9)) {
             lines.add(GaugeTooltips.tr("status"));
             lines.add(stall());
+            GaugeTooltips.stallFix(lines, this.menu.readout(), this.menu.stallCause());
         }
     }
 }

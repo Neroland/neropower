@@ -33,7 +33,7 @@ public class ReactorControlComputerBlock extends ReactorShellPortBlock {
         super(properties);
     }
 
-    /** In-world status for the painted state models (decision 012 addendum). */
+    /** In-world status for the painted state models. */
     @Override
     protected boolean hasStatus() {
         return true;

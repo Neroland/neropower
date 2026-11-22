@@ -58,6 +58,20 @@ public final class NeroPowerTelemetry {
     private static final int MAX_MODS_REPORTED = 300;
     private static final Pattern USER_PATH =
             Pattern.compile("(?i)(?:[A-Z]:)?[/\\\\](?:Users|home)[/\\\\][^/\\\\\\s:;,'\"]+");
+    /** A UUID anywhere in a message (a player id must never reach Sentry, even from another logger). */
+    private static final Pattern UUID_TEXT =
+            Pattern.compile("(?i)\\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\b");
+    /** Vanilla's {@code BlockPos{x=.., y=.., z=..}} and any {@code x=.., y=.., z=..} triple. */
+    private static final Pattern POS_TEXT =
+            Pattern.compile("(?i)\\bx\\s*[=:]\\s*-?\\d+(?:\\.\\d+)?\\s*,\\s*y\\s*[=:]\\s*-?\\d+(?:\\.\\d+)?\\s*,"
+                    + "\\s*z\\s*[=:]\\s*-?\\d+(?:\\.\\d+)?");
+    /** Number triples such as {@code [12, 64, -30]} or {@code (12.5, 64.0, -30.2)} (block and Vec3 positions). */
+    private static final Pattern TRIPLE_TEXT =
+            Pattern.compile("-?\\d+(?:\\.\\d+)?\\s*,\\s*-?\\d+(?:\\.\\d+)?\\s*,\\s*-?\\d+(?:\\.\\d+)?");
+    /** Vanilla's entity form {@code ServerPlayer['Name'/412, ...]}: the name and entity id. */
+    private static final Pattern ENTITY_NAME_TEXT = Pattern.compile("\\['[^']*'/\\d+");
+    /** Vanilla's {@code l='ServerLevel[World name]'}: the world (save) name. */
+    private static final Pattern LEVEL_NAME_TEXT = Pattern.compile("l='[^']*'");
 
     private static volatile boolean active;
     private static final AtomicInteger eventsSent = new AtomicInteger();
@@ -344,8 +358,17 @@ public final class NeroPowerTelemetry {
         return sb.toString();
     }
 
-    /** Replaces home-directory paths (which contain the OS account name) with a neutral marker. */
+    /**
+     * Replaces home-directory paths (which contain the OS account name) with a neutral marker, and
+     * strips UUIDs and coordinates (POPIA/GDPR: a report must not carry a player id or a place, even
+     * when the message came from another logger or a vanilla exception).
+     */
     static String scrub(String text) {
-        return USER_PATH.matcher(text).replaceAll("/~");
+        String out = USER_PATH.matcher(text).replaceAll("/~");
+        out = UUID_TEXT.matcher(out).replaceAll("<uuid>");
+        out = ENTITY_NAME_TEXT.matcher(out).replaceAll("['<name>'/?");
+        out = LEVEL_NAME_TEXT.matcher(out).replaceAll("l='<level>'");
+        out = POS_TEXT.matcher(out).replaceAll("x=?, y=?, z=?");
+        return TRIPLE_TEXT.matcher(out).replaceAll("?, ?, ?");
     }
 }

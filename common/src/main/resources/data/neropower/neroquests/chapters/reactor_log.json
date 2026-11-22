@@ -16,6 +16,10 @@
     { "quest": "neropower:reactor_log/first_burn", "x": 8, "y": 0 },
     { "quest": "neropower:reactor_log/decay_heat", "x": 8, "y": 2 },
     { "quest": "neropower:reactor_log/closing_the_loop", "x": 10, "y": 0 },
-    { "quest": "neropower:reactor_log/world_first_fission", "x": 10, "y": -2 }
+    { "quest": "neropower:reactor_log/world_first_fission", "x": 10, "y": -2 },
+    { "quest": "neropower:reactor_log/smes_charged", "x": 2, "y": -5 },
+    { "quest": "neropower:reactor_log/turbine_spinup", "x": 10, "y": -1 },
+    { "quest": "neropower:reactor_log/first_breed", "x": 12, "y": -1 },
+    { "quest": "neropower:reactor_log/first_vitrified", "x": 10, "y": 2 }
   ]
 }

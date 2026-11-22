@@ -148,7 +148,8 @@ class QuestPackTest {
         assertTrue("player".equals(hook.get("scope").getAsString()) && !hook.has("requires"),
                 "a hook gate is a player-scope record with no requires");
         for (String milestone : List.of(MilestoneGates.CRITICALITY, MilestoneGates.BEAM_LINKED,
-                MilestoneGates.BANK_CAPACITY).stream().map(Object::toString).toList()) {
+                MilestoneGates.BANK_CAPACITY, MilestoneGates.FIRST_BREED, MilestoneGates.TURBINE_SPINUP,
+                MilestoneGates.SMES_CHARGED, MilestoneGates.FIRST_VITRIFIED).stream().map(Object::toString).toList()) {
             JsonObject def = gates.get(milestone);
             assertTrue(def != null && "player".equals(def.get("scope").getAsString()) && !def.has("requires"),
                     milestone + " must ship as a player-scope record gate");

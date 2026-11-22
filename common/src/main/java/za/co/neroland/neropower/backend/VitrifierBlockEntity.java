@@ -192,7 +192,7 @@ public class VitrifierBlockEntity extends NeroPowerMachineBlockEntity {
         return slot == OUTPUT_SLOT;
     }
 
-    // --- menu sync (spec: screens/vitrifier.md) ----------------------------------------------------
+    // --- menu sync ----------------------------------------------------
 
     /** Extra-data layout; read only through {@code VitrifierMenu}'s getters. */
     static final int D_READOUT = 0;

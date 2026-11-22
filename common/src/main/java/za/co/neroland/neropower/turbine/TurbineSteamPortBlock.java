@@ -44,6 +44,12 @@ public class TurbineSteamPortBlock extends NeroPowerMachineBlock {
         return CODEC;
     }
 
+    /** In-world flow state ({@code status}: idle / working / starved / tripped), set by the port on change. */
+    @Override
+    protected boolean hasStatus() {
+        return true;
+    }
+
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);

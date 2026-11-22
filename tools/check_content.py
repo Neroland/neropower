@@ -104,12 +104,13 @@ ALARM_MACHINES = {"reactor_control_computer", "turbine_helm", "spent_fuel_pool",
 EXTRA_STATES = {
     "turbine_spindle": {"axis": _AXIS, "vanes": ("none", "steel", "cindersteel", "superconducting")},
     "turbine_stator": {"axis": _AXIS, "winding": ("none", "tier1", "tier2", "tier3")},
-    "turbine_steam_port": {"port_mode": ("inlet", "exhaust", "vent")},
+    "turbine_steam_port": {"port_mode": ("inlet", "exhaust", "vent"),
+                           "status": ("idle", "working", "starved", "tripped")},
     "surge_bank": {"cans": tuple(str(i) for i in range(7))},
     "smes_coil": {"shape": ("straight_x", "straight_z", "corner_ne", "corner_nw", "corner_se", "corner_sw")},
     "circuit_breaker": {"tripped": _BOOL},
     "load_bank": {"heat": tuple(str(i) for i in range(5))},
-    # Wall machines and BER-less machines with state art carry `status` (decision 012 addendum).
+    # Wall machines and BER-less machines with state art carry `status`.
     "reactor_steam_port": {"status": ("idle", "working", "starved", "tripped")},
     "reactor_control_computer": {"status": ("idle", "working", "starved", "tripped")},
     "dry_cask": {"status": ("idle", "working", "starved", "tripped")},
@@ -209,8 +210,8 @@ def collect_registrations() -> tuple[set[str], set[str]]:
                     # Helper methods (private static ... item(String) / blockItem(...)) appear as
                     # register("name") calls only through their callers, which are matched above.
                     pass
-        # Helper calls: item("x"), blockItem("x", ...) declared in the same file.
-        for match in re.finditer(r'\b(?:item|blockItem)\(\s*"([a-z0-9_]+)"', text):
+        # Helper calls: item("x"), blockItem("x", ...), hintItem("x", ...) declared in the same file.
+        for match in re.finditer(r'\b(?:item|blockItem|hintItem)\(\s*"([a-z0-9_]+)"', text):
             items.add(match.group(1))
     for prefix, ids in DYNAMIC_IDS.items():
         if prefix in items:
@@ -613,6 +614,48 @@ def check_particles(report: Report) -> None:
                 report.ok()
 
 
+# Private planning material must never be named in the repo (source, tests, tools, wiki, docs). The
+# pattern is assembled from pieces so this file does not match itself.
+PRIVATE_REF_RE = re.compile("|".join([
+    r"[Dd]ecisions? \d{3}",
+    r"screens/[A-Za-z_-]+\.md",
+    r"[Bb]lock[ -][Cc]ontract",
+    "BLOCK" + "-CONTRACT",
+    "BUILD" + "-PROMPT",
+    "AUDIT" + r"-\d",
+    "RUNTIME" + "-SCRIPT",
+    "PROGRESS" + r"\.md",
+    "stage" + "2/",
+    "neroland" + "-mc-" + "ecosystem",
+    r"[Pp]rivacy review",
+    r"WP-[A-Z][a-z]",
+    "[Mm]od" + "rinth",
+]))
+PRIVATE_SCAN_DIRS = ("common/src", "fabric/src", "forge/src", "neoforge/src", "tools", "wiki", "docs", "art")
+PRIVATE_SCAN_SUFFIXES = (".java", ".py", ".json", ".md", ".snbt", ".toml", ".gradle", ".txt", ".yml")
+
+
+def check_private_refs(report: Report) -> None:
+    paths = [os.path.join(ROOT, name) for name in os.listdir(ROOT) if name.endswith(".md")]
+    for rel in PRIVATE_SCAN_DIRS:
+        base = os.path.join(ROOT, rel)
+        if not os.path.isdir(base):
+            continue
+        for dirpath, dirs, files in os.walk(base):
+            dirs[:] = [d for d in dirs if d not in ("build", ".gradle", "__pycache__")]
+            for name in files:
+                if name.endswith(PRIVATE_SCAN_SUFFIXES):
+                    paths.append(os.path.join(dirpath, name))
+    for path in sorted(paths):
+        try:
+            text = read(path)
+        except (UnicodeDecodeError, OSError):
+            continue
+        for number, line in enumerate(text.splitlines(), 1):
+            if PRIVATE_REF_RE.search(line):
+                report.gap(f"private planning reference: {os.path.relpath(path, ROOT)}:{number}")
+
+
 def family_filter(gaps: list[str], family: str) -> list[str]:
     """The gaps that name one of the family's ids (also as the stem of a texture or lang key) or
     one of its sound groups."""
@@ -813,6 +856,7 @@ def main() -> int:
     check_sounds(report, lang)
     check_fluids(report, lang)
     check_particles(report)
+    check_private_refs(report)
 
     gaps = report.gaps
     scope = ""

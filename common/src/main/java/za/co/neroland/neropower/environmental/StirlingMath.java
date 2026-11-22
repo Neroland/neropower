@@ -36,6 +36,21 @@ public final class StirlingMath {
     }
 
     /**
+     * {@link #drawFor(int, int, int)} at a work rate: the preset and Speed modules scale how much heat the
+     * engine draws per tick (share and cap), never the NE one heat unit becomes. Scaling the output instead
+     * would let Speed modules turn the same heat into up to twelve times the NE, enough to run a Load Bank
+     * loop at a profit (Stage 3 energy accounting).
+     *
+     * @param speed preset speed factor x upgrade speed multiplier (1.0 at Balanced with no modules)
+     */
+    public static int drawFor(int gradient, int drawPermille, int maxDraw, double speed) {
+        double s = Math.max(0.0D, speed);
+        int share = (int) Math.min(1000L, Math.round(Math.max(0, drawPermille) * s));
+        int cap = (int) Math.min(Integer.MAX_VALUE, Math.round(Math.max(0, maxDraw) * s));
+        return drawFor(gradient, share, cap);
+    }
+
+    /**
      * NE produced from {@code drawn} heat units: {@code drawn × nePerUnit}, raised by
      * {@code coldFaceBonusPermille} (pass 0 when there is no cold face). Never negative.
      */

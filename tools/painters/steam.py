@@ -359,64 +359,139 @@ def gen_turbine_stator():
         for x in range(S):
             px[x, y] = A_DARK
     save(img, "block", "turbine_stator_core")
-    # Windings: wire turns across the tile. Tier is told by the band COUNT in the model first;
-    # the wire is copper for tiers 1 and 2 and superconductor for tier 3.
+    # Windings: the stator seen from the side (the tile's horizontal is the axis). Tier is told by
+    # the band COUNT first: one, two or three wound bands on the bare laminations, at the same
+    # places as the model's band elements. Colour second: copper, copper, superconductor.
     for tier in (1, 2, 3):
         metal = COPPER if tier < 3 else SUPER
         img = new_img()
         px = img.load()
-        for x in range(S):
-            k = x % (3 if tier != 2 else 2)
-            col = metal[2] if k == 0 else (metal[0] if k == 1 else metal[1])
-            for y in range(S):
-                px[x, y] = col
-        for x in range(S):
-            px[x, 0] = _mix(metal[2], A_LIGHT, 0.3)
-            px[x, 31] = _mix(metal[1], A_DARK, 0.5)
-        for y in range(4, 28, 8):                  # binding tape
+        plate_stack(px, 0, 0, 31, 31, pitch=2, face=ALLOY[2], vertical=True)
+        for y in range(S):                         # the laminations sit back, in shadow
             for x in range(S):
-                px[x, y] = A_DARK
+                px[x, y] = _mix(px[x, y], A_DARK, 0.45)
+        for (z0, z1) in STATOR_BANDS[tier]:
+            x0, x1 = int(z0 * 2), int(z1 * 2) - 1
+            for x in range(x0, x1 + 1):
+                col = metal[0] if (x - x0) % 2 == 0 else metal[1]      # wire turns
+                if x == x0:
+                    col = metal[2]
+                elif x == x1:
+                    col = _mix(metal[1], A_DARK, 0.5)
+                for y in range(S):
+                    px[x, y] = col
+                px[x, 0] = _mix(metal[2], A_LIGHT, 0.3)
+                px[x, 31] = _mix(metal[1], A_DARK, 0.5)
+                px[x, 15] = A_DARK                 # one binding strap per band
+                px[x, 16] = _mix(metal[1], A_DARK, 0.5)
         save(img, "block", "turbine_stator_winding_tier%d" % tier)
+
+
+# Wound bands along the axis (model z), per winding tier. The winding textures and the stator
+# models both read this.
+STATOR_BANDS = {0: (), 1: ((6, 10),), 2: ((3, 7), (9, 13)), 3: ((2.5, 5.5), (6.5, 9.5), (10.5, 13.5))}
 
 
 # ---------------- Turbine Steam Port ----------------
 
-def _port_front(mode, phase):
-    name = "turbine_steam_port_" + mode
-    img = front_base(name)
+PORT_MODES = ("inlet", "exhaust", "vent")
+PORT_STATES = ("idle", "working", "starved")
+# Texture per (mode, state). The two names that already shipped as animated strips stay strips
+# (they are the working look); the vent's shipped still stays its idle look.
+PORT_TEX = {
+    ("inlet", "idle"): "turbine_steam_port_inlet_idle",
+    ("inlet", "working"): "turbine_steam_port_inlet",
+    ("inlet", "starved"): "turbine_steam_port_inlet_starved",
+    ("exhaust", "idle"): "turbine_steam_port_exhaust_idle",
+    ("exhaust", "working"): "turbine_steam_port_exhaust",
+    ("exhaust", "starved"): "turbine_steam_port_exhaust_starved",
+    ("vent", "idle"): "turbine_steam_port_vent",
+    ("vent", "working"): "turbine_steam_port_vent_working",
+    ("vent", "starved"): "turbine_steam_port_vent_starved",
+}
+
+
+def _chevron_pair(px, colour_at):
+    """The inlet glyph: two solid chevrons, 6 x 10 px each, pointing at each other across the
+    throat ( > < ). ``colour_at(off, trail)`` gives the colour of a stroke pixel ``off`` rows from
+    the tip (0..4), leading (trail 0) or trailing (trail 1); None leaves the pixel dark."""
+    for dy in range(-5, 5):
+        off = abs(2 * dy + 1) // 2
+        y = 20 + dy
+        for trail in (0, 1):
+            col = colour_at(off, trail)
+            if col is None:
+                continue
+            px[14 - off - trail, y] = col
+            px[17 + off + trail, y] = col
+
+
+def _port_front(mode, state, phase=0):
+    """One port face. Mode is told by one large glyph: inlet = an inward chevron pair in a flanged
+    throat under a white ring; exhaust = an open louvre of upright slats in a flanged throat under
+    a grey ring; vent = a full-width louvre with no flange. State is told by shape: idle is still
+    and dim, working moves (painted frames), starved breaks the ring to its two ends and breaks or
+    shuts the glyph."""
+    img = front_base("turbine_steam_port_" + mode)
     px = img.load()
     ring = STEAM_W if mode == "inlet" else STEAM_X
-    pipe_ring(px, 6, 9, 28, ring)
+    if state == "starved":
+        rect(px, 9, 6, 28, 7, SOCKET_SHADOW)
+    pipe_ring(px, 6, 9, 28, ring, hollow=(state == "starved"))
     if mode == "vent":
         louvre(px, 6, 10, 25, 29, pitch=4)
+        if state == "idle":
+            return img
+        for y in range(10, 30):
+            for x in range(6, 26):
+                if px[x, y] != SOCKET_SHADOW:
+                    continue
+                if state == "starved":
+                    px[x, y] = ALLOY[2]                # slats shut
+                else:
+                    k = (x - 3 * phase + y) % 12       # steam leaving along the slats
+                    if k < 2:
+                        px[x, y] = STEAM_W if k == 0 else STEAM_X
         return img
     flange(px, 6, 10, 25, 29, bolts=True)
-    bx0, by0, bx1, by1 = 9, 13, 22, 26
-    recess(px, bx0, by0, bx1, by1)                 # a square throat: never an orb
-    cx, cy = 15.5, 19.5
-    # Two arrowheads in the throat: pointing in and closing (inlet), pointing out and parting (exhaust).
-    travel = phase % 4
-    for side in (-1, 1):
-        if mode == "inlet":
-            tip = 15.5 + side * (5.0 - travel)      # tips lead toward the centre
-            back = side
-        else:
-            tip = 15.5 + side * (2.0 + travel)      # tips lead toward the rim
-            back = -side
-        for depth in range(3):
-            x = int(round(tip + back * depth))
-            for w in (-depth, depth):
-                y = int(round(19.5 + w + (0.5 if w > 0 else -0.5 if w < 0 else 0.5)))
-                for yy in ((y, y - 1) if depth == 0 else (y,)):
-                    if bx0 < x < bx1 and by0 < yy < by1:
-                        px[x, yy] = P_GLOW if depth == 0 else (P_HOT if depth == 1 else P_AMBER)
+    recess(px, 8, 12, 23, 27)                      # a square throat: never an orb
+    if mode == "inlet":
+        if state == "working":
+            lead = (P_GLOW, P_HOT, P_AMBER, P_AMBER)
+            tail = (P_HOT, P_AMBER, P_AMBER, P_EMBER)
+            _chevron_pair(px, lambda off, trail: (tail if trail else lead)[(off + phase) % 4])
+        elif state == "idle":
+            _chevron_pair(px, lambda off, trail: P_EMBER)      # unlit: dark ember, no amber
+        else:                                      # starved: a broken outline, no body
+            _chevron_pair(px, lambda off, trail: P_AMBER if (not trail and off % 2 == 0) else None)
+        return img
+    for x in range(9, 23):                         # exhaust: upright slats, open gaps between
+        k = (x - 9) % 4
+        for y in range(13, 27):
+            if state == "starved":                 # backed up: the slats are shut
+                col = EDGE if k == 0 else (A_DARK if k == 3 else ALLOY[1])
+            elif k == 0:
+                col = EDGE
+            elif k == 1:
+                col = ALLOY[1]
+            else:
+                col = SOCKET_SHADOW
+                if state == "working":             # steam rising through the gaps
+                    w = (y + phase + (x // 4) * 3) % 8
+                    if w == 0:
+                        col = STEAM_W
+                    elif w == 1 and k == 2:
+                        col = STEAM_X
+            px[x, y] = col
     return img
 
 
 def gen_turbine_steam_port():
-    for mode in ("inlet", "exhaust"):
-        save_strip([_port_front(mode, f) for f in range(8)], "block", "turbine_steam_port_" + mode, 3)
-    save(_port_front("vent", 0), "block", "turbine_steam_port_vent")
+    for (mode, state), name in PORT_TEX.items():
+        if state == "working":
+            save_strip([_port_front(mode, state, f) for f in range(8)], "block", name, 3)
+        else:
+            save(_port_front(mode, state), "block", name)
     img = machine_base("turbine_steam_port_side")
     px = img.load()
     family_mark(px, "steam")
@@ -752,9 +827,8 @@ def _stator_model(tier):
         _el((1, 1, 14), (15, 15, 16), {"*": "yoke"}),
         _el((4, 4, 2), (12, 12, 14), {"*": "core"}, skip=("north", "south"), rot=core_rot),
     ]
-    bands = {0: (), 1: ((6, 10),), 2: ((3, 7), (9, 13)), 3: ((2.5, 5.5), (6.5, 9.5), (10.5, 13.5))}[tier]
-    for (z0, z1) in bands:
-        els.append(_el((2, 2, z0), (14, 14, z1), {"*": "winding"}, rot=core_rot))
+    for (z0, z1) in STATOR_BANDS[tier]:            # each band shows its own slice of the side view
+        els.append(_el((2, 2, z0), (14, 14, z1), {"*": "winding"}, uv={"*": (z0, 2, z1, 14)}, rot=core_rot))
     textures = _t(yoke="turbine_stator", core="turbine_stator_core", particle="turbine_stator")
     if tier:
         textures.update(_t(winding="turbine_stator_winding_tier%d" % tier))
@@ -797,6 +871,15 @@ ITEMS = ("steel_vane_set", "cindersteel_vane_set", "superconducting_vane_set", "
 WINDINGS = ("none", "tier1", "tier2", "tier3")
 
 
+# The block's ``status`` values (the shared machine status property) and the look each one shows.
+# ``tripped`` is not a state the port has art for: it shows the starved look.
+PORT_STATUS = (("idle", "idle"), ("working", "working"), ("starved", "starved"), ("tripped", "starved"))
+
+
+def _port_model_name(mode, state):
+    return "turbine_steam_port_" + mode + ("" if state == "idle" else "_" + state)
+
+
 def write_models():
     """Models, blockstates, item definitions and the two particle definitions."""
     models = {
@@ -810,8 +893,8 @@ def write_models():
         models["turbine_spindle_" + name] = _spindle_model(name)
     for i, w in enumerate(WINDINGS):
         models["turbine_stator" + ("" if not i else "_" + w)] = _stator_model(i)
-    for mode in ("inlet", "exhaust", "vent"):
-        models["turbine_steam_port_" + mode] = _port_model("turbine_steam_port_" + mode)
+    for (mode, state), tex in PORT_TEX.items():
+        models[_port_model_name(mode, state)] = _port_model(tex)
     for name, model in models.items():
         _write_json("models/block/%s.json" % name, model)
 
@@ -834,8 +917,10 @@ def write_models():
     _write_json("blockstates/turbine_stator.json", {"variants": states})
     states = {}
     for facing, y in _ROT:
-        for mode in ("inlet", "exhaust", "vent"):
-            states["facing=%s,port_mode=%s" % (facing, mode)] = _ref("turbine_steam_port_" + mode, y=y)
+        for mode in PORT_MODES:
+            for status, look in PORT_STATUS:
+                states["facing=%s,port_mode=%s,status=%s" % (facing, mode, status)] = _ref(
+                    _port_model_name(mode, look), y=y)
     _write_json("blockstates/turbine_steam_port.json", {"variants": states})
     _write_json("blockstates/condenser.json",
                 {"variants": {"facing=%s" % f: _ref("condenser", y=y) for f, y in _ROT}})
@@ -887,7 +972,11 @@ SHEET = [
      "faces": ["turbine_spindle", "turbine_spindle_collar"]},
     {"id": "turbine_steam_port", "block": True, "model": "block/turbine_steam_port_inlet",
      "faces": ["turbine_steam_port_side"],
-     "states": ["turbine_steam_port_inlet", "turbine_steam_port_exhaust", "turbine_steam_port_vent"]},
+     "states": [PORT_TEX[("inlet", s)] for s in PORT_STATES]},
+    {"id": "turbine_steam_port: exhaust", "model": "block/turbine_steam_port_exhaust", "faces": [],
+     "states": [PORT_TEX[("exhaust", s)] for s in PORT_STATES]},
+    {"id": "turbine_steam_port: vent", "model": "block/turbine_steam_port_vent", "faces": [],
+     "states": [PORT_TEX[("vent", s)] for s in PORT_STATES]},
     {"id": "condenser", "block": True,
      "faces": ["condenser_front", "condenser_side", "condenser_top", "condenser_tube", "condenser_fan"]},
     {"id": "condenser tubes: cryo", "model": None, "faces": ["condenser_tube_overlay"], "tint": FROST},

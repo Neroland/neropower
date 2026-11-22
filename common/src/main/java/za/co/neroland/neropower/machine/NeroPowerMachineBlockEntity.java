@@ -103,7 +103,8 @@ public abstract class NeroPowerMachineBlockEntity extends NeroTechMachineBlockEn
     protected FailureStage tickFailure(Level level, BlockPos pos) {
         FailureController controller = failure();
         FailureStage stage = controller.tick(heat(), heatCapacity(), NeroPowerConfig.overloadEnabled());
-        if (stage == FailureStage.FAILURE && controller.justEntered() && level instanceof ServerLevel serverLevel) {
+        if (stage == FailureStage.FAILURE && controller.justEntered() && level instanceof ServerLevel serverLevel
+                && !isGalleryExhibit()) { // a gallery exhibit telegraphs its failure but never runs the action
             failureAction().apply(serverLevel, pos, failureContext());
         }
         return stage;

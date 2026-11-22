@@ -16,7 +16,7 @@ import za.co.neroland.neropower.registry.content.StorageContent;
 
 /**
  * Power cells on NeoForge's item energy capability (Forge Energy, int-clamped), delegating to the common
- * {@link PortableEnergy} seam (decision 008). The cell's charge lives in its {@code neropower:cell_energy}
+ * {@link PortableEnergy} seam. The cell's charge lives in its {@code neropower:cell_energy}
  * component on the stack the capability was asked for.
  */
 final class NeoForgeItemEnergy {

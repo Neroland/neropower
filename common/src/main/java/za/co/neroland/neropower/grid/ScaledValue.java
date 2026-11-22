@@ -1,7 +1,7 @@
 package za.co.neroland.neropower.grid;
 
 /**
- * Carries a large setting (a breaker limit, a load-bank rate) through decision 012's button channel, whose
+ * Carries a large setting (a breaker limit, a load-bank rate) through the menu button channel, whose
  * value field holds only 0..999: {@code value = mantissa × 10^exponent}, mantissa 0..999, exponent
  * 0..{@value #MAX_EXP}. The action id encodes the exponent ({@code baseAction + exponent}), so one click is
  * one packet. Exact to three significant digits, which is what a typed box or a 1-2-5 slider needs.

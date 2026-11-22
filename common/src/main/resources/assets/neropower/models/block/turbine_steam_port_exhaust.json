@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:block/block",
   "textures": {
-    "front": "neropower:block/turbine_steam_port_exhaust",
+    "front": "neropower:block/turbine_steam_port_exhaust_idle",
     "side": "neropower:block/turbine_steam_port_side",
     "particle": "neropower:block/turbine_steam_port_side"
   },

@@ -20,10 +20,10 @@ import za.co.neroland.neropower.protection.Protection;
 import za.co.neroland.neropower.registry.content.GridContent;
 
 /**
- * Beam Splitter menu (wide tall hull 248 × 222, screens/beam_splitter.md): the lens slot, the upgrade block
+ * Beam Splitter menu (wide tall hull 248 × 222): the lens slot, the upgrade block
  * at {@code 210,18} and the player inventory at x 43. Synced data: see
  * {@link BeamSplitterBlockEntity#EXTRA_DATA}; the gauge tail's extra value is the last incoming pass. No
- * coordinates are synced. Controls arrive as {@link MenuButtons} ids (decision 012).
+ * coordinates are synced. Controls arrive as {@link MenuButtons} ids.
  */
 public class BeamSplitterMenu extends MachineMenu implements GaugeTailMenu {
 

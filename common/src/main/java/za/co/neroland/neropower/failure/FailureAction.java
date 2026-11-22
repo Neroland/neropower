@@ -19,4 +19,12 @@ public interface FailureAction {
      * @param ctx   multiblock bounds, owner and machine id
      */
     void apply(ServerLevel level, BlockPos pos, FailureContext ctx);
+
+    /** This action, then {@code next}, at the same place and with the same context. */
+    default FailureAction andThen(FailureAction next) {
+        return (level, pos, ctx) -> {
+            apply(level, pos, ctx);
+            next.apply(level, pos, ctx);
+        };
+    }
 }

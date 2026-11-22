@@ -11,7 +11,7 @@ import za.co.neroland.neropower.data.SaveKeys;
 /**
  * The outgoing links of a multi-target beam source (Beam Splitter, Phased Array Emitter): an ordered
  * list of {@link BeamTarget}s, each with a share in permille (the splitter's; the emitter keeps 0). World
- * data only: <b>no owner is recorded</b> (decision 008 annex; authorisation is checked at link time), so
+ * data only: <b>no owner is recorded</b> (authorisation is checked at link time), so
  * nothing here is personal data.
  *
  * <p>Save format (additive keys, flat so the same code reads every MC line): {@code LinkCount}, then per

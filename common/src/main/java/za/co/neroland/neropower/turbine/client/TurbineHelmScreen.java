@@ -198,14 +198,22 @@ public class TurbineHelmScreen extends PowerMachineScreen<TurbineHelmMenu> {
         }
     }
 
+    /** Formed but not runnable: true when no vane slice turns steam (else the stators are unwound). */
+    private boolean noVanes() {
+        return this.menu.flowCapMbPerTick() <= 0L;
+    }
+
     private Component stallText() {
         TurbineHelmMenu m = this.menu;
         return switch (m.readout()) {
             case TurbineReadout.WORK -> Component.translatable("gui.neropower.turbine.running",
                     GaugeMath.grouped(m.outputNePerTick()), GaugeMath.grouped(m.rpm()));
-            case TurbineReadout.STALL -> m.stallCause() == 1
-                    ? Component.translatable("gui.neropower.turbine.stall.not_formed")
-                    : Component.translatable("gui.neropower.stall." + stallKey(m.stallCause()));
+            case TurbineReadout.STALL -> switch (m.stallCause()) {
+                case 1 -> Component.translatable("gui.neropower.turbine.stall.not_formed");
+                case 14 -> Component.translatable(noVanes() ? "gui.neropower.turbine.stall.no_vanes"
+                        : "gui.neropower.turbine.stall.no_stators");
+                default -> Component.translatable("gui.neropower.stall." + stallKey(m.stallCause()));
+            };
             case TurbineReadout.HOT -> Component.translatable("gui.neropower.turbine.stall.overspeed");
             case TurbineReadout.TRIP -> Component.translatable("gui.neropower.stall.tripped");
             case TurbineReadout.FAIL -> Component.translatable("gui.neropower.stall.failing");
@@ -284,8 +292,16 @@ public class TurbineHelmScreen extends PowerMachineScreen<TurbineHelmMenu> {
         } else if (over(mx, my, S[0], S[1], S[2], S[3])) {
             lines.add(GaugeTooltips.tr("status"));
             lines.add(stallText());
-            if (m.readout() == TurbineReadout.STALL && m.stallCause() == 1) {
-                lines.add(Component.translatable("gui.neropower.stall.fix.turbine_not_formed"));
+            if (m.readout() == TurbineReadout.STALL) {
+                String fix = switch (m.stallCause()) {
+                    case 0 -> null;
+                    case 1 -> "turbine_not_formed";
+                    case 14 -> noVanes() ? "turbine_no_vanes" : "turbine_no_stators";
+                    default -> stallKey(m.stallCause());
+                };
+                if (fix != null) {
+                    lines.add(Component.translatable("gui.neropower.stall.fix." + fix));
+                }
             }
         } else {
             sliceTooltip(lines, mx, my);

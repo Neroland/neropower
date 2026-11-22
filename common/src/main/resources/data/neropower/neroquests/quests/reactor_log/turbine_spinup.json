@@ -1,0 +1,14 @@
+{
+  "title": "quest.neropower.reactor_log.turbine_spinup.title",
+  "description": "quest.neropower.reactor_log.turbine_spinup.desc",
+  "icon": "neropower:turbine_helm",
+  "prerequisites": ["neropower:reactor_log/criticality"],
+  "objectives": [
+    { "type": "neroquests:gate_open", "gate": "neropower:turbine_spinup" }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 300 },
+    { "type": "neroquests:currency", "amount": 250 }
+  ],
+  "scope": "player"
+}

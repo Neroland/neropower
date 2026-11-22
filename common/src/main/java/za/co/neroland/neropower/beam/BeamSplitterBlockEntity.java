@@ -34,7 +34,7 @@ import za.co.neroland.neropower.menu.GaugeTail;
 import za.co.neroland.neropower.registry.content.GridContent;
 
 /**
- * Beam Splitter (0.4.0, decision 008 annex). A receiver for one incoming beam and a source for up to
+ * Beam Splitter (0.4.0). A receiver for one incoming beam and a source for up to
  * {@code beamSplitterMaxLinks} outgoing links, each with a share (permille) of its buffer every pass.
  *
  * <ul>
