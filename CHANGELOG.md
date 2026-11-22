@@ -5,7 +5,7 @@ All notable changes to **NeroPower** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.4.0] - Unreleased (work from 2026-11-21; set the date on release)
+## [0.4.0] - 2026-11-22
 
 The "Power Station" release: a steam plant, a second fuel line, a waste back end, new storage tiers, beam grids, optional radiation, link schema 2 and a gallery power station. Existing reactors, banks and beam links from 0.3.x load unchanged, and no block, item, fluid, recipe or tag id was removed or renamed.
 
