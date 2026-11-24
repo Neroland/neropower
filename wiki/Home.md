@@ -6,7 +6,8 @@ Player- and contributor-facing documentation for **NeroPower**, an optional powe
 > **Version:** `0.4.0` ("Power Station"). Keep this wiki updated alongside code changes (see the
 > repository's contributor notes).
 
-NeroPower requires **NeroTech 0.8.0** or newer and **Neroland Core 1.20.0** or newer. It runs on
+NeroPower's release builds require **NeroTech 0.8.1** or newer (below 1.0) and
+**Neroland Core 1.23.0** or newer (below 2.0). It runs on
 Minecraft 1.21.1, 1.21.4, 1.21.5, 1.21.8, 1.21.10, 1.21.11, 26.1.2, 26.2 and 26.3, on NeoForge, Forge
 and Fabric. Its machines share NeroTech's GUI, side configuration, presets, upgrades and thermal model;
 the pages below cover only what NeroPower adds on top. In game, the **Power Guide** (the Guide button

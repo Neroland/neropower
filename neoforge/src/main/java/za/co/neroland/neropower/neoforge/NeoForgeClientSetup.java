@@ -9,9 +9,8 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 //? if >=26.1 {
 import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
-//?} else {
-/*import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+//?} else if >=1.21 {
+/*import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 *///?}
 
 import za.co.neroland.neropower.client.ClientBlockEntityRenderers;
@@ -51,7 +50,7 @@ public final class NeoForgeClientSetup {
         za.co.neroland.neropower.client.NeroPowerClient.init();
         //? if >=26.1 {
         modEventBus.addListener(NeoForgeClientSetup::onRegisterFluidModels);
-        //?} else {
+        //?} else if >=1.21 {
         /*modEventBus.addListener(NeoForgeClientSetup::onRegisterClientExtensions);
         *///?}
     }
@@ -72,33 +71,9 @@ public final class NeoForgeClientSetup {
                     za.co.neroland.neropower.fluid.NeroPowerFluids.get(spec));
         }
     }
-    //?} else {
+    //?} else if >=1.21 {
     /*private static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
-        NeoForgeFluidTypes.all().forEach((spec, type) -> event.registerFluidType(extensions(spec), type.get()));
-    }
-
-    private static IClientFluidTypeExtensions extensions(za.co.neroland.neropower.fluid.FluidSpec spec) {
-        net.minecraft.resources.Identifier still = net.minecraft.resources.Identifier.fromNamespaceAndPath(
-                za.co.neroland.neropower.NeroPowerCommon.MOD_ID, spec.stillTexture());
-        net.minecraft.resources.Identifier flowing = net.minecraft.resources.Identifier.fromNamespaceAndPath(
-                za.co.neroland.neropower.NeroPowerCommon.MOD_ID, spec.flowTexture());
-        int tint = spec.tint();
-        return new IClientFluidTypeExtensions() {
-            @Override
-            public net.minecraft.resources.Identifier getStillTexture() {
-                return still;
-            }
-
-            @Override
-            public net.minecraft.resources.Identifier getFlowingTexture() {
-                return flowing;
-            }
-
-            @Override
-            public int getTintColor() {
-                return tint;
-            }
-        };
+        NeoForgeFluidTypes.all().forEach((spec, type) -> event.registerFluidType(NeoForgeFluidTypes.extensions(spec), type.get()));
     }
     *///?}
 

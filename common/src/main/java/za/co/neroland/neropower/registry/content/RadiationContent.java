@@ -81,7 +81,7 @@ public final class RadiationContent {
 
     /** See-through shielding: non-occluding, translucent; in {@code #neropower:radiation_barrier}. */
     public static final RegistryEntry<TransparentBlock> SHIELDING_GLASS = ModBlocks.BLOCKS.register("shielding_glass",
-            key -> new TransparentBlock(BlockBehaviour.Properties.of()
+            key -> shieldingGlass(BlockBehaviour.Properties.of()
                     .setId(key)
                     .mapColor(MapColor.COLOR_LIGHT_GREEN)
                     .strength(3.0F, 6.0F)
@@ -91,6 +91,14 @@ public final class RadiationContent {
                     .isValidSpawn((state, level, pos, type) -> false)
                     .isRedstoneConductor((state, level, pos) -> false)
                     .isSuffocating((state, level, pos) -> false)));
+
+    private static TransparentBlock shieldingGlass(BlockBehaviour.Properties properties) {
+        //? if >=1.21 {
+        return new TransparentBlock(properties);
+        //?} else {
+        /*return new TransparentBlock(properties) { };
+        *///?}
+    }
 
     // --- items ---------------------------------------------------------------------------------------
     public static final RegistryEntry<BlockItem> SHIELDING_BLOCK_ITEM = ModItems.ITEMS.register("shielding_block",

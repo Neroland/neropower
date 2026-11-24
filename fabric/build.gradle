@@ -24,7 +24,7 @@ def fabricApi = project.findProperty("fabric_api_version_${mc}")
 def jeiVersion = project.findProperty("jei_version_${mc}")
 def emiFile = project.findProperty("emi_file_fabric_${mc}")
 def nerolandcoreVersion = project.findProperty('nerolandcore_version')
-def nerotechVersion = project.findProperty('nerotech_version')
+def nerotechVersion = project.findProperty(mc.startsWith('1.20.') ? 'nerotech_version_1.20' : 'nerotech_version')
 
 // This node's projectDir is <loader>/versions/<v>; the authoritative loader source +
 // resources live in the BRANCH root (fabric/). Resolve branch-root paths via the parent.

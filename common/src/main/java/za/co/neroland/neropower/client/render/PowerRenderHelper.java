@@ -278,12 +278,22 @@ public final class PowerRenderHelper {
     /** One vertex with tint + full sprite UV + packed light + normal. */
     public static void vertex(VertexConsumer c, PoseStack.Pose pose, int light, int rgb,
             float x, float y, float z, float u, float v, float nx, float ny, float nz) {
+        //? if >=1.21 {
         c.addVertex(pose, x, y, z)
                 .setColor(red(rgb), green(rgb), blue(rgb), 255)
                 .setUv(u, v)
                 .setOverlay(OverlayTexture.NO_OVERLAY)
                 .setLight(light)
                 .setNormal(pose, nx, ny, nz);
+        //?} else {
+        /*c.vertex(pose, x, y, z)
+                .color(red(rgb), green(rgb), blue(rgb), 255)
+                .uv(u, v)
+                .overlayCoords(OverlayTexture.NO_OVERLAY)
+                .uv2(light)
+                .normal(pose, nx, ny, nz)
+                .endVertex();
+        *///?}
     }
 
     // ---- 0.4.0 shared kit: status lamp and heat shimmer ----------------------------------------

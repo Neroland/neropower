@@ -1,5 +1,7 @@
 package za.co.neroland.neropower.fission;
 
+import static za.co.neroland.neropower.TestResourcePaths.packPath;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -115,7 +117,7 @@ class ReprocessingYieldTest {
 
     private static String read(String recipe) throws IOException {
         String path = RECIPES + recipe + ".json";
-        try (InputStream in = ReprocessingYieldTest.class.getClassLoader().getResourceAsStream(path)) {
+        try (InputStream in = ReprocessingYieldTest.class.getClassLoader().getResourceAsStream(packPath(path))) {
             assertNotNull(in, path + " is not on the test classpath");
             String json = new String(in.readAllBytes(), StandardCharsets.UTF_8);
             // The 1.21.1 build rewrites short-form ingredients ("id" / "#tag") into {"item": ..} /

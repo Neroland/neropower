@@ -4,6 +4,9 @@ import java.util.EnumMap;
 import java.util.Map;
 
 import net.neoforged.neoforge.fluids.FluidType;
+//? if <26.1 {
+/*import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+*///?}
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import za.co.neroland.neropower.NeroPowerCommon;
@@ -57,6 +60,41 @@ public final class NeoForgeFluidTypes {
         if (spec.gaseous()) {
             properties.canDrown(false).canSwim(false).canPushEntity(false).canExtinguish(false);
         }
+        //? if >=1.21 {
         return new FluidType(properties);
+        //?} else {
+        /*return new FluidType(properties) {
+            @Override
+            public void initializeClient(java.util.function.Consumer<IClientFluidTypeExtensions> consumer) {
+                consumer.accept(extensions(spec));
+            }
+        };
+        *///?}
     }
+
+    //? if <26.1 {
+    /*static IClientFluidTypeExtensions extensions(FluidSpec spec) {
+        net.minecraft.resources.Identifier still = net.minecraft.resources.Identifier.fromNamespaceAndPath(
+                za.co.neroland.neropower.NeroPowerCommon.MOD_ID, spec.stillTexture());
+        net.minecraft.resources.Identifier flowing = net.minecraft.resources.Identifier.fromNamespaceAndPath(
+                za.co.neroland.neropower.NeroPowerCommon.MOD_ID, spec.flowTexture());
+        int tint = spec.tint();
+        return new IClientFluidTypeExtensions() {
+            @Override
+            public net.minecraft.resources.Identifier getStillTexture() {
+                return still;
+            }
+
+            @Override
+            public net.minecraft.resources.Identifier getFlowingTexture() {
+                return flowing;
+            }
+
+            @Override
+            public int getTintColor() {
+                return tint;
+            }
+        };
+    }
+    *///?}
 }

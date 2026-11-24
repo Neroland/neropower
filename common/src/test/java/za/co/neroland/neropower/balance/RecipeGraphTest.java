@@ -1,5 +1,7 @@
 package za.co.neroland.neropower.balance;
 
+import static za.co.neroland.neropower.TestResourcePaths.packPath;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -562,7 +564,7 @@ class RecipeGraphTest {
             List<JsonElement> values = new ArrayList<>();
             try {
                 Enumeration<URL> urls = RecipeGraphTest.class.getClassLoader()
-                        .getResources("data/" + ns + "/tags/" + kind + "/" + path + ".json");
+                        .getResources(packPath("data/" + ns + "/tags/" + kind + "/" + path + ".json"));
                 while (urls.hasMoreElements()) {
                     try (InputStream in = urls.nextElement().openStream();
                             Reader r = new InputStreamReader(in, StandardCharsets.UTF_8)) {
@@ -592,7 +594,7 @@ class RecipeGraphTest {
     }
 
     static JsonElement readJson(String path) throws IOException {
-        try (InputStream in = RecipeGraphTest.class.getClassLoader().getResourceAsStream(path)) {
+        try (InputStream in = RecipeGraphTest.class.getClassLoader().getResourceAsStream(packPath(path))) {
             assertNotNull(in, path + " is not on the test classpath");
             return JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8));
         }
@@ -601,7 +603,7 @@ class RecipeGraphTest {
     /** JSON file names (no extension) in a resource folder, from plain folders and jars alike. */
     static Set<String> listJson(String dir) throws IOException, URISyntaxException {
         Set<String> names = new TreeSet<>();
-        Enumeration<URL> urls = RecipeGraphTest.class.getClassLoader().getResources(dir);
+        Enumeration<URL> urls = RecipeGraphTest.class.getClassLoader().getResources(packPath(dir));
         while (urls.hasMoreElements()) {
             URL url = urls.nextElement();
             if ("file".equals(url.getProtocol())) {

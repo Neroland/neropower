@@ -31,7 +31,8 @@ each release shipped.
 
 ## Requirements
 
-- **Neroland Core** 1.20.0+ and **NeroTech** 0.8.0+ (both required; version floors are in `gradle.properties`).
+- **Neroland Core** 1.23.0 or newer (below 2.0) and **NeroTech** (both required).
+  The builds in the release workflow require NeroTech 0.8.1 or newer (below 1.0).
 - **Minecraft:** 1.21.1, 1.21.4, 1.21.5, 1.21.8 (also 1.21.7), 1.21.10 (also 1.21.9), 1.21.11, 26.1.2, 26.2 and 26.3
   · **Loaders:** NeoForge, MinecraftForge/Forge, Fabric (27 cells) · **Java:** 21 for 1.21.x, 25 for 26.x
 - Mod id: `neropower` · package `za.co.neroland.neropower`
@@ -47,6 +48,11 @@ The build is the repo root, with a flattened cross-loader structure driven by St
 - `stonecutter.gradle` — the real root build script; `build.gradle` is intentionally inert
 
 ## Building
+
+Minecraft 1.20.5 on Fabric and 1.20.6 on Fabric, Forge and NeoForge are available for local builds.
+Install the matching NeroTech artifact into Maven Local, then pass its version with
+`-Pnerotech_version_1.20=<version>`. The release matrix can add these targets once the matching
+NeroTech artifacts are published.
 
 ```sh
 ./gradlew :fabric:26.2:build          # one cell

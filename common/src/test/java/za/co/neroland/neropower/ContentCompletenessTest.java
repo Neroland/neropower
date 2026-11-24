@@ -1,5 +1,6 @@
 package za.co.neroland.neropower;
 
+import static za.co.neroland.neropower.TestResourcePaths.packPath;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -286,7 +287,7 @@ class ContentCompletenessTest {
         List<String> unreadable = new ArrayList<>();
         for (String recipe : RECIPES) {
             String path = RECIPE_DIR + recipe + ".json";
-            if (ContentCompletenessTest.class.getClassLoader().getResource(path) == null) {
+            if (ContentCompletenessTest.class.getClassLoader().getResource(packPath(path)) == null) {
                 unreadable.add(path);
                 continue;
             }
@@ -328,7 +329,7 @@ class ContentCompletenessTest {
 
     @Test
     void recipeListMatchesTheRecipeFolder() throws URISyntaxException {
-        URL dir = ContentCompletenessTest.class.getClassLoader().getResource(RECIPE_DIR);
+        URL dir = ContentCompletenessTest.class.getClassLoader().getResource(packPath(RECIPE_DIR));
         if (dir == null || !"file".equals(dir.getProtocol())) {
             return; // inside a jar: the hardcoded list alone is checked above
         }
@@ -370,7 +371,7 @@ class ContentCompletenessTest {
     }
 
     private static void requireResource(List<String> missing, String path) {
-        if (ContentCompletenessTest.class.getClassLoader().getResource(path) == null) {
+        if (ContentCompletenessTest.class.getClassLoader().getResource(packPath(path)) == null) {
             missing.add(path);
         }
     }
@@ -406,7 +407,7 @@ class ContentCompletenessTest {
     }
 
     private static String resourceText(String path) throws IOException {
-        try (InputStream in = ContentCompletenessTest.class.getClassLoader().getResourceAsStream(path)) {
+        try (InputStream in = ContentCompletenessTest.class.getClassLoader().getResourceAsStream(packPath(path))) {
             assertNotNull(in, path + " is not on the test classpath");
             return new String(in.readAllBytes(), StandardCharsets.UTF_8);
         }

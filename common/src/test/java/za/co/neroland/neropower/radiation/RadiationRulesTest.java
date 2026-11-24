@@ -1,5 +1,7 @@
 package za.co.neroland.neropower.radiation;
 
+import static za.co.neroland.neropower.TestResourcePaths.packPath;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -185,7 +187,7 @@ class RadiationRulesTest {
     }
 
     private static String read(String resource) throws IOException {
-        try (InputStream in = RadiationRulesTest.class.getClassLoader().getResourceAsStream(resource)) {
+        try (InputStream in = RadiationRulesTest.class.getClassLoader().getResourceAsStream(packPath(resource))) {
             assertNotNull(in, resource);
             return new String(in.readAllBytes(), StandardCharsets.UTF_8);
         }

@@ -1,5 +1,7 @@
 package za.co.neroland.neropower.backend;
 
+import static za.co.neroland.neropower.TestResourcePaths.packPath;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -158,7 +160,7 @@ class BackEndRulesTest {
     /** Every recipe JSON on the classpath folder (or the known list when the folder is inside a jar). */
     private static TreeMap<String, String> recipes() throws IOException, URISyntaxException {
         TreeMap<String, String> out = new TreeMap<>();
-        URL dir = BackEndRulesTest.class.getClassLoader().getResource(RECIPE_DIR);
+        URL dir = BackEndRulesTest.class.getClassLoader().getResource(packPath(RECIPE_DIR));
         List<String> names = new ArrayList<>();
         if (dir != null && "file".equals(dir.getProtocol())) {
             File[] files = new File(dir.toURI()).listFiles((d, name) -> name.endsWith(".json"));
@@ -177,7 +179,7 @@ class BackEndRulesTest {
     }
 
     private static String read(String path) throws IOException {
-        try (InputStream in = BackEndRulesTest.class.getClassLoader().getResourceAsStream(path)) {
+        try (InputStream in = BackEndRulesTest.class.getClassLoader().getResourceAsStream(packPath(path))) {
             assertNotNull(in, path + " is not on the test classpath");
             return new String(in.readAllBytes(), StandardCharsets.UTF_8);
         }
