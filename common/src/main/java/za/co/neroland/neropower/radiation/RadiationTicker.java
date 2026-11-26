@@ -119,16 +119,16 @@ public final class RadiationTicker {
             Container inv = player.getInventory();
             for (int i = 0; i < inv.getContainerSize(); i++) {
                 ItemStack stack = inv.getItem(i);
-                if (stack != main && stack != off && stack.has(RadiationContent.GEIGER_READING.get())) {
-                    stack.remove(RadiationContent.GEIGER_READING.get());
+                if (stack != main && stack != off && RadiationContent.geigerReading(stack) != null) {
+                    RadiationContent.clearGeigerReading(stack);
                 }
             }
         }
     }
 
     private static void write(ItemStack stack, GeigerReading reading) {
-        if (!reading.equals(stack.get(RadiationContent.GEIGER_READING.get()))) {
-            stack.set(RadiationContent.GEIGER_READING.get(), reading);
+        if (!reading.equals(RadiationContent.geigerReading(stack))) {
+            RadiationContent.setGeigerReading(stack, reading);
         }
     }
 

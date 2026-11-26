@@ -109,10 +109,15 @@ public class TurbineStatorBlock extends MultiblockPartBlock {
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hit) {
-    //?} else {
+    //?} else if >=1.20.5 {
     /*@Override
     protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level,
             BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    *///?} else {
+    /*@Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos,
+            Player player, InteractionHand hand, BlockHitResult hit) {
+        ItemStack stack = player.getItemInHand(hand);
     *///?}
         WindingTier tier = windingOf(stack);
         if (tier == WindingTier.NONE || winding(state) != WindingTier.NONE) {
@@ -125,7 +130,7 @@ public class TurbineStatorBlock extends MultiblockPartBlock {
                 stack.shrink(1);
             }
         }
-        //? if >=1.21.2 {
+        //? if >=1.21.2 || <1.20.5 {
         return InteractionResult.SUCCESS;
         //?} else {
         /*return net.minecraft.world.ItemInteractionResult.SUCCESS;

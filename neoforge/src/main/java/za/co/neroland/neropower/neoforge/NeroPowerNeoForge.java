@@ -7,7 +7,9 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+//? if >=1.20.5 {
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+//?}
 
 import za.co.neroland.neropower.NeroPowerCommon;
 import za.co.neroland.neropower.command.NeroPowerCommands;
@@ -39,10 +41,19 @@ public final class NeroPowerNeoForge {
         NeoForgeRegistrationFactory.registerAll(modEventBus);
         // Power cells on the item energy capability (block machines are wired by NeroTech's handler).
         modEventBus.addListener(NeoForgeItemEnergy::register);
+        //? if >=1.20.5 {
         // Scorch zones (fission failure aftermath) expire and hurt on the server tick.
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> ScorchTicker.tick(event.getServer()));
         // Quest hook delivery (pending hook gates on login) rides the same tick.
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> QuestHooks.tick(event.getServer()));
+        //?} else {
+        /*NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.TickEvent.ServerTickEvent event) -> {
+            if (event.phase == net.neoforged.neoforge.event.TickEvent.Phase.END) {
+                ScorchTicker.tick(event.getServer());
+                QuestHooks.tick(event.getServer());
+            }
+        });
+        *///?}
         // Creative-only debug commands (/neropower gallery); shared brigadier tree in common.
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) ->
                 NeroPowerCommands.register(event.getDispatcher()));

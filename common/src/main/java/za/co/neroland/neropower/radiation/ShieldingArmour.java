@@ -1,6 +1,8 @@
 package za.co.neroland.neropower.radiation;
 
+//? if >=1.20.5 {
 import net.minecraft.core.component.DataComponentType;
+//?}
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -27,8 +29,10 @@ public final class ShieldingArmour {
     private static final EquipmentSlot[] ARMOUR = {
             EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET };
 
+//? if >=1.20.5 {
     private static volatile boolean resolved;
     private static volatile DataComponentType<?> lining;
+//?}
 
     private ShieldingArmour() {
     }
@@ -52,10 +56,15 @@ public final class ShieldingArmour {
         if (!stack.is(ModTags.RADIATION_SHIELDING_LINED)) {
             return true;
         }
+        //? if >=1.20.5 {
         DataComponentType<?> type = lining();
         return type != null && stack.has(type);
+        //?} else {
+        /*return stack.hasTag() && stack.getTag().contains(RAD_LINING_ID.toString());
+        *///?}
     }
 
+    //? if >=1.20.5 {
     private static DataComponentType<?> lining() {
         if (!resolved) {
             lining = BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(RAD_LINING_ID);
@@ -63,4 +72,5 @@ public final class ShieldingArmour {
         }
         return lining;
     }
+    //?}
 }

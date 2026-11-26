@@ -4,13 +4,18 @@ import java.util.List;
 
 import com.mojang.serialization.Codec;
 
+//? if >=1.20.5 {
 import net.minecraft.core.component.DataComponentType;
+//?}
 import net.minecraft.core.registries.Registries;
+//? if >=1.20.5 {
 import net.minecraft.network.codec.ByteBufCodecs;
+//?}
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -43,6 +48,7 @@ import za.co.neroland.neropower.registry.RegistrationProvider.RegistryEntry;
  */
 public final class RadiationContent {
 
+    //? if >=1.20.5 {
     // --- data components ---------------------------------------------------------------------------
     public static final RegistrationProvider<DataComponentType<?>> COMPONENTS =
             RegistrationProvider.get(Registries.DATA_COMPONENT_TYPE, NeroPowerCommon.MOD_ID);
@@ -60,6 +66,61 @@ public final class RadiationContent {
                     .persistent(GeigerReading.CODEC)
                     .networkSynchronized(GeigerReading.STREAM_CODEC)
                     .build());
+
+    //?}
+
+    public static int dosimeterReading(ItemStack stack) {
+        //? if >=1.20.5 {
+        return stack.getOrDefault(DOSIMETER_READING.get(), 0);
+        //?} else {
+        /*return stack.hasTag() ? stack.getTag().getInt("neropower:dosimeter_reading") : 0;
+        *///?}
+    }
+
+    public static void setDosimeterReading(ItemStack stack, int reading) {
+        //? if >=1.20.5 {
+        stack.set(DOSIMETER_READING.get(), reading);
+        //?} else {
+        /*stack.getOrCreateTag().putInt("neropower:dosimeter_reading", reading);
+        *///?}
+    }
+
+    public static GeigerReading geigerReading(ItemStack stack) {
+        //? if >=1.20.5 {
+        return stack.get(GEIGER_READING.get());
+        //?} else {
+        /*var tag = stack.getTagElement("neropower:geiger_reading");
+        if (tag == null) {
+            return null;
+        }
+        int[] levels = tag.getIntArray("levels");
+        if (levels.length != 0 && levels.length != 9) {
+            return null;
+        }
+        return new GeigerReading(java.util.Arrays.stream(levels).boxed().toList(),
+                tag.getInt("sources"), tag.getBoolean("enabled"));
+        *///?}
+    }
+
+    public static void setGeigerReading(ItemStack stack, GeigerReading reading) {
+        //? if >=1.20.5 {
+        stack.set(GEIGER_READING.get(), reading);
+        //?} else {
+        /*var tag = new net.minecraft.nbt.CompoundTag();
+        tag.putIntArray("levels", reading.levels());
+        tag.putInt("sources", reading.sources());
+        tag.putBoolean("enabled", reading.enabled());
+        stack.addTagElement("neropower:geiger_reading", tag);
+        *///?}
+    }
+
+    public static void clearGeigerReading(ItemStack stack) {
+        //? if >=1.20.5 {
+        stack.remove(GEIGER_READING.get());
+        //?} else {
+        /*stack.removeTagKey("neropower:geiger_reading");
+        *///?}
+    }
 
     // --- sounds --------------------------------------------------------------------------------------
     public static final RegistrationProvider<SoundEvent> SOUNDS =

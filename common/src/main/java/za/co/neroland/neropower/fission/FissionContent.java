@@ -5,7 +5,11 @@ import java.util.function.Supplier;
 
 import com.mojang.serialization.Codec;
 
+//? if >=1.20.5 {
 import net.minecraft.core.component.DataComponentType;
+//?} else {
+/*import za.co.neroland.nerotech.registry.LegacyItemComponent;
+*///?}
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
@@ -84,6 +88,7 @@ public final class FissionContent {
 
     // --- data components -----------------------------------------------------------------
 
+    //? if >=1.20.5 {
     public static final RegistrationProvider<DataComponentType<?>> COMPONENTS =
             RegistrationProvider.get(Registries.DATA_COMPONENT_TYPE, NeroPowerCommon.MOD_ID);
 
@@ -95,6 +100,11 @@ public final class FissionContent {
             COMPONENTS.register("burnup", key -> DataComponentType.<Integer>builder()
                     .persistent(Codec.INT)
                     .build());
+    //?} else {
+    /*public static final LegacyItemComponent<Integer> BURNUP =
+            new LegacyItemComponent<>("neropower:burnup", Codec.INT);
+    *///?}
+
 
     // --- items ---------------------------------------------------------------------------
 

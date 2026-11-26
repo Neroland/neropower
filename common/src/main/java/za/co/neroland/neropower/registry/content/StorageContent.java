@@ -5,7 +5,11 @@ import java.util.function.Supplier;
 
 import com.mojang.serialization.Codec;
 
+//? if >=1.20.5 {
 import net.minecraft.core.component.DataComponentType;
+//?} else {
+/*import za.co.neroland.nerotech.registry.LegacyItemComponent;
+*///?}
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
@@ -57,6 +61,7 @@ import za.co.neroland.neropower.storage.SurgeBankMenu;
 public final class StorageContent {
 
     // --- data component -----------------------------------------------------------------------------
+    //? if >=1.20.5 {
     public static final RegistrationProvider<DataComponentType<?>> COMPONENTS =
             RegistrationProvider.get(Registries.DATA_COMPONENT_TYPE, NeroPowerCommon.MOD_ID);
 
@@ -65,6 +70,11 @@ public final class StorageContent {
             COMPONENTS.register("cell_energy", key -> DataComponentType.<Long>builder()
                     .persistent(Codec.LONG)
                     .build());
+    //?} else {
+    /*public static final LegacyItemComponent<Long> CELL_ENERGY =
+            new LegacyItemComponent<>("neropower:cell_energy", Codec.LONG);
+    *///?}
+
 
     // --- blocks ----------------------------------------------------------------------------------------
     public static final RegistryEntry<SurgeBankBlock> SURGE_BANK_BLOCK =

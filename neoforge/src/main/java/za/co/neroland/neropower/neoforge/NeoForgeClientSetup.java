@@ -38,6 +38,7 @@ public final class NeoForgeClientSetup {
         modEventBus.addListener((net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent event) ->
                 za.co.neroland.neropower.client.particle.PowerParticles.registerAll((type, factory) ->
                         event.registerSpriteSet(type, factory::apply)));
+        //? if >=1.20.5 {
         modEventBus.addListener((net.neoforged.neoforge.client.event.RegisterGuiLayersEvent event) ->
                 event.registerBelow(net.neoforged.neoforge.client.gui.VanillaGuiLayers.CHAT,
                         net.minecraft.resources.Identifier.fromNamespaceAndPath(
@@ -47,6 +48,20 @@ public final class NeoForgeClientSetup {
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(
                 (net.neoforged.neoforge.client.event.ClientTickEvent.Post event) ->
                         za.co.neroland.neropower.client.NeroPowerClient.clientTick());
+        //?} else {
+        /*modEventBus.addListener((net.neoforged.neoforge.client.event.RegisterGuiOverlaysEvent event) ->
+                event.registerBelow(net.neoforged.neoforge.client.gui.overlay.VanillaGuiOverlay.CHAT_PANEL.id(),
+                        net.minecraft.resources.Identifier.fromNamespaceAndPath(
+                                za.co.neroland.neropower.NeroPowerCommon.MOD_ID, "geiger_hud"),
+                        (gui, graphics, delta, width, height) ->
+                                za.co.neroland.neropower.client.NeroPowerClient.hud(graphics, delta)));
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(
+                (net.neoforged.neoforge.event.TickEvent.ClientTickEvent event) -> {
+                    if (event.phase == net.neoforged.neoforge.event.TickEvent.Phase.END) {
+                        za.co.neroland.neropower.client.NeroPowerClient.clientTick();
+                    }
+                });
+        *///?}
         za.co.neroland.neropower.client.NeroPowerClient.init();
         //? if >=26.1 {
         modEventBus.addListener(NeoForgeClientSetup::onRegisterFluidModels);

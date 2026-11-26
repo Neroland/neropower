@@ -27,7 +27,7 @@ class ReprocessingYieldTest {
     private static final Pattern TYPE = Pattern.compile("\"type\"\\s*:\\s*\"([^\"]+)\"");
     private static final Pattern INGREDIENT = Pattern.compile("\"ingredient\"\\s*:\\s*\"([^\"]+)\"");
     private static final Pattern RESULT_ID = Pattern.compile(
-            "\"result\"\\s*:\\s*\\{[^}]*?\"id\"\\s*:\\s*\"([^\"]+)\"");
+            "\"result\"\\s*:\\s*\\{[^}]*?\"(?:id|item)\"\\s*:\\s*\"([^\"]+)\"");
     private static final Pattern RESULT_COUNT = Pattern.compile(
             "\"result\"\\s*:\\s*\\{[^}]*?\"count\"\\s*:\\s*(\\d+)");
     private static final Pattern PATTERN_ROWS = Pattern.compile("\"pattern\"\\s*:\\s*\\[([^\\]]*)\\]");

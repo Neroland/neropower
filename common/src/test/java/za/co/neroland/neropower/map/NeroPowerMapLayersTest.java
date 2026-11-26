@@ -12,6 +12,10 @@ import java.util.UUID;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
+//? if <1.20.5 {
+/*import net.minecraft.SharedConstants;
+import net.minecraft.server.Bootstrap;
+*///?}
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -27,6 +31,13 @@ import za.co.neroland.neropower.link.LinkScope;
 
 /** Core's map-layer conformance fixture over NeroPower's layers, plus the map-vs-link parity test. */
 class NeroPowerMapLayersTest {
+
+    //? if <1.20.5 {
+    /*static {
+        SharedConstants.tryDetectVersion();
+        Bootstrap.bootStrap();
+    }
+    *///?}
 
     static final ResourceKey<Level> OVERWORLD =
             ResourceKey.create(Registries.DIMENSION, Identifier.fromNamespaceAndPath("minecraft", "overworld"));

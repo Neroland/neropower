@@ -3,11 +3,15 @@
 Player- and contributor-facing documentation for **NeroPower**, an optional power-depth add-on to
 **NeroTech**, built on **Neroland Core**.
 
-> **Version:** `0.4.0` ("Power Station"). Keep this wiki updated alongside code changes (see the
+> **Version:** `0.6.1` ("Power Station"). Keep this wiki updated alongside code changes (see the
 > repository's contributor notes).
 
-NeroPower's release builds require **NeroTech 0.8.1** or newer (below 1.0) and
-**Neroland Core 1.23.0** or newer (below 2.0). It runs on
+Minecraft 1.20 through 1.20.6 runs on Fabric, 1.20 through 1.20.4 and 1.20.6 on Forge,
+and 1.20.4 through 1.20.6 on NeoForge. NeoForge 1.20.5 uses loader 20.5.21-beta.
+Minecraft 1.20 through 1.20.4 uses Java 17. Later 1.20 builds use Java 21.
+
+All builds require **NeroTech 0.10.1** or newer (below 1.0) and
+**Neroland Core 1.24.0** or newer (below 2.0). Later builds support
 Minecraft 1.21.1, 1.21.4, 1.21.5, 1.21.8, 1.21.10, 1.21.11, 26.1.2, 26.2 and 26.3, on NeoForge, Forge
 and Fabric. Its machines share NeroTech's GUI, side configuration, presets, upgrades and thermal model;
 the pages below cover only what NeroPower adds on top. In game, the **Power Guide** (the Guide button

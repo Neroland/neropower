@@ -56,7 +56,7 @@ public final class ForgeClientSetup {
         za.co.neroland.neropower.client.NeroPowerClient.init();
     }
     *///?}
-    //? if <1.21.6 {
+    //? if >=1.20.5 && <1.21.6 {
     /*public static void init(IEventBus modEventBus) {
         modEventBus.addListener(ForgeClientSetup::onClientSetup);
         modEventBus.addListener(ForgeClientSetup::onRegisterEntityRenderers);
@@ -67,6 +67,22 @@ public final class ForgeClientSetup {
                         za.co.neroland.neropower.client.NeroPowerClient.clientTick());
         za.co.neroland.neropower.client.NeroPowerClient.init();
     }
+    *///?} elif <1.20.5 {
+    /*public static void init(IEventBus modEventBus) {
+        modEventBus.addListener(ForgeClientSetup::onClientSetup);
+        modEventBus.addListener(ForgeClientSetup::onRegisterEntityRenderers);
+        modEventBus.addListener(ForgeClientSetup::onRegisterParticles);
+        modEventBus.addListener((net.minecraftforge.client.event.RegisterGuiOverlaysEvent event) ->
+                event.registerBelow(net.minecraftforge.client.gui.overlay.VanillaGuiOverlay.CHAT_PANEL.id(), "geiger_hud",
+                        (gui, graphics, delta, width, height) -> za.co.neroland.neropower.client.NeroPowerClient.hud(graphics, delta)));
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.addListener(
+                (net.minecraftforge.event.TickEvent.ClientTickEvent event) -> {
+                    if (event.phase == net.minecraftforge.event.TickEvent.Phase.END) {
+                        za.co.neroland.neropower.client.NeroPowerClient.clientTick();
+                    }
+                });
+        za.co.neroland.neropower.client.NeroPowerClient.init();
+    }
     *///?}
 
     /** 0.4.0 particle providers (sprite sets from {@code particles/<id>.json}). */
@@ -75,6 +91,7 @@ public final class ForgeClientSetup {
                 (type, factory) -> event.registerSpriteSet(type, factory::apply));
     }
 
+    //? if >=1.20.5 {
     /** The Geiger Counter HUD plate (drawn only while a counter is held). */
     private static void onAddGuiLayers(net.minecraftforge.client.event.AddGuiOverlayLayersEvent event) {
         event.getLayeredDraw().add(net.minecraft.resources.Identifier.fromNamespaceAndPath(
@@ -82,6 +99,7 @@ public final class ForgeClientSetup {
                 (graphics, delta) -> za.co.neroland.neropower.client.NeroPowerClient.hud(graphics,
                         delta.getGameTimeDeltaPartialTick(false)));
     }
+    //?}
 
     /** Machine BERs through the shared cross-loader seam (NeroTech / Nerospace pattern). */
     private static void onRegisterEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {

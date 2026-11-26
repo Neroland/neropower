@@ -24,8 +24,7 @@ public class DosimeterBadgeItem extends Item {
 
     /** The badge's reading (0 for a fresh badge). */
     public static int reading(ItemStack stack) {
-        Integer value = stack.get(RadiationContent.DOSIMETER_READING.get());
-        return value == null ? 0 : Math.max(0, value);
+        return Math.max(0, RadiationContent.dosimeterReading(stack));
     }
 
     /** Add one interval in a chunk at {@code level}. */
@@ -33,7 +32,7 @@ public class DosimeterBadgeItem extends Item {
         int before = reading(stack);
         int after = RadiationMath.dosimeterAdd(before, level);
         if (after != before) {
-            stack.set(RadiationContent.DOSIMETER_READING.get(), after);
+            RadiationContent.setDosimeterReading(stack, after);
         }
     }
 

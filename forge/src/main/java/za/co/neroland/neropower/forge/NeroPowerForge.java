@@ -33,7 +33,12 @@ import za.co.neroland.neropower.registry.ForgeRegistrationFactory;
 @Mod(NeroPowerCommon.MOD_ID)
 public final class NeroPowerForge {
 
+    //? if >=1.20.5 {
     public NeroPowerForge(FMLJavaModLoadingContext context) {
+    //?} else {
+    /*public NeroPowerForge() {
+        FMLJavaModLoadingContext context = FMLJavaModLoadingContext.get();
+    *///?}
         NeroPowerCommon.LOGGER.info("[NeroPower] Forge bootstrap");
         //? if >=1.21.6 {
         BusGroup modBusGroup = context.getModBusGroup();
@@ -58,9 +63,16 @@ public final class NeroPowerForge {
         /*TickEvent.ServerTickEvent.Post.BUS.addListener(event -> ScorchTicker.tick(event.getServer()));
         TickEvent.ServerTickEvent.Post.BUS.addListener(event -> QuestHooks.tick(event.getServer()));
         *///?}
-        //? if <1.21.6 {
+        //? if >=1.20.5 && <1.21.6 {
         /*MinecraftForge.EVENT_BUS.addListener((TickEvent.ServerTickEvent.Post event) -> ScorchTicker.tick(event.getServer()));
         MinecraftForge.EVENT_BUS.addListener((TickEvent.ServerTickEvent.Post event) -> QuestHooks.tick(event.getServer()));
+        *///?} elif <1.20.5 {
+        /*MinecraftForge.EVENT_BUS.addListener((TickEvent.ServerTickEvent event) -> {
+            if (event.phase == TickEvent.Phase.END) {
+                ScorchTicker.tick(event.getServer());
+                QuestHooks.tick(event.getServer());
+            }
+        });
         *///?}
         // Creative-only debug commands (/neropower gallery); shared brigadier tree in common.
         //? if >=1.21.6 {

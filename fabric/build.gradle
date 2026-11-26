@@ -23,8 +23,8 @@ def minecraftRequirement = mcCeiling ? ">=${mcFloor} <${mcCeiling}" : ">=${mc}"
 def fabricApi = project.findProperty("fabric_api_version_${mc}")
 def jeiVersion = project.findProperty("jei_version_${mc}")
 def emiFile = project.findProperty("emi_file_fabric_${mc}")
-def nerolandcoreVersion = project.findProperty('nerolandcore_version')
-def nerotechVersion = project.findProperty(mc.startsWith('1.20.') ? 'nerotech_version_1.20' : 'nerotech_version')
+def nerolandcoreVersion = rootProject.property('nerolandcore_version')
+def nerotechVersion = rootProject.property('nerotech_version')
 
 // This node's projectDir is <loader>/versions/<v>; the authoritative loader source +
 // resources live in the BRANCH root (fabric/). Resolve branch-root paths via the parent.
@@ -156,6 +156,7 @@ dependencies {
 // Run & Debug works — while values stay dynamic (sourced from gradle.properties).
 def generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
     def props = [
+        java_version: project.javaRelease,
         mod_id               : rootProject.mod_id,
         mod_version          : rootProject.mod_version,
         mod_name             : rootProject.mod_name,

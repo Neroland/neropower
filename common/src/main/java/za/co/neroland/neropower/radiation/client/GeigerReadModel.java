@@ -50,7 +50,7 @@ public final class GeigerReadModel {
         if (!stack.is(RadiationContent.GEIGER_COUNTER.get())) {
             return null;
         }
-        GeigerReading reading = stack.get(RadiationContent.GEIGER_READING.get());
+        GeigerReading reading = RadiationContent.geigerReading(stack);
         return reading == null ? new GeigerReading(java.util.List.of(), 0, true) : reading;
     }
 
@@ -146,7 +146,7 @@ public final class GeigerReadModel {
         if (player == null || (stack != player.getMainHandItem() && stack != player.getOffhandItem())) {
             return 0;
         }
-        GeigerReading r = stack.get(RadiationContent.GEIGER_READING.get());
+        GeigerReading r = RadiationContent.geigerReading(stack);
         return r == null || !r.hasData() ? 0 : RadiationMath.geigerFrame(r.centre());
     }
 

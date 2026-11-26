@@ -5,10 +5,12 @@ import java.util.List;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+//? if >=1.20.5 {
 import io.netty.buffer.ByteBuf;
 
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+//?}
 
 /**
  * What the server tells one Geiger Counter: the nine chunk levels around its holder,
@@ -29,11 +31,13 @@ public record GeigerReading(List<Integer> levels, int sources, boolean enabled) 
             Codec.BOOL.optionalFieldOf("enabled", false).forGetter(GeigerReading::enabled)
     ).apply(inst, GeigerReading::new));
 
+    //? if >=1.20.5 {
     public static final StreamCodec<ByteBuf, GeigerReading> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_INT.apply(ByteBufCodecs.list(9)), GeigerReading::levels,
             ByteBufCodecs.VAR_INT, GeigerReading::sources,
             ByteBufCodecs.BOOL, GeigerReading::enabled,
             GeigerReading::new);
+    //?}
 
     public GeigerReading {
         levels = List.copyOf(levels);

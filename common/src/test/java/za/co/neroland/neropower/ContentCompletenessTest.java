@@ -205,7 +205,7 @@ class ContentCompletenessTest {
 
     /** {@code "result": {"id": "..."}} or {@code "result": "..."} — the first result id in a recipe. */
     private static final Pattern RESULT = Pattern.compile(
-            "\"result\"\\s*:\\s*(?:\\{[^}]*?\"id\"\\s*:\\s*)?\"([^\"]+)\"");
+            "\"result\"\\s*:\\s*(?:\\{[^}]*?\"(?:id|item)\"\\s*:\\s*)?\"([^\"]+)\"");
 
     /** An output of a NeroTech process recipe ({@code "results": [{"item": "..."}]}). */
     private static final Pattern PROCESS_RESULT = Pattern.compile("\"item\"\\s*:\\s*\"([^\"]+)\"");
