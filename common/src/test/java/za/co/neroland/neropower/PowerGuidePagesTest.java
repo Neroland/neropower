@@ -33,6 +33,7 @@ class PowerGuidePagesTest {
         Set<String> ids = new HashSet<>();
         ContentCompletenessTest.BLOCKS.forEach(b -> ids.add("neropower:" + b));
         ContentCompletenessTest.ITEMS.forEach(i -> ids.add("neropower:" + i));
+        ids.add("nerolandcore:pallurite_dust"); // moved to Neroland Core 1.25.0; NeroPower still makes it
         return ids;
     }
 

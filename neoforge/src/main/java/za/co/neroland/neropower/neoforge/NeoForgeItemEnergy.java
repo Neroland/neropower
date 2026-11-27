@@ -1,8 +1,10 @@
 package za.co.neroland.neropower.neoforge;
 
 import net.minecraft.world.item.ItemStack;
+//? if >=1.20.3 {
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+//?}
 //? if >=1.21.9 {
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
@@ -24,6 +26,7 @@ final class NeoForgeItemEnergy {
     private NeoForgeItemEnergy() {
     }
 
+    //? if >=1.20.3 {
     static void register(RegisterCapabilitiesEvent event) {
         //? if >=1.21.9 {
         event.registerItem(Capabilities.Energy.ITEM, (stack, access) -> new CellHandler(stack),
@@ -35,6 +38,30 @@ final class NeoForgeItemEnergy {
                 StorageContent.POWER_CELL_ELITE.get());
         *///?}
     }
+    //?} else {
+    /*private static final net.minecraft.resources.ResourceLocation CELL_ENERGY =
+            new net.minecraft.resources.ResourceLocation("neropower", "cell_energy");
+
+    // NeoForge 20.2 has no RegisterCapabilitiesEvent: attach the Forge Energy surface to each power cell stack.
+    static void attach(net.neoforged.neoforge.event.AttachCapabilitiesEvent<ItemStack> event) {
+        ItemStack stack = event.getObject();
+        if (!stack.is(StorageContent.POWER_CELL_BASIC.get()) && !stack.is(StorageContent.POWER_CELL_ADVANCED.get())
+                && !stack.is(StorageContent.POWER_CELL_ELITE.get())) {
+            return;
+        }
+        net.neoforged.neoforge.common.util.LazyOptional<IEnergyStorage> energy =
+                net.neoforged.neoforge.common.util.LazyOptional.of(() -> new CellStorage(stack));
+        event.addCapability(CELL_ENERGY, new net.neoforged.neoforge.common.capabilities.ICapabilityProvider() {
+            @Override
+            public <T> net.neoforged.neoforge.common.util.LazyOptional<T> getCapability(
+                    net.neoforged.neoforge.common.capabilities.Capability<T> cap, net.minecraft.core.Direction side) {
+                return cap == net.neoforged.neoforge.common.capabilities.Capabilities.ENERGY
+                        ? energy.cast() : net.neoforged.neoforge.common.util.LazyOptional.empty();
+            }
+        });
+        event.addListener(energy::invalidate);
+    }
+    *///?}
 
     private static int clamp(long value) {
         return (int) Math.max(0, Math.min(Integer.MAX_VALUE, value));

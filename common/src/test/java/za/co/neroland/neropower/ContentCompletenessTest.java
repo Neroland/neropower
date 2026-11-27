@@ -94,7 +94,6 @@ class ContentCompletenessTest {
             "spent_isotope_pellet",
             // 0.4.0 (23 new items)
             "hot_spent_fuel_rod",
-            "pallurite_dust",
             "pallurite_pellet",
             "kindled_pellet",
             "braided_fuel_rod",

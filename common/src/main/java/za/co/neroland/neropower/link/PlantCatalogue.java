@@ -99,9 +99,9 @@ final class PlantCatalogue {
                     new Step("neropower:spent_fuel_rod", "nerotech:centrifuging", "neropower:reprocessed_pellet"),
                     new Step("neropower:reprocessed_pellet", "crafting", "neropower:uranium_pellet"))),
             new Line("pallurite", List.of(
-                    new Step("#neropower:fertile_sources", "nerotech:centrifuging", "neropower:pallurite_dust"),
-                    new Step("minecraft:tuff", "nerotech:centrifuging", "neropower:pallurite_dust"),
-                    new Step("neropower:pallurite_dust", "crafting", "neropower:pallurite_pellet"),
+                    new Step("#neropower:fertile_sources", "nerotech:centrifuging", "nerolandcore:pallurite_dust"),
+                    new Step("minecraft:tuff", "nerotech:centrifuging", "nerolandcore:pallurite_dust"),
+                    new Step("nerolandcore:pallurite_dust", "crafting", "neropower:pallurite_pellet"),
                     new Step("neropower:pallurite_pellet", "neropower:breeder_blanket", "neropower:kindled_pellet"))),
             new Line("braided", List.of(
                     new Step("neropower:kindled_pellet", "crafting", "neropower:braided_fuel_rod"),

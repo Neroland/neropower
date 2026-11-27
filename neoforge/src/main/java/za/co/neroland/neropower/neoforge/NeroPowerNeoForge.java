@@ -40,7 +40,11 @@ public final class NeroPowerNeoForge {
         NeoForgeFluidTypes.init();
         NeoForgeRegistrationFactory.registerAll(modEventBus);
         // Power cells on the item energy capability (block machines are wired by NeroTech's handler).
+        //? if >=1.20.3 {
         modEventBus.addListener(NeoForgeItemEnergy::register);
+        //?} else {
+        /*NeoForge.EVENT_BUS.addGenericListener(net.minecraft.world.item.ItemStack.class, NeoForgeItemEnergy::attach);
+        *///?}
         //? if >=1.20.5 {
         // Scorch zones (fission failure aftermath) expire and hurt on the server tick.
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> ScorchTicker.tick(event.getServer()));

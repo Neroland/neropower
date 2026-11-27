@@ -32,8 +32,8 @@ each release shipped.
 ## Requirements
 
 - **Neroland Core** 1.24.0 or newer (below 2.0) and **NeroTech** 0.10.1 or newer (below 1.0).
-- **Minecraft:** 1.21.1, 1.21.4, 1.21.5, 1.21.8 (also 1.21.7), 1.21.10 (also 1.21.9), 1.21.11, 26.1.2, 26.2 and 26.3
-  · **Loaders:** NeoForge, MinecraftForge/Forge, Fabric · **Java:** 21 for 1.21.x, 25 for 26.x
+- **Minecraft:** 1.20 through 1.20.6, 1.21.1, 1.21.3, 1.21.4, 1.21.5, 1.21.8 (also 1.21.7), 1.21.10 (also 1.21.9), 1.21.11, 26.1, 26.1.1, 26.1.2, 26.2 and 26.3
+  · **Loaders:** NeoForge (1.20.2+), MinecraftForge/Forge (all but 1.20.5), Fabric · **Java:** 17 for 1.20-1.20.4, 21 for 1.20.5-1.21.x, 25 for 26.x
 - Mod id: `neropower` · package `za.co.neroland.neropower`
 
 ## Layout
@@ -48,8 +48,8 @@ The build is the repo root, with a flattened cross-loader structure driven by St
 
 ## Building
 
-Minecraft 1.20 through 1.20.6 runs on Fabric, 1.20 through 1.20.4 and 1.20.6 on Forge,
-and 1.20.4 through 1.20.6 on NeoForge. NeoForge 1.20.5 uses loader 20.5.21-beta.
+Minecraft 1.20 through 26.3 runs on Fabric, every line but 1.20.5 on Forge, and 1.20.2 onwards
+on NeoForge (1.21.3, 26.1 and 26.1.1 included). NeoForge 1.20.3, 1.20.5, 26.1 and 26.1.1 use beta loaders.
 Minecraft 1.20 through 1.20.4 uses Java 17. Later 1.20 builds use Java 21.
 
 ```sh

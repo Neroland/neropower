@@ -10,7 +10,7 @@
   NeroTech lacks — fission with a fuel cycle, a staged failure model, tiered pooled storage, beamed
   transmission, RTG and Stirling generators. It never renames or moves a NeroTech block.
 - Design record: `docs/DESIGN.md`. What each release shipped: `CHANGELOG.md`. A change is done only
-  when all 27 cells and their `ecjCheck` build green.
+  when all 54 cells and their `ecjCheck` build green.
 - Mod id: **`neropower`** (matches the registry namespace + every loader manifest). Package root:
   `za.co.neroland.neropower`. Author: **Neroland**.
 - Version: **0.4.0** (`mod_version`, stable label, no pre-release suffix; last release 0.3.2). It cannot
@@ -24,8 +24,8 @@
   NeroPower release needs it there first.
 - Nerospace is never a build dependency: planet traits arrive through NeroTech's `api.PlanetApi` /
   `api.Atmosphere`, Nerospace resources only through optional tags.
-- Targets **MC 1.21.1, 1.21.4, 1.21.5, 1.21.8, 1.21.10, 1.21.11, 26.1.2, 26.2 AND 26.3** on **NeoForge,
-  MinecraftForge/Forge, and Fabric** → **27 cells** (the source is written for 26.x; older lines use `//?` blocks and the
+- Targets **MC 1.20 through 26.3** (`mc_versions`) on **NeoForge (1.20.2+), MinecraftForge/Forge (all but
+  1.20.5), and Fabric** → **54 cells**, the same matrix as Neroland Core and NeroTech (the source is written for 26.x; older lines use `//?` blocks and the
   `legacyRenames` list in `stonecutter.gradle`). **Java 25** for 26.x, **Java 21** for 1.21.x. Mappings = official Mojang names (26.x ships de-obfuscated; no Parchment).
 
 ## Working rules
@@ -46,9 +46,9 @@
   `build.gradle` is inert), `gradle.properties`, `gradlew`, `gradle/`.
 - **Version/loader axis = Stonecutter.** Each loader×MC is a real node `:<loader>:<mc>`
   for every `<loader>` in `fabric neoforge forge` and every `<mc>` in
-  `1.21.1 1.21.4 1.21.5 1.21.8 1.21.10 1.21.11 26.1.2 26.2 26.3` — 27 nodes. `common` is NOT a node — its
+  `mc_versions` (minus NeoForge 1.20/1.20.1 and Forge 1.20.5) — 54 nodes. `common` is NOT a node — its
   source is spliced via `rootProject.ext.commonJava` / `commonResources`. Dependency pins live in
-  `gradle.properties` as `*_version_<mc>` keys; `mc_versions=1.21.1,1.21.4,1.21.5,1.21.8,1.21.10,1.21.11,26.1.2,26.2,26.3`.
+  `gradle.properties` as `*_version_<mc>` keys; `mc_versions=1.20,1.20.1,1.20.2,1.20.3,1.20.4,1.20.5,1.20.6,1.21.1,1.21.3,1.21.4,1.21.5,1.21.8,1.21.10,1.21.11,26.1,26.1.1,26.1.2,26.2,26.3`.
 - **Version-specific code in `common/`.** Non-active nodes run `common/` through Stonecutter (`stonecutterProcessCommon`), so shared code uses the same `//? if >=26.3 {` blocks as the loader `src/` trees. Keep the files in the vcsVersion state, and never put a `*/` inside a disabled block. Datapack files whose format differs by version go in `common/src/main/resources-<mc>/`, which is merged over `common/src/main/resources` for every node at or above `<mc>` (`mergeCommonResources`).
 
 ## Build & verify
@@ -57,9 +57,10 @@
   26.x cells first, then 1.21.11 down to 1.21.1:
   - 26.x: `:neoforge:26.3:build :forge:26.3:build :fabric:26.3:build :neoforge:26.2:build :forge:26.2:build
     :fabric:26.2:build :neoforge:26.1.2:build :forge:26.1.2:build :fabric:26.1.2:build`
-  - 1.21.x: the same three loaders for `1.21.11`, `1.21.10`, `1.21.8`, `1.21.5`, `1.21.4`, `1.21.1`.
+  - 1.21.x: the same three loaders for `1.21.11`, `1.21.10`, `1.21.8`, `1.21.5`, `1.21.4`, `1.21.3`, `1.21.1`,
+    plus `26.1` and `26.1.1`, then the 1.20.x cells (Fabric/Forge 1.20+, NeoForge 1.20.2+).
 - Static analysis: every node has `ecjCheck`, e.g. `./gradlew :neoforge:26.3:ecjCheck` (the VS Code
-  Problems panel, via `tools/ecj.prefs`). The task only FAILS on errors; run it on all 27 nodes at a gate.
+  Problems panel, via `tools/ecj.prefs`). The task only FAILS on errors; run it on all 54 nodes at a gate.
 - `build` runs the unit tests (`common/src/test`) in each cell.
 - A Cowork agent sandbox cannot decompile Minecraft — run builds natively (or via the local gradle MCP)
   on the developer's machine.

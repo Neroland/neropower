@@ -39,6 +39,9 @@ redstone and comparator signals and can SCRAM the reactor by itself. The largest
 
 The second line starts with **Pallurite Dust**:
 
+> Pallurite Dust is a Neroland Core item (`nerolandcore:pallurite_dust`) since Core 1.25.0. NeroPower still
+> makes and uses it the same way; without NeroPower, Core's Ore Reclaimer turns it into Glowstone Dust.
+
 - With Nerospace installed, a NeroTech **Centrifuge** spins certain Nerospace crystals, or a meteor
   core, into two dust (anything in `#neropower:fertile_sources`).
 - Without Nerospace, 8 tuff and 4 glowstone dust give one dust, at about four times the energy and

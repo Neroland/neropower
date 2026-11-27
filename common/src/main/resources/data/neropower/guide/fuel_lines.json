@@ -25,10 +25,10 @@
     },
     {
       "id": "pallurite",
-      "icon": "neropower:pallurite_dust",
+      "icon": "nerolandcore:pallurite_dust",
       "title": "gui.neropower.power_guide.step.pallurite",
       "text": "gui.neropower.power_guide.step.pallurite.text",
-      "completed_by_item": "neropower:pallurite_dust"
+      "completed_by_item": "nerolandcore:pallurite_dust"
     },
     {
       "id": "breeder_blanket",

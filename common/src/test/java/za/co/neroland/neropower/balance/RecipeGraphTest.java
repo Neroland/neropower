@@ -144,7 +144,7 @@ class RecipeGraphTest {
         Map<String, Double> cost = solve(Mode.STANDALONE);
         List<String> unreachable = new ArrayList<>();
         for (String id : items) {
-            if (!cost.containsKey("item:neropower:" + id)) {
+            if (!cost.containsKey(node(id))) {
                 unreachable.add(id);
             }
         }
@@ -156,7 +156,7 @@ class RecipeGraphTest {
         Map<String, Double> cost = solve(Mode.OFFWORLD);
         List<String> unreachable = new ArrayList<>();
         for (String id : items) {
-            if (!cost.containsKey("item:neropower:" + id)) {
+            if (!cost.containsKey(node(id))) {
                 unreachable.add(id);
             }
         }
@@ -169,14 +169,14 @@ class RecipeGraphTest {
         Map<String, Double> offworld = solve(Mode.OFFWORLD);
         List<String> out = new ArrayList<>();
         for (String row : BAND_ROWS) {
-            double ratio = standalone.get("item:neropower:" + row) / offworld.get("item:neropower:" + row);
+            double ratio = standalone.get(node(row)) / offworld.get(node(row));
             if (ratio < RATIO_MIN || ratio > RATIO_MAX) {
                 out.add(row + "=" + String.format(java.util.Locale.ROOT, "%.2f", ratio));
             }
         }
         assertTrue(out.isEmpty(), "outside the 3-5x band: " + out);
         for (String row : CHEAPER_ROWS) {
-            String node = "item:neropower:" + row;
+            String node = node(row);
             assertTrue(offworld.get(node) < standalone.get(node), row + " is not cheaper with Nerospace");
         }
     }
@@ -186,7 +186,7 @@ class RecipeGraphTest {
         Map<String, Double> standalone = solve(Mode.STANDALONE);
         Map<String, Double> offworld = solve(Mode.OFFWORLD);
         for (String id : items) {
-            String node = "item:neropower:" + id;
+            String node = node(id);
             assertTrue(offworld.get(node) <= standalone.get(node) + 1e-6, id + " costs more with Nerospace");
         }
     }
@@ -198,15 +198,15 @@ class RecipeGraphTest {
             // Uranium line: pellet -> rod -> burnt (hot) -> cooled -> reprocessed -> back into pellets and rods.
             for (String id : List.of("uranium_pellet", "fuel_rod", "hot_spent_fuel_rod", "spent_fuel_rod",
                     "reprocessed_pellet", "fission_residue")) {
-                assertTrue(cost.containsKey("item:neropower:" + id), mode + ": uranium line stops at " + id);
+                assertTrue(cost.containsKey(node(id)), mode + ": uranium line stops at " + id);
             }
             // Fertile line: dust -> pellet -> bred kindled pellet -> braided rod -> burnt.
             for (String id : List.of("pallurite_dust", "pallurite_pellet", "kindled_pellet", "braided_fuel_rod")) {
-                assertTrue(cost.containsKey("item:neropower:" + id), mode + ": fertile line stops at " + id);
+                assertTrue(cost.containsKey(node(id)), mode + ": fertile line stops at " + id);
             }
             // Back end: residue -> beta capsule -> spent capsule -> vitrified waste.
             for (String id : WASTE) {
-                assertTrue(cost.containsKey("item:neropower:" + id), mode + ": back end stops at " + id);
+                assertTrue(cost.containsKey(node(id)), mode + ": back end stops at " + id);
             }
             // The steam plant's fluids.
             for (String fluid : List.of("fluid:neropower:steam", "fluid:neropower:exhaust_steam",
@@ -228,7 +228,7 @@ class RecipeGraphTest {
         Set<String> stored = resolveItemTag("neropower:cask_storable", Mode.STANDALONE);
         List<String> dead = new ArrayList<>();
         for (String id : WASTE) {
-            String node = "item:neropower:" + id;
+            String node = node(id);
             if (!consumed.contains(node) && !stored.contains(node)) {
                 dead.add(id);
             }
@@ -326,12 +326,23 @@ class RecipeGraphTest {
         throw new AssertionError("the recipe graph did not settle in 500 passes");
     }
 
+    /** Core items NeroPower's own recipes make (Pallurite Dust moved to Core 1.25.0): solved, never leaves. */
+    static final Set<String> CORE_PRODUCED = Set.of("nerolandcore:pallurite_dust");
+
+    /** The graph node of a fuel-line item: NeroPower's own, or a Core item NeroPower makes. */
+    static String node(String id) {
+        return CORE_PRODUCED.contains("nerolandcore:" + id) ? "item:nerolandcore:" + id : "item:neropower:" + id;
+    }
+
     /** A leaf's fixed cost, a solved node's cost, or null (not reachable in this mode yet). */
     static Double leafOrCost(String node, Mode mode, Map<String, Double> cost) {
         String[] parts = node.split(":", 2);
         String kind = parts[0];
         String id = parts[1];
         String ns = id.substring(0, id.indexOf(':'));
+        if (CORE_PRODUCED.contains(id)) {
+            return cost.get(node);
+        }
         switch (ns) {
             case "minecraft":
                 if (kind.equals("fluid")) {

@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-27
+
+### Added
+
+- Builds for Minecraft 1.21.3, 26.1 and 26.1.1 on Fabric, Forge and NeoForge, and for NeoForge 1.20.2 and 1.20.3,
+  matching Neroland Core's and NeroTech's cells. They need the NeroTech build for the same line. On NeoForge 1.20.2
+  the power cells' item energy uses that loader's older capability system.
+
+### Changed
+
+- Pallurite Dust moved to Neroland Core 1.25.0 as `nerolandcore:pallurite_dust`. Centrifuging still makes
+  it and the Pallurite Pellet recipe still uses it; old worlds load `neropower:pallurite_dust` as the Core
+  item. Without NeroPower, Core's Ore Reclaimer turns it into Glowstone Dust.
+- Requires Neroland Core 1.25.0 or newer.
+
 ## [0.6.1]
 
 - Minecraft 1.20 through 1.20.6 on Fabric, 1.20 through 1.20.4 and 1.20.6 on Forge,

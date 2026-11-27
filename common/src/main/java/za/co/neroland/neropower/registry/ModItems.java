@@ -65,7 +65,6 @@ public final class ModItems {
         out.addAll(za.co.neroland.neropower.registry.content.RadiationContent.creativeBlocks());
         // fuel and waste items
         out.add(za.co.neroland.neropower.registry.content.FissionContent.EUROPIUM_CONTROL_ROD);
-        out.add(za.co.neroland.neropower.registry.content.FissionContent.PALLURITE_DUST);
         out.add(za.co.neroland.neropower.registry.content.FissionContent.PALLURITE_PELLET);
         out.add(za.co.neroland.neropower.registry.content.FissionContent.KINDLED_PELLET);
         out.add(za.co.neroland.neropower.registry.content.FissionContent.BRAIDED_FUEL_ROD);

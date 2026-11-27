@@ -107,7 +107,9 @@ public final class FissionContent {
     public static final RegistryEntry<Item> HOT_SPENT_FUEL_ROD = ModItems.ITEMS.register("hot_spent_fuel_rod",
             key -> new FissionTooltipItem(new Item.Properties().setId(key).stacksTo(1),
                     "item.neropower.hot_spent_fuel_rod.tooltip"));
-    public static final RegistryEntry<Item> PALLURITE_DUST = item("pallurite_dust");
+    /** Pallurite Dust moved to Neroland Core 1.25.0 ({@code nerolandcore:pallurite_dust}); old worlds remap there. */
+    public static final java.util.function.Supplier<Item> PALLURITE_DUST =
+            za.co.neroland.nerolandcore.ore.CoreOres.PALLURITE_DUST::get;
     public static final RegistryEntry<Item> PALLURITE_PELLET = item("pallurite_pellet");
     public static final RegistryEntry<Item> KINDLED_PELLET = item("kindled_pellet");
     /** Mixed rod; carries {@code neropower:burnup}, so unstackable. Fissions only with enough heavy water. */
@@ -150,7 +152,7 @@ public final class FissionContent {
     public static List<RegistryEntry<? extends ItemLike>> creativeItems() {
         return List.of(GRAPHITE_MODERATOR_ITEM, MODERATOR_TANK_ITEM, BREEDER_BLANKET_ITEM,
                 EUROPIUM_CONTROL_ROD_ASSEMBLY_ITEM, REACTOR_STEAM_PORT_ITEM, REACTOR_CONTROL_COMPUTER_ITEM,
-                EUROPIUM_CONTROL_ROD, PALLURITE_DUST, PALLURITE_PELLET, KINDLED_PELLET, BRAIDED_FUEL_ROD,
+                EUROPIUM_CONTROL_ROD, PALLURITE_PELLET, KINDLED_PELLET, BRAIDED_FUEL_ROD,
                 HOT_SPENT_FUEL_ROD, FUEL_ECONOMIZER);
     }
 

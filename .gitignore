@@ -87,3 +87,8 @@ node_modules/
 *.log
 /fabric/versions/1.20.5/logs
 /neoforge/versions/1.20.5/logs
+/fabric/versions/1.20.1/logs
+/fabric/versions/1.20.1/logs
+/fabric/versions/1.20.3/logs
+/fabric/versions/1.20.2/logs
+*.gz

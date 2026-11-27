@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    "neropower:pallurite_dust",
-    "neropower:pallurite_dust",
+    "nerolandcore:pallurite_dust",
+    "nerolandcore:pallurite_dust",
     "minecraft:iron_nugget"
   ],
   "result": {

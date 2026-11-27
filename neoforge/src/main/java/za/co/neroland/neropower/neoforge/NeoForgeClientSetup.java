@@ -6,7 +6,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+//? if >=1.20.4 {
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+//?}
 //? if >=26.1 {
 import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
 //?} else if >=1.21 {
@@ -32,7 +34,31 @@ public final class NeoForgeClientSetup {
     }
 
     public static void init(IEventBus modEventBus) {
-        modEventBus.addListener(NeoForgeClientSetup::onRegisterScreens);
+        //? if >=1.20.4 {
+        modEventBus.addListener((RegisterMenuScreensEvent event) -> registerScreens(new za.co.neroland.neropower.client.NeroPowerClient.ScreenSink() {
+            @Override
+            public <M extends net.minecraft.world.inventory.AbstractContainerMenu,
+                    U extends net.minecraft.client.gui.screens.Screen
+                            & net.minecraft.client.gui.screens.inventory.MenuAccess<M>> void register(
+                    net.minecraft.world.inventory.MenuType<? extends M> type,
+                    net.minecraft.client.gui.screens.MenuScreens.ScreenConstructor<M, U> constructor) {
+                event.register(type, constructor);
+            }
+        }));
+        //?} else {
+        /*// NeoForge 20.2 / 20.3 have no RegisterMenuScreensEvent: register on the client-setup work queue.
+        modEventBus.addListener((net.neoforged.fml.event.lifecycle.FMLClientSetupEvent event) -> event.enqueueWork(() ->
+                registerScreens(new za.co.neroland.neropower.client.NeroPowerClient.ScreenSink() {
+            @Override
+            public <M extends net.minecraft.world.inventory.AbstractContainerMenu,
+                    U extends net.minecraft.client.gui.screens.Screen
+                            & net.minecraft.client.gui.screens.inventory.MenuAccess<M>> void register(
+                    net.minecraft.world.inventory.MenuType<? extends M> type,
+                    net.minecraft.client.gui.screens.MenuScreens.ScreenConstructor<M, U> constructor) {
+                net.minecraft.client.gui.screens.MenuScreens.register(type, constructor);
+            }
+        })));
+        *///?}
         modEventBus.addListener(NeoForgeClientSetup::onRegisterEntityRenderers);
         // 0.4.0: particle providers, the Geiger HUD layer (under chat), the client tick, item-model properties.
         modEventBus.addListener((net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent event) ->
@@ -111,23 +137,13 @@ public final class NeoForgeClientSetup {
         });
     }
 
-    private static void onRegisterScreens(RegisterMenuScreensEvent event) {
-        event.register(FissionContent.FISSION_CORE_MENU.get(), FissionCoreScreen::new);
-        event.register(StorageContent.BATTERY_CELL_MENU.get(), BatteryCellScreen::new);
-        event.register(StorageContent.BATTERY_BANK_CONTROLLER_MENU.get(), BankControllerScreen::new);
-        event.register(BeamContent.BEAM_MENU.get(), BeamScreen::new);
-        event.register(EnvironmentalContent.RTG_MENU.get(), RtgScreen::new);
-        event.register(EnvironmentalContent.STIRLING_MENU.get(), StirlingScreen::new);
-        za.co.neroland.neropower.client.NeroPowerClient.registerScreens(
-                new za.co.neroland.neropower.client.NeroPowerClient.ScreenSink() {
-                    @Override
-                    public <M extends net.minecraft.world.inventory.AbstractContainerMenu,
-                            U extends net.minecraft.client.gui.screens.Screen
-                                    & net.minecraft.client.gui.screens.inventory.MenuAccess<M>> void register(
-                            net.minecraft.world.inventory.MenuType<? extends M> type,
-                            net.minecraft.client.gui.screens.MenuScreens.ScreenConstructor<M, U> constructor) {
-                        event.register(type, constructor);
-                    }
-                });
+    private static void registerScreens(za.co.neroland.neropower.client.NeroPowerClient.ScreenSink sink) {
+        sink.register(FissionContent.FISSION_CORE_MENU.get(), FissionCoreScreen::new);
+        sink.register(StorageContent.BATTERY_CELL_MENU.get(), BatteryCellScreen::new);
+        sink.register(StorageContent.BATTERY_BANK_CONTROLLER_MENU.get(), BankControllerScreen::new);
+        sink.register(BeamContent.BEAM_MENU.get(), BeamScreen::new);
+        sink.register(EnvironmentalContent.RTG_MENU.get(), RtgScreen::new);
+        sink.register(EnvironmentalContent.STIRLING_MENU.get(), StirlingScreen::new);
+        za.co.neroland.neropower.client.NeroPowerClient.registerScreens(sink);
     }
 }
